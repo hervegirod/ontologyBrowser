@@ -80,7 +80,7 @@ public class GraphExtractor {
    }
 
    private ElementKey getRestrictionFrom(Restriction restriction) {
-      Resource resource = null;
+      Resource resource;
       if (restriction.isAllValuesFromRestriction()) {
          AllValuesFromRestriction restriction1 = restriction.asAllValuesFromRestriction();
          resource = restriction1.getAllValuesFrom();
@@ -99,6 +99,11 @@ public class GraphExtractor {
       } else if (restriction.isCardinalityRestriction()) {
          CardinalityRestriction restriction1 = restriction.asCardinalityRestriction();
          resource = restriction1.getIsDefinedBy();
+      } else {
+         // see https://stackoverflow.com/questions/20562107/how-to-add-qualified-cardinality-in-jena
+         // see http://mail-archives.apache.org/mod_mbox/jena-users/201303.mbox/%3CCA+Q4Jn=bDM2wiPSh4DHj58hzxR_oWx2jJoQxnroFScac=E7t3Q@mail.gmail.com%3E
+         RDFNode node = restriction.getPropertyValue(OWL2.onClass);
+         resource = node.asResource();
       }
       if (resource == null) {
          return null;
@@ -135,6 +140,9 @@ public class GraphExtractor {
 
    public OwlSchema getGraph() {
       OwlSchema graph = new OwlSchema();
+      OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
+      ElementKey thingKey = null;
+      OwlClass owlThingClass = null;
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties = new HashMap<>();
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
@@ -206,6 +214,10 @@ public class GraphExtractor {
          }
          String nameSpace = thisClass.getNameSpace();
          OwlClass owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
+         if (thingClass != null && thisClass.equals(thingClass)) {
+            owlThingClass = owlClass;
+            thingKey = owlClass.getKey();
+         }
          graph.addOwlClass(owlClass);
       }
 
@@ -217,14 +229,24 @@ public class GraphExtractor {
             continue;
          }
          ElementKey key = new ElementKey(thisClass.getNameSpace(), thisClass.getLocalName());
-         OntClass superClass = thisClass.getSuperClass();
-         if (superClass != null && graph.hasOwlClass(key)) {
+         if (graph.hasOwlClass(key)) {
             OwlClass owlClass = graph.getOwlClass(key);
-            ElementKey skey = new ElementKey(superClass.getNameSpace(), superClass.getLocalName());
-            if (graph.hasOwlClass(skey)) {
-               OwlClass superOwlClass = graph.getOwlClass(skey);
-               owlClass.addSuperClass(skey);
-               superOwlClass.addSubClass(skey);
+            boolean isEmpty = true;
+            ExtendedIterator<OntClass> parents = thisClass.listSuperClasses();
+            while (parents.hasNext()) {
+               OntClass superClass = parents.next();
+               isEmpty = false;
+               ElementKey skey = new ElementKey(superClass.getNameSpace(), superClass.getLocalName());
+               if (graph.hasOwlClass(skey)) {
+                  OwlClass superOwlClass = graph.getOwlClass(skey);
+                  owlClass.addSuperClass(skey);
+                  superOwlClass.addSubClass(skey);
+               }
+            }
+            // add root classes as children of Thing
+            if (isEmpty && owlThingClass != null && !key.equals(thingKey)) {
+               owlThingClass.addSubClass(key);
+               owlClass.addSuperClass(thingKey);
             }
          }
       }
