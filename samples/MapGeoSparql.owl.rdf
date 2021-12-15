@@ -1,0 +1,520 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://localhost/INAV"
+     xml:base="http://localhost/INAV"
+     xmlns:sf="http://www.opengis.net/ont/sf#"
+     xmlns:geo="http://www.opengis.net/ont/geosparql#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:SITAC="http://localhost/INAV#"
+     xmlns:sitac="http://localhost/INAV"
+     xmlns:owlgred="http://lumii.lv/2011/1.0/owlgred#">
+    <owl:Ontology rdf:about="http://localhost/INAV"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://localhost/INAV#hasExactGeometry -->
+
+    <owl:AnnotationProperty rdf:about="http://localhost/INAV#hasExactGeometry">
+        <rdfs:subPropertyOf rdf:resource="http://www.opengis.net/ont/geosparql#hasDefaultGeometry"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.opengis.net/ont/geosparql#hasGeometry"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- http://localhost/INAV#hasPointGeometry -->
+
+    <owl:AnnotationProperty rdf:about="http://localhost/INAV#hasPointGeometry">
+        <rdfs:subPropertyOf rdf:resource="http://www.opengis.net/ont/geosparql#hasGeometry"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- http://lumii.lv/2011/1.0/owlgred#Container -->
+
+    <owl:AnnotationProperty rdf:about="http://lumii.lv/2011/1.0/owlgred#Container"/>
+    
+
+
+    <!-- http://www.opengis.net/ont/geosparql#hasDefaultGeometry -->
+
+    <owl:AnnotationProperty rdf:about="http://www.opengis.net/ont/geosparql#hasDefaultGeometry"/>
+    
+
+
+    <!-- http://www.opengis.net/ont/geosparql#hasGeometry -->
+
+    <owl:AnnotationProperty rdf:about="http://www.opengis.net/ont/geosparql#hasGeometry"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+     
+    <!-- http://localhost/INAV#hasAlarmType -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasAlarmType">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Alarm"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasAlarmType"/>
+                <owl:allValuesFrom rdf:resource="http://localhost/INAV#AlarmType"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#hasAlarms -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasAlarms">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Aircraft"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasAlarms"/>
+                <owl:someValuesFrom rdf:resource="http://localhost/INAV#Alarm"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+         
+    <!-- http://localhost/INAV#hasFlightPlan -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasFlightPlan">
+        <owl:inverseOf rdf:resource="http://localhost/INAV#isFlightPlanOf"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Aircraft"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasFlightPlan"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://localhost/INAV#FlightPlan"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#hasPoint -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasPoint">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Line"/>
+        <rdfs:range rdf:resource="http://localhost/INAV#Point"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#hasWaypoint -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasWaypoint">
+        <owl:inverseOf rdf:resource="http://localhost/INAV#isWaypointFrom"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#FlightPlan"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasWaypoint"/>
+                <owl:someValuesFrom rdf:resource="http://localhost/INAV#Waypoint"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#hasWaypointType -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#hasWaypointType">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Waypoint"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasWaypointType"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://localhost/INAV#WaypointType"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#isFlightPlanOf -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#isFlightPlanOf">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#FlightPlan"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#isWaypointFrom"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://localhost/INAV#Aircraft"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://localhost/INAV#isWaypointFrom -->
+
+    <owl:ObjectProperty rdf:about="http://localhost/INAV#isWaypointFrom">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Waypoint"/>
+        <rdfs:range rdf:resource="http://localhost/INAV#FlightPlan"/>
+    </owl:ObjectProperty>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+     
+    <!-- http://localhost/INAV#AlarmMessage -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#AlarmMessage">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Alarm"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#AlarmNumber -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#AlarmNumber">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://localhost/INAV#Alarm"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>     
+
+
+    <!-- http://localhost/INAV#Altitude -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#Altitude">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Platform"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#EFA -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#EFA">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Waypoint"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#ETA -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#ETA">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Waypoint"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#FuelAmount -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#FuelAmount">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#Label -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#Label">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://localhost/INAV#SpeedEast -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#SpeedEast">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Platform"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://localhost/INAV#SpeedNorth -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#SpeedNorth">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://localhost/INAV#SpeedVertical -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#SpeedVertical">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Platform"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://localhost/INAV#WaypointOrientation -->
+
+    <owl:DatatypeProperty rdf:about="http://localhost/INAV#WaypointOrientation">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Waypoint"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#topDataProperty -->
+
+    <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topDataProperty">
+        <rdfs:domain rdf:resource="http://localhost/INAV#Platform"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://localhost/INAV#Aircraft -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Aircraft">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Platform"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#AirportBase -->
+
+    <owl:Class rdf:about="http://localhost/INAV#AirportBase">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Infrastructure"/>
+        <owl:disjointWith rdf:resource="http://localhost/INAV#LandingRunway"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Alarm -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Alarm">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#AlarmType -->
+
+    <owl:Class rdf:about="http://localhost/INAV#AlarmType">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Environment -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Environment">
+        <owl:disjointWith rdf:resource="http://localhost/INAV#Event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Event -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Event">
+        <owl:disjointWith rdf:resource="http://localhost/INAV#Participant"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#FlightPlan -->
+
+    <owl:Class rdf:about="http://localhost/INAV#FlightPlan">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Line"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasWaypoint"/>
+                <owl:allValuesFrom rdf:resource="http://localhost/INAV#Waypoint"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Infrastructure -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Infrastructure">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Participant"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#LandingRunway -->
+
+    <owl:Class rdf:about="http://localhost/INAV#LandingRunway">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Infrastructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Line -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Line">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Environment"/>
+        <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/geosparql#Feature"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Participant -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Participant">
+        <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/geosparql#Feature"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Platform -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Platform">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Participant"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://localhost/INAV#hasFlightPlan"/>
+                <owl:allValuesFrom rdf:resource="http://localhost/INAV#FlightPlan"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Point -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Point">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Environment"/>
+        <rdfs:subClassOf rdf:resource="http://www.opengis.net/ont/geosparql#Feature"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#Waypoint -->
+
+    <owl:Class rdf:about="http://localhost/INAV#Waypoint">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Point"/>
+    </owl:Class>
+    
+
+
+    <!-- http://localhost/INAV#WaypointType -->
+
+    <owl:Class rdf:about="http://localhost/INAV#WaypointType">
+        <rdfs:subClassOf rdf:resource="http://localhost/INAV#Environment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.opengis.net/ont/geosparql#Feature -->
+
+    <owl:Class rdf:about="http://www.opengis.net/ont/geosparql#Feature"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="http://www.w3.org/2002/07/owl#Thing"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://localhost/INAV#ATT -->
+
+    <owl:NamedIndividual rdf:about="http://localhost/INAV#ATT">
+        <rdf:type rdf:resource="http://localhost/INAV#WaypointType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://localhost/INAV#AmberAlarm -->
+
+    <owl:NamedIndividual rdf:about="http://localhost/INAV#AmberAlarm">
+        <rdf:type rdf:resource="http://localhost/INAV#AlarmType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://localhost/INAV#NAV -->
+
+    <owl:NamedIndividual rdf:about="http://localhost/INAV#NAV">
+        <rdf:type rdf:resource="http://localhost/INAV#WaypointType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://localhost/INAV#RedAlarm -->
+
+    <owl:NamedIndividual rdf:about="http://localhost/INAV#RedAlarm">
+        <rdf:type rdf:resource="http://localhost/INAV#AlarmType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://localhost/INAV#WhiteAlarm -->
+
+    <owl:NamedIndividual rdf:about="http://localhost/INAV#WhiteAlarm">
+        <rdf:type rdf:resource="http://localhost/INAV#AlarmType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://localhost/INAV#AmberAlarm"/>
+            <rdf:Description rdf:about="http://localhost/INAV#RedAlarm"/>
+            <rdf:Description rdf:about="http://localhost/INAV#WhiteAlarm"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+
