@@ -1,2 +1,2 @@
 # ontologyBrowser
-Allows to browser the content of an OWL/RDF ontology
+Allows to browse the content of an OWL/RDF ontology
