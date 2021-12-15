@@ -1,2 +1,2 @@
-# owlTograph
-Convert an Owl schema to a graphml representation
+# ontologyBrowser
+Allows to browser the content of an OWL/RDF ontology
