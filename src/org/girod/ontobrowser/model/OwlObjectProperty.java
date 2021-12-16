@@ -32,16 +32,20 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.apache.jena.ontology.ObjectProperty;
+import org.girod.ontobrowser.model.restriction.OwlRestriction;
+import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
  *
  * @since 0.1
  */
 public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
-   private final Set<ElementKey> range = new HashSet<>();
+   private final Map<ElementKey, OwlRestriction> range = new HashMap<>();
    private OwlObjectProperty inverse = null;
 
    public OwlObjectProperty(ObjectProperty ontProperty, String namespace, String name) {
@@ -59,15 +63,15 @@ public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
       return inverse;
    }
 
-   public void addRange(OwlClass rangeClass) {
-      range.add(rangeClass.getKey());
+   public void addRange(OwlRestriction restriction) {
+      range.put(restriction.getKey(), restriction);
    }
 
    public void addRange(ElementKey key) {
-      range.add(key);
+      range.put(key, new UnrestrictedOwlRestriction(key));
    }
 
-   public Set<ElementKey> getRange() {
+   public Map<ElementKey, OwlRestriction> getRange() {
       return range;
    }
 

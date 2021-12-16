@@ -147,7 +147,7 @@ public class ExportGraphAction extends AbstractMDIAction {
             OwlProperty property = it3.next();
             if (property instanceof OwlObjectProperty) {
                OwlObjectProperty objectProp = (OwlObjectProperty) property;
-               Iterator<ElementKey> it4 = objectProp.getRange().iterator();
+               Iterator<ElementKey> it4 = objectProp.getRange().keySet().iterator();
                while (it4.hasNext()) {
                   ElementKey propKey = it4.next();
                   if (owlClasses.containsKey(propKey)) {

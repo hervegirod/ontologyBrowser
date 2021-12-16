@@ -315,7 +315,7 @@ public class OpenModelAction extends AbstractMDIAction {
             OwlProperty property = it4.next();
             if (property instanceof OwlObjectProperty) {
                OwlObjectProperty objectProp = (OwlObjectProperty) property;
-               Iterator<ElementKey> it5 = objectProp.getRange().iterator();
+               Iterator<ElementKey> it5 = objectProp.getRange().keySet().iterator();
                while (it5.hasNext()) {
                   ElementKey propKey = it5.next();
                   if (owlClasses.containsKey(propKey)) {

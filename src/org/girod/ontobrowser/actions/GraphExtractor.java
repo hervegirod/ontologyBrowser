@@ -67,6 +67,17 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.PropertyClassRef;
+import org.girod.ontobrowser.model.restriction.OwlAllValuesFromRestriction;
+import org.girod.ontobrowser.model.restriction.OwlCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlHasValueRestriction;
+import org.girod.ontobrowser.model.restriction.OwlMaxCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlMaxQualifiedCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlMinCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlMinQualifiedCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlQualifiedCardinalityRestriction;
+import org.girod.ontobrowser.model.restriction.OwlRestriction;
+import org.girod.ontobrowser.model.restriction.OwlSomeValuesFromRestriction;
+import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
  *
@@ -79,39 +90,42 @@ public class GraphExtractor {
       this.model = model;
    }
 
-   private ElementKey getRestrictionFrom(Restriction restriction) {
+   private OwlRestriction getRestrictionFrom(Restriction restriction) {
+      OwlRestriction owlRestriction = null;
       Resource resource;
       if (restriction.isAllValuesFromRestriction()) {
          AllValuesFromRestriction restriction1 = restriction.asAllValuesFromRestriction();
-         resource = restriction1.getAllValuesFrom();
-      } else if (restriction.isHasValueRestriction()) {
+         owlRestriction = new OwlAllValuesFromRestriction(restriction1);
+      } else if (restriction.isHasValueRestriction()) {         
          HasValueRestriction restriction1 = restriction.asHasValueRestriction();
-         resource = restriction1.getHasValue().asResource();
+         owlRestriction = new OwlHasValueRestriction(restriction1);
       } else if (restriction.isSomeValuesFromRestriction()) {
          SomeValuesFromRestriction restriction1 = restriction.asSomeValuesFromRestriction();
-         resource = restriction1.getSomeValuesFrom();
+         owlRestriction = new OwlSomeValuesFromRestriction(restriction1);
       } else if (restriction.isMaxCardinalityRestriction()) {
          MaxCardinalityRestriction restriction1 = restriction.asMaxCardinalityRestriction();
-         resource = restriction1.getIsDefinedBy();
+         owlRestriction = new OwlMaxCardinalityRestriction(restriction1);
       } else if (restriction.isMinCardinalityRestriction()) {
          MinCardinalityRestriction restriction1 = restriction.asMinCardinalityRestriction();
-         resource = restriction1.getIsDefinedBy();
+         owlRestriction = new OwlMinCardinalityRestriction(restriction1);
       } else if (restriction.isCardinalityRestriction()) {
          CardinalityRestriction restriction1 = restriction.asCardinalityRestriction();
-         resource = restriction1.getIsDefinedBy();
+         owlRestriction = new OwlCardinalityRestriction(restriction1);
       } else {
          // see https://stackoverflow.com/questions/20562107/how-to-add-qualified-cardinality-in-jena
          // see http://mail-archives.apache.org/mod_mbox/jena-users/201303.mbox/%3CCA+Q4Jn=bDM2wiPSh4DHj58hzxR_oWx2jJoQxnroFScac=E7t3Q@mail.gmail.com%3E
          RDFNode node = restriction.getPropertyValue(OWL2.onClass);
          resource = node.asResource();
+         if (restriction.hasProperty(OWL2.maxQualifiedCardinality)) {
+            owlRestriction = new OwlMaxQualifiedCardinalityRestriction(restriction, resource); 
+         } else if (restriction.hasProperty(OWL2.minQualifiedCardinality)) {
+            owlRestriction = new OwlMinQualifiedCardinalityRestriction(restriction, resource); 
+         } else if (restriction.hasProperty(OWL2.qualifiedCardinality)) {
+            owlRestriction = new OwlQualifiedCardinalityRestriction(restriction, resource);             
+         }
+         
       }
-      if (resource == null) {
-         return null;
-      } else {
-         String localName = resource.getLocalName();
-         String nameSpace = resource.getNameSpace();
-         return new ElementKey(nameSpace, localName);
-      }
+      return owlRestriction;
    }
 
    private void addToPropertyToClassMap(Map<ElementKey, Set<ElementKey>> classToProperties, ElementKey propertyKey, ElementKey classKey) {
@@ -125,17 +139,16 @@ public class GraphExtractor {
       set.add(propertyKey);
    }
 
-   private ElementKey getKey(OntClass clazz) {
+   private OwlRestriction getOwlRestriction(OntClass clazz) {
       String localName = clazz.getLocalName();
-      String namespace = clazz.getNameSpace();
-      ElementKey key;
+      OwlRestriction owlRestriction;
       if (localName == null) {
          Restriction restriction = clazz.asRestriction();
-         key = getRestrictionFrom(restriction);
+         owlRestriction = getRestrictionFrom(restriction);
       } else {
-         key = new ElementKey(namespace, localName);
+         owlRestriction = new UnrestrictedOwlRestriction(clazz);
       }
-      return key;
+      return owlRestriction;
    }
 
    public OwlSchema getGraph() {
@@ -160,18 +173,20 @@ public class GraphExtractor {
             ExtendedIterator declDomain = objProperty.listDomain();
             while (declDomain.hasNext()) {
                OntClass thisClass = (OntClass) declDomain.next();
-               ElementKey domainKey = getKey(thisClass);
-               if (domainKey != null) {
-                  owlProperty.addDomain(domainKey);
+               OwlRestriction restriction = getOwlRestriction(thisClass);
+               if (restriction != null) {
+                  ElementKey domainKey = restriction.getKey();
+                  owlProperty.addDomain(restriction);
                   addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
                }
             }
             ExtendedIterator declRange = objProperty.listRange();
             while (declRange.hasNext()) {
                OntClass thisClass = (OntClass) declRange.next();
-               ElementKey rangeKey = getKey(thisClass);
-               if (rangeKey != null) {
-                  owlProperty.addRange(rangeKey);
+               OwlRestriction restriction = getOwlRestriction(thisClass);
+               if (restriction != null) {
+                  ElementKey rangeKey = restriction.getKey();
+                  owlProperty.addRange(restriction);
                   addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
                }
             }
@@ -181,9 +196,10 @@ public class GraphExtractor {
             ExtendedIterator declDomain = datatypeProperty.listDomain();
             while (declDomain.hasNext()) {
                OntClass thisClass = (OntClass) declDomain.next();
-               ElementKey domainKey = getKey(thisClass);
-               if (domainKey != null) {
-                  owlProperty.addDomain(domainKey);
+               OwlRestriction restriction = getOwlRestriction(thisClass);
+               if (restriction != null) {
+                  ElementKey domainKey = restriction.getKey();
+                  owlProperty.addDomain(restriction);
                   addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
                }
             }
@@ -305,17 +321,17 @@ public class GraphExtractor {
             }
             List<PropertyClassRef> listRangeRef = new ArrayList<>();
             List<PropertyClassRef> listDomainRef = new ArrayList<>();
-            it = objectProp.getDomain().iterator();
+            it = objectProp.getDomain().keySet().iterator();
             while (it.hasNext()) {
                ElementKey classKey = it.next();
                listDomainRef.add(new PropertyClassRef(classKey, propKey));
             }
-            it = objectProp.getRange().iterator();
+            it = objectProp.getRange().keySet().iterator();
             while (it.hasNext()) {
                ElementKey classKey = it.next();
                listRangeRef.add(new PropertyClassRef(classKey, propKey));
             }
-            it = objectProp.getDomain().iterator();
+            it = objectProp.getDomain().keySet().iterator();
             while (it.hasNext()) {
                ElementKey classKey = it.next();
                OwlClass theClass = classes.get(classKey);
@@ -324,7 +340,7 @@ public class GraphExtractor {
                   theClass.addToRange(it3.next());
                }
             }
-            it = objectProp.getRange().iterator();
+            it = objectProp.getRange().keySet().iterator();
             while (it.hasNext()) {
                ElementKey classKey = it.next();
                OwlClass theClass = classes.get(classKey);

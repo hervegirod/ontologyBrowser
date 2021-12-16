@@ -32,15 +32,18 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import org.girod.ontobrowser.model.restriction.OwlRestriction;
+import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
- *
+ * An abstract OwlProperty.
+ * @param <T> the property type
  * @since 0.1
  */
 public abstract class OwlProperty<T> extends NamedOwlElement {
-   private final Set<ElementKey> domain = new HashSet<>();
+   private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
    private int minCardinality = 0;
    private int maxCardinality = -1;
    private T ontProperty = null;
@@ -54,15 +57,15 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
       return ontProperty;
    }
 
-   public void addDomain(OwlClass domainClass) {
-      domain.add(domainClass.getKey());
+   public void addDomain(OwlRestriction restriction) {
+      domain.put(restriction.getKey(), restriction);
    }
 
    public void addDomain(ElementKey key) {
-      domain.add(key);
+      domain.put(key, new UnrestrictedOwlRestriction(key));
    }
 
-   public Set<ElementKey> getDomain() {
+   public Map<ElementKey, OwlRestriction> getDomain() {
       return domain;
    }
 
