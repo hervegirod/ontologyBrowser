@@ -1,22 +1,25 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns="http://localhost/Test"
-     xml:base="http://localhost/TEST"
-     xmlns:sf="http://www.opengis.net/ont/sf#"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:owlgred="http://lumii.lv/2011/1.0/owlgred#">
-    <owl:Ontology rdf:about="http://localhost/TEST"/>
-
-
-    <owl:Class rdf:about="http://localhost/TEST#Aircraft"/>
-    <owl:Class rdf:about="http://www.w3.org/2002/07/owl#Thing"/>
-    
-    <owl:DatatypeProperty rdf:about="http://localhost/TEST#FuelAmount">
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-
+         xml:base="http://localhost/TEST"
+         xmlns:sf="http://www.opengis.net/ont/sf#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:xml="http://www.w3.org/XML/1998/namespace"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owlgred="http://lumii.lv/2011/1.0/owlgred#">
+   <owl:Ontology rdf:about="http://localhost/TEST"/>
+   <owl:Class rdf:about="http://localhost/TEST#Aircraft"/>
+   <owl:Class rdf:about="http://localhost/TEST#Waypoint"/>
+   <owl:Class rdf:about="http://www.w3.org/2002/07/owl#Thing"/>
+   <owl:ObjectProperty rdf:about="http://localhost/TEST#hasWaypoint">
+      <rdfs:domain rdf:resource="http://localhost/TEST#Aircraft"/>
+      <rdfs:range>
+         <owl:Restriction>
+            <owl:onProperty rdf:resource="http://localhost/TEST#hasWaypoint"/>
+            <owl:someValuesFrom rdf:resource="http://localhost/TEST#Waypoint"/>
+         </owl:Restriction>
+      </rdfs:range>
+   </owl:ObjectProperty>  
 </rdf:RDF>
 
