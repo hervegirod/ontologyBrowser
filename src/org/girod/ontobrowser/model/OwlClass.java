@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.jena.ontology.OntClass;
 
 /**
  *
@@ -47,6 +48,10 @@ public class OwlClass extends NamedOwlElement {
    private final Set<ElementKey> superClasses = new HashSet<>();
    private final Set<ElementKey> subClasses = new HashSet<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
+
+   public OwlClass(OntClass ontClass) {
+      super(ontClass.getNameSpace(), ontClass.getLocalName());
+   }
 
    public OwlClass(String namespace, String name) {
       super(namespace, name);

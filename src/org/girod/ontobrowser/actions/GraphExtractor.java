@@ -96,7 +96,7 @@ public class GraphExtractor {
       if (restriction.isAllValuesFromRestriction()) {
          AllValuesFromRestriction restriction1 = restriction.asAllValuesFromRestriction();
          owlRestriction = new OwlAllValuesFromRestriction(restriction1);
-      } else if (restriction.isHasValueRestriction()) {         
+      } else if (restriction.isHasValueRestriction()) {
          HasValueRestriction restriction1 = restriction.asHasValueRestriction();
          owlRestriction = new OwlHasValueRestriction(restriction1);
       } else if (restriction.isSomeValuesFromRestriction()) {
@@ -117,13 +117,13 @@ public class GraphExtractor {
          RDFNode node = restriction.getPropertyValue(OWL2.onClass);
          resource = node.asResource();
          if (restriction.hasProperty(OWL2.maxQualifiedCardinality)) {
-            owlRestriction = new OwlMaxQualifiedCardinalityRestriction(restriction, resource); 
+            owlRestriction = new OwlMaxQualifiedCardinalityRestriction(restriction, resource);
          } else if (restriction.hasProperty(OWL2.minQualifiedCardinality)) {
-            owlRestriction = new OwlMinQualifiedCardinalityRestriction(restriction, resource); 
+            owlRestriction = new OwlMinQualifiedCardinalityRestriction(restriction, resource);
          } else if (restriction.hasProperty(OWL2.qualifiedCardinality)) {
-            owlRestriction = new OwlQualifiedCardinalityRestriction(restriction, resource);             
+            owlRestriction = new OwlQualifiedCardinalityRestriction(restriction, resource);
          }
-         
+
       }
       return owlRestriction;
    }
@@ -154,8 +154,8 @@ public class GraphExtractor {
    public OwlSchema getGraph() {
       OwlSchema graph = new OwlSchema();
       OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
-      ElementKey thingKey = null;
-      OwlClass owlThingClass = null;
+      ElementKey thingKey = new ElementKey(thingClass.getNameSpace(), thingClass.getLocalName());
+      OwlClass owlThingClass = new OwlClass(thingClass);
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties = new HashMap<>();
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
@@ -171,36 +171,48 @@ public class GraphExtractor {
             owlProp = owlProperty;
             graph.addOwlProperty(owlProperty);
             ExtendedIterator declDomain = objProperty.listDomain();
-            while (declDomain.hasNext()) {
-               OntClass thisClass = (OntClass) declDomain.next();
-               OwlRestriction restriction = getOwlRestriction(thisClass);
-               if (restriction != null) {
-                  ElementKey domainKey = restriction.getKey();
-                  owlProperty.addDomain(restriction);
-                  addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+            if (!declDomain.hasNext()) {
+               addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), thingKey);
+            } else {
+               while (declDomain.hasNext()) {
+                  OntClass thisClass = (OntClass) declDomain.next();
+                  OwlRestriction restriction = getOwlRestriction(thisClass);
+                  if (restriction != null) {
+                     ElementKey domainKey = restriction.getKey();
+                     owlProperty.addDomain(restriction);
+                     addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                  }
                }
             }
             ExtendedIterator declRange = objProperty.listRange();
-            while (declRange.hasNext()) {
-               OntClass thisClass = (OntClass) declRange.next();
-               OwlRestriction restriction = getOwlRestriction(thisClass);
-               if (restriction != null) {
-                  ElementKey rangeKey = restriction.getKey();
-                  owlProperty.addRange(restriction);
-                  addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
+            if (!declRange.hasNext()) {
+               addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), thingKey);
+            } else {
+               while (declRange.hasNext()) {
+                  OntClass thisClass = (OntClass) declRange.next();
+                  OwlRestriction restriction = getOwlRestriction(thisClass);
+                  if (restriction != null) {
+                     ElementKey rangeKey = restriction.getKey();
+                     owlProperty.addRange(restriction);
+                     addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
+                  }
                }
             }
          } else if (thisProperty.isDatatypeProperty()) {
             DatatypeProperty datatypeProperty = (DatatypeProperty) thisProperty;
             OwlDatatypeProperty owlProperty = new OwlDatatypeProperty(datatypeProperty, nameSpace, thisProperty.getLocalName());
             ExtendedIterator declDomain = datatypeProperty.listDomain();
-            while (declDomain.hasNext()) {
-               OntClass thisClass = (OntClass) declDomain.next();
-               OwlRestriction restriction = getOwlRestriction(thisClass);
-               if (restriction != null) {
-                  ElementKey domainKey = restriction.getKey();
-                  owlProperty.addDomain(restriction);
-                  addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+            if (!declDomain.hasNext()) {
+               addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), thingKey);
+            } else {
+               while (declDomain.hasNext()) {
+                  OntClass thisClass = (OntClass) declDomain.next();
+                  OwlRestriction restriction = getOwlRestriction(thisClass);
+                  if (restriction != null) {
+                     ElementKey domainKey = restriction.getKey();
+                     owlProperty.addDomain(restriction);
+                     addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                  }
                }
             }
             owlProp = owlProperty;
@@ -221,6 +233,7 @@ public class GraphExtractor {
          }
       }
 
+      boolean hasThingClass = false;
       // list classes
       ExtendedIterator classes = model.listClasses();
       while (classes.hasNext()) {
@@ -228,15 +241,21 @@ public class GraphExtractor {
          if (thisClass.getNameSpace() == null && thisClass.getLocalName() == null) {
             continue;
          }
-         String nameSpace = thisClass.getNameSpace();
-         OwlClass owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
-         if (thingClass != null && thisClass.equals(thingClass)) {
-            owlThingClass = owlClass;
-            thingKey = owlClass.getKey();
+         OwlClass owlClass;
+         if (thisClass.equals(thingClass)) {
+            owlClass = owlThingClass;
+            hasThingClass = true;
+         } else {
+            String nameSpace = thisClass.getNameSpace();
+            owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
          }
          graph.addOwlClass(owlClass);
       }
+      if (!hasThingClass) {
+         graph.addOwlClass(owlThingClass);
+      }
 
+      hasThingClass = false;
       // parent classes
       classes = model.listClasses();
       while (classes.hasNext()) {
@@ -260,12 +279,25 @@ public class GraphExtractor {
                }
             }
             // add root classes as children of Thing
-            if (isEmpty && owlThingClass != null && !key.equals(thingKey)) {
+            if (isEmpty && !key.equals(thingKey)) {
                owlThingClass.addSubClass(key);
                owlClass.addSuperClass(thingKey);
             }
          }
       }
+      if (!hasThingClass) {
+         ExtendedIterator<OntClass> children = thingClass.listSubClasses();
+         while (children.hasNext()) {
+            OntClass childClass = children.next();
+            ElementKey skey = new ElementKey(childClass.getNameSpace(), childClass.getLocalName());
+            if (graph.hasOwlClass(skey)) {
+               OwlClass childOwlClass = graph.getOwlClass(skey);
+               childOwlClass.addSuperClass(thingKey);
+               owlThingClass.addSubClass(skey);
+            }
+         }
+      }
+
       // class to properties dependencies
       addDependencies(graph, domainClassToProperties, rangeClassToProperties);
 

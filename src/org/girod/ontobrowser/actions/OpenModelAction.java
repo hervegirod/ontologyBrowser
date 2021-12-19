@@ -38,6 +38,7 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import java.awt.BorderLayout;
@@ -263,6 +264,7 @@ public class OpenModelAction extends AbstractMDIAction {
       Map<ElementKey, OwlDatatypeProperty> owlDatatypeProperties = schema.getOwlDatatypeProperties();
       Map<ElementKey, mxCell> cell4Class = new HashMap<>();
       Map<ElementKey, mxCell> cell4Dataproperty = new HashMap<>();
+      List<mxCell> allCells = new ArrayList<>();
 
       Iterator<OwlClass> it = owlClasses.values().iterator();
       while (it.hasNext()) {
@@ -270,6 +272,7 @@ public class OpenModelAction extends AbstractMDIAction {
          Dimension d = LabelUtils.getDimension(owlClass.getName(), FONT_SIZE, FONT_FAMILY);
          mxCell classCell = (mxCell) graph.insertVertex(parent, null, owlClass.getName(), 0, 100, d.width, d.height);
          classCell.setStyle("class");
+         allCells.add(classCell);
          ElementKey key = owlClass.getKey();
          owlClasses.put(key, owlClass);
          cell4Class.put(key, classCell);
@@ -298,6 +301,7 @@ public class OpenModelAction extends AbstractMDIAction {
          OwlDatatypeProperty datatypeProperty = it3.next();
          Dimension d = LabelUtils.getDimension(datatypeProperty.getName(), FONT_SIZE, FONT_FAMILY);
          mxCell propertyCell = (mxCell) graph.insertVertex(parent, null, datatypeProperty.getName(), 0, 100, d.width, d.height);
+         allCells.add(propertyCell);
          propertyCell.setStyle("dataProperty");
          ElementKey key = datatypeProperty.getKey();
          cell4Dataproperty.put(key, propertyCell);
@@ -341,8 +345,54 @@ public class OpenModelAction extends AbstractMDIAction {
       layout.setMinMoveRadius(100);
       layout.execute(parent);
       updateEdges(graph, edges);
+      updateGraphBounds(graph, allCells);
+
       graph.getModel().endUpdate();
       return graph;
+   }
+
+   private void updateGraphBounds(mxGraph graph, List<mxCell> allCells) {
+      double minx = 0;
+      double miny = 0;
+      double maxx = 100;
+      double maxy = 100;
+      boolean isFirst = true;
+      Iterator<mxCell> it = allCells.iterator();
+      while (it.hasNext()) {
+         mxCell cell = it.next();
+         mxGeometry geometry = cell.getGeometry();
+         if (isFirst) {
+            minx = geometry.getX();
+            miny = geometry.getY();
+            maxx = minx + geometry.getWidth();
+            maxy = miny + geometry.getHeight();
+            isFirst = false;
+         } else {
+            if (geometry.getX() < minx) {
+               minx = geometry.getX();
+            }
+            if (geometry.getY() < miny) {
+               miny = geometry.getY();
+            }
+            if (geometry.getX() + geometry.getWidth() > maxx) {
+               maxx = geometry.getX() + geometry.getWidth();
+            }
+            if (geometry.getY() + geometry.getHeight() > maxy) {
+               maxy = geometry.getY() + geometry.getHeight();
+            }
+         }
+      }
+
+      mxRectangle rect = new mxRectangle(0, 0, maxx - minx, maxy - miny);
+      graph.getView().setGraphBounds(rect);
+      it = allCells.iterator();
+      while (it.hasNext()) {
+         mxCell cell = it.next();
+         mxGeometry geometry = cell.getGeometry();
+         geometry.setX(geometry.getX() - minx);
+         geometry.setY(geometry.getY() - miny);
+      }
+
    }
 
    private void updateEdges(mxGraph graph, Map<EdgeKey, EdgeValue> edges) {
