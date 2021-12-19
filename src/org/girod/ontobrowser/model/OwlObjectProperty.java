@@ -33,9 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.apache.jena.ontology.ObjectProperty;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;

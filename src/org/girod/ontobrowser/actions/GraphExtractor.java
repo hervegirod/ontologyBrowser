@@ -43,6 +43,7 @@ import org.apache.jena.ontology.AllValuesFromRestriction;
 import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.DatatypeProperty;
 import org.apache.jena.ontology.HasValueRestriction;
+import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.MaxCardinalityRestriction;
 import org.apache.jena.ontology.MinCardinalityRestriction;
 import org.apache.jena.ontology.ObjectProperty;
@@ -59,10 +60,12 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
+import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -253,6 +256,21 @@ public class GraphExtractor {
       }
       if (!hasThingClass) {
          graph.addOwlClass(owlThingClass);
+      }
+
+      // list individuals
+      if (BrowserConfiguration.getInstance().includeIndividuals) {
+         ExtendedIterator individuals = model.listIndividuals();
+         while (individuals.hasNext()) {
+            Individual thisIndividual = (Individual) individuals.next();
+            OntClass theClass = thisIndividual.getOntClass();
+            ElementKey theKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
+            if (graph.hasOwlClass(theKey)) {
+               OwlClass theOwlClass = graph.getOwlClass(theKey);
+               OwlIndividual owlIndividual = new OwlIndividual(theOwlClass, thisIndividual);
+               graph.addIndividual(owlIndividual);
+            }
+         }
       }
 
       hasThingClass = false;

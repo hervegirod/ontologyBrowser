@@ -33,6 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 /**
+ * Represents a named Owl element.
  *
  * @since 0.1
  */

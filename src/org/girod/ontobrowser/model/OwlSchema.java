@@ -43,10 +43,28 @@ import java.util.Map;
  */
 public class OwlSchema implements Cloneable, Serializable {
    private final Map<ElementKey, OwlClass> classes = new HashMap<>();
+   private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
 
    public OwlSchema() {
+   }
+
+   public void addIndividual(OwlIndividual individual) {
+      individuals.put(individual.getKey(), individual);
+      individual.getParentClass().addIndividual(individual);
+   }
+
+   public Map<ElementKey, OwlIndividual> getIndividuals() {
+      return individuals;
+   }
+
+   public boolean hasIndividual(ElementKey key) {
+      return individuals.containsKey(key);
+   }
+
+   public OwlIndividual getIndividual(ElementKey key) {
+      return individuals.get(key);
    }
 
    public void addOwlClass(OwlClass owlClass) {

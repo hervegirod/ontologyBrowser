@@ -66,6 +66,7 @@ import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -240,9 +241,9 @@ public class OpenModelAction extends AbstractMDIAction {
 
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
-      styles.put(mxConstants.STYLE_FILLCOLOR, "#8B008B");
+      styles.put(mxConstants.STYLE_FILLCOLOR, "#FF66FF");
       styles.put(mxConstants.STYLE_FONTSIZE, FONT_SIZE);
-      stylesheet.putCellStyle("instance", styles);
+      stylesheet.putCellStyle("individual", styles);
 
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
@@ -276,6 +277,19 @@ public class OpenModelAction extends AbstractMDIAction {
          ElementKey key = owlClass.getKey();
          owlClasses.put(key, owlClass);
          cell4Class.put(key, classCell);
+
+         // individuals
+         if (owlClass.hasIndividuals()) {
+            Iterator<OwlIndividual> it2 = owlClass.getIndividuals().values().iterator();
+            while (it2.hasNext()) {
+               OwlIndividual individual = it2.next();
+               d = LabelUtils.getDimension(individual.getName(), FONT_SIZE, FONT_FAMILY);
+               mxCell individualCell = (mxCell) graph.insertVertex(parent, null, individual.getName(), 0, 100, d.width, d.height);
+               individualCell.setStyle("individual");
+               mxCell edge = (mxCell) graph.insertEdge(parent, null, "", classCell, individualCell);
+               edge.setStyle("property");
+            }
+         }
       }
 
       // parent classes

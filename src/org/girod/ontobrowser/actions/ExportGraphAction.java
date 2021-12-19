@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import com.mxgraph.model.mxCell;
 import java.awt.Color;
 import java.io.File;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -115,6 +117,24 @@ public class ExportGraphAction extends AbstractMDIAction {
          label.setFontSize(11);
          label.setLabel(owlClass.getName());
          elementToNode.put(key, node);
+
+         // individuals
+         if (owlClass.hasIndividuals()) {
+            Iterator<OwlIndividual> it2 = owlClass.getIndividuals().values().iterator();
+            while (it2.hasNext()) {
+               OwlIndividual individual = it2.next();
+               GraphMLNode inode = _diagram.addNode();
+               inode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+               inode.getShapeNode().setFillColor(Color.MAGENTA);
+               NodeLabel ilabel = inode.createLabel(true);
+               ilabel.setFontSize(11);
+               ilabel.setLabel(individual.getName());
+               GraphMLEdge edge = _diagram.addEdge(node, inode);
+               Arrows arrows = edge.getArrows();
+               arrows.setSource(Arrows.NONE);
+               arrows.setTarget(Arrows.NONE);
+            }
+         }
       }
 
       // parent classes

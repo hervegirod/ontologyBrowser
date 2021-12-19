@@ -64,7 +64,7 @@ public class BrowserConfiguration implements Configuration {
     * The date.
     */
    public final String date;
-   public boolean includeInstances = false;
+   public boolean includeIndividuals = false;
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
@@ -131,6 +131,7 @@ public class BrowserConfiguration implements Configuration {
       PreferencesHelper.putFile(p, "defaultDir", defaultDir);
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
+      p.putBoolean("includeIndividuals", includeIndividuals);
    }
 
    @Override
@@ -138,6 +139,7 @@ public class BrowserConfiguration implements Configuration {
       defaultDir = PreferencesHelper.getFile(p, "defaultDir", defaultDir);
       padWidth = p.getInt("padWidth", padWidth);
       padHeight = p.getInt("padHeight", padHeight);
+      includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
    }
 
 }

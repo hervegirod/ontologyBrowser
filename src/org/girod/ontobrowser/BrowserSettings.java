@@ -49,7 +49,7 @@ public class BrowserSettings {
    private static BrowserSettings settings = null;
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
-   private JCheckBox includeInstancesCb;
+   private JCheckBox includeIndividualsCb;
    private final SpinnerNumberModel padWidthSpinnerModel = new SpinnerNumberModel(15, 0, 100, 1);
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
@@ -89,7 +89,7 @@ public class BrowserSettings {
     */
    public void resetSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      includeInstancesCb.setSelected(conf.includeInstances);
+      includeIndividualsCb.setSelected(conf.includeIndividuals);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
    }
@@ -109,10 +109,10 @@ public class BrowserSettings {
    private void initializeGeneralSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
 
-      includeInstancesCb = new JCheckBox("", conf.includeInstances);
-      includeInstancesCb.setBackground(Color.WHITE);
-      includeInstancesCb.addActionListener((ActionEvent e) -> {
-         conf.includeInstances = includeInstancesCb.isSelected();
+      includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
+      includeIndividualsCb.setBackground(Color.WHITE);
+      includeIndividualsCb.addActionListener((ActionEvent e) -> {
+         conf.includeIndividuals = includeIndividualsCb.isSelected();
       });
 
       padWidthSpinner = new JSpinner(padWidthSpinnerModel);
@@ -154,7 +154,7 @@ public class BrowserSettings {
    private void configureSettings() {
       resetSettings();
 
-      generalSettings.addProperty(includeInstancesCb, "", "Include Instances");
+      generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
       generalSettings.addProperty(padWidthSpinner, "", "Width Padding");
       generalSettings.addProperty(padHeightSpinner, "", "Height Padding");
       generalSettings.setVisible(true);

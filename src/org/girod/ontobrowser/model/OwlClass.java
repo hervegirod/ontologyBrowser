@@ -47,6 +47,7 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, Set<PropertyClassRef>> toRange = new HashMap<>();
    private final Set<ElementKey> superClasses = new HashSet<>();
    private final Set<ElementKey> subClasses = new HashSet<>();
+   private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
 
    public OwlClass(OntClass ontClass) {
@@ -61,6 +62,18 @@ public class OwlClass extends NamedOwlElement {
    public OwlClass clone() {
       Object o = super.clone();
       return (OwlClass) o;
+   }
+
+   public void addIndividual(OwlIndividual individual) {
+      individuals.put(individual.getKey(), individual);
+   }
+
+   public Map<ElementKey, OwlIndividual> getIndividuals() {
+      return individuals;
+   }
+
+   public boolean hasIndividuals() {
+      return !individuals.isEmpty();
    }
 
    public void addSuperClass(ElementKey superClass) {
