@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2022 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import com.mxgraph.model.mxCell;
 import java.awt.Color;
 import java.io.File;
 import java.util.HashMap;
@@ -51,6 +50,7 @@ import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
+import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
@@ -62,11 +62,15 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @since 0.1
+ * @version 0.2
  */
 public class ExportGraphAction extends AbstractMDIAction {
+   private static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
    private File file = null;
    private OwlDiagram diagram = null;
+   private boolean showRelationsConstraints = false;
+   private boolean showDataPropertiesTypes = false;
+   private DiagramDefaults defaults = null;
 
    /**
     * Create the export File Action.
@@ -87,9 +91,12 @@ public class ExportGraphAction extends AbstractMDIAction {
    @Override
    public void run() throws Exception {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      this.showRelationsConstraints = conf.showRelationsConstraints;
+      this.showDataPropertiesTypes = conf.showDataPropertiesTypes;
+
       GraphMLFactory factory = GraphMLFactory.getInstance();
       GraphMLDiagram _diagram = factory.newDiagram();
-      DiagramDefaults defaults = _diagram.getDefaults();
+      defaults = _diagram.getDefaults();
       defaults.edgeLabelAutoRotate = true;
       defaults.edgeLabelAutoFlip = true;
       defaults.nodeFontSize = 11;
@@ -178,6 +185,13 @@ public class ExportGraphAction extends AbstractMDIAction {
                      Arrows arrows = edge.getArrows();
                      arrows.setSource(Arrows.STANDARD);
                      arrows.setTarget(Arrows.NONE);
+                     if (showRelationsConstraints) {
+                        if (property.hasCardinalityRestriction()) {
+                           addCardinalityRestriction(property, edge);
+                        } else {
+                           addDefaultCardinalityRestriction(edge);
+                        }
+                     }
                   }
                }
             } else {
@@ -187,7 +201,17 @@ public class ExportGraphAction extends AbstractMDIAction {
                propertyNode.getShapeNode().setFillColor(Color.CYAN);
                NodeLabel label = propertyNode.createLabel(true);
                label.setFontSize(11);
-               label.setLabel(dataProperty.getName());
+               if (showDataPropertiesTypes) {
+                  String typeS = getType(dataProperty);
+                  if (typeS != null) {
+                     label.setLabel(dataProperty.getName() + "\n" + typeS);
+                     propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
+                  } else {
+                     label.setLabel(dataProperty.getName());
+                  }
+               } else {
+                  label.setLabel(dataProperty.getName());
+               }
 
                GraphMLEdge edge = _diagram.addEdge(propertyNode, theNode);
                EdgeLabel elabel = edge.createLabel(true);
@@ -199,6 +223,56 @@ public class ExportGraphAction extends AbstractMDIAction {
          }
       }
       factory.saveDiagram(_diagram, file);
+   }
+
+   private String getType(OwlDatatypeProperty dataProperty) {
+      Map<ElementKey, OwlDatatype> types = dataProperty.getTypes();
+      if (types != null && types.size() == 1) {
+         OwlDatatype dataType = types.values().iterator().next();
+         String ns = dataType.getNamespace();
+         if (ns != null && ns.equals(DEFAULT_NS)) {
+            String name = "xs: " + dataType.getName();
+            return name;
+         }
+         return null;
+      } else {
+         return null;
+      }
+   }
+
+   private void addDefaultCardinalityRestriction(GraphMLEdge edge) {
+      EdgeLabel label = edge.createAdditionalLabel("0..n", 0.02f);
+      label.setAutoFlip(false);
+      label.setAutoRotate(false);
+   }
+
+   private void addCardinalityRestriction(OwlProperty property, GraphMLEdge edge) {
+      StringBuilder buf = new StringBuilder();
+      boolean isUniqueCardinality = false;
+      if (property.hasMinCardinality()) {
+         int minCardinality = property.getMinCardinality();
+         int maxCardinality = property.getMaxCardinality();
+         if (minCardinality == maxCardinality) {
+            isUniqueCardinality = true;
+            buf.append(minCardinality);
+         } else {
+            buf.append(minCardinality);
+         }
+      } else {
+         buf.append(0);
+      }
+      if (!isUniqueCardinality) {
+         buf.append("...");
+         if (property.hasMaxCardinality()) {
+            int maxCardinality = property.getMaxCardinality();
+            buf.append(maxCardinality);
+         } else {
+            buf.append("n");
+         }
+      }
+      EdgeLabel label = edge.createAdditionalLabel(buf.toString(), 0.02f);
+      label.setAutoFlip(false);
+      label.setAutoRotate(false);
    }
 
    @Override

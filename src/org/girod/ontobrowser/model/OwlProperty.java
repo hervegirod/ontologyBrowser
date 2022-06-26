@@ -40,7 +40,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 /**
  * An abstract OwlProperty.
  * @param <T> the property type
- * @since 0.1
+ * @version 0.2
  */
 public abstract class OwlProperty<T> extends NamedOwlElement {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
@@ -82,17 +82,29 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
    public boolean isObjectProperty() {
       return false;
    }
+   
+   public boolean hasCardinalityRestriction() {
+      return hasMinCardinality() || hasMaxCardinality();
+   }        
 
    public void setMinCardinality(int minCardinality) {
       this.minCardinality = minCardinality;
    }
+   
+   public boolean hasMinCardinality() {
+      return minCardinality > 0;
+   }     
 
    public int getMinCardinality() {
       return minCardinality;
-   }
+   } 
 
    public void setMaxCardinality(int maxCardinality) {
       this.maxCardinality = maxCardinality;
+   }
+   
+   public boolean hasMaxCardinality() {
+      return maxCardinality != -1;
    }
 
    public int getMaxCardinality() {

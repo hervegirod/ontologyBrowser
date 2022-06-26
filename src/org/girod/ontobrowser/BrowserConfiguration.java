@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2022 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.mdiutil.swing.ExtensionFileFilter;
 /**
  * The browser configuration.
  *
- * @since 0.1
+ * @version 0.2
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -65,6 +65,8 @@ public class BrowserConfiguration implements Configuration {
     */
    public final String date;
    public boolean includeIndividuals = false;
+   public boolean showRelationsConstraints = false;
+   public boolean showDataPropertiesTypes = false;
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
@@ -132,6 +134,8 @@ public class BrowserConfiguration implements Configuration {
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
       p.putBoolean("includeIndividuals", includeIndividuals);
+      p.putBoolean("showRelationsConstraints", showRelationsConstraints);
+      p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
    }
 
    @Override
@@ -140,6 +144,8 @@ public class BrowserConfiguration implements Configuration {
       padWidth = p.getInt("padWidth", padWidth);
       padHeight = p.getInt("padHeight", padHeight);
       includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
+      showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
+      showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
    }
 
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2022 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
  *
- * @since 0.1
+ * @version 0.2
  */
 public class GraphExtractor {
    private final OntModel model;

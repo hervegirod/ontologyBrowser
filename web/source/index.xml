@@ -2,6 +2,9 @@
 <index>
    The ontologyBrowser application allows to browse the content of an OWL/RDF model.
    
+   <title title="Usage"/>
+   <moreInfo id="Usage" />   
+   
    <title title="License"/>
    <moreInfo id="License" />
    

@@ -2,4 +2,5 @@
 <images>
    <image id="browser" url="browser.png" />
    <image id="graphml" url="graphml.png" />  
+   <image id="config" url="config.png" /> 
 </images>

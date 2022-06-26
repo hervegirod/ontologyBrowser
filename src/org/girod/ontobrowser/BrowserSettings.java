@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2022 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,15 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @since 0.1
+ * @version 0.2
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
    private JCheckBox includeIndividualsCb;
+   private JCheckBox showRelationsConstraintsCb;
+   private JCheckBox showDataPropertiesTypesCb;
    private final SpinnerNumberModel padWidthSpinnerModel = new SpinnerNumberModel(15, 0, 100, 1);
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
@@ -90,6 +92,8 @@ public class BrowserSettings {
    public void resetSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       includeIndividualsCb.setSelected(conf.includeIndividuals);
+      showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
+      showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
    }
@@ -113,6 +117,18 @@ public class BrowserSettings {
       includeIndividualsCb.setBackground(Color.WHITE);
       includeIndividualsCb.addActionListener((ActionEvent e) -> {
          conf.includeIndividuals = includeIndividualsCb.isSelected();
+      });
+
+      showRelationsConstraintsCb = new JCheckBox("", conf.showRelationsConstraints);
+      showRelationsConstraintsCb.setBackground(Color.WHITE);
+      showRelationsConstraintsCb.addActionListener((ActionEvent e) -> {
+         conf.showRelationsConstraints = showRelationsConstraintsCb.isSelected();
+      });
+
+      showDataPropertiesTypesCb = new JCheckBox("", conf.showDataPropertiesTypes);
+      showDataPropertiesTypesCb.setBackground(Color.WHITE);
+      showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
+         conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
       });
 
       padWidthSpinner = new JSpinner(padWidthSpinnerModel);
@@ -155,6 +171,8 @@ public class BrowserSettings {
       resetSettings();
 
       generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
+      generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
+      generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
       generalSettings.addProperty(padWidthSpinner, "", "Width Padding");
       generalSettings.addProperty(padHeightSpinner, "", "Height Padding");
       generalSettings.setVisible(true);
