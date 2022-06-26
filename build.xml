@@ -108,7 +108,11 @@
          </fileset>         
          <fileset description="samples" dir=".">
             <include name="samples/*"/>
-         </fileset>                                          
+         </fileset>       
+         <fileset description="web" dir=".">
+            <include name="web/soft/**/*.*"/>
+            <include name="web/wiki/**/*.*"/>
+         </fileset>                                                 
          <fileset description="misc" dir=".">
             <include name="LICENSE"/>
             <include name="README.md"/>          
@@ -161,7 +165,7 @@
          </classpath>                     
          <doctitle><![CDATA[<h1>ontologyBrowser documentation</h1>]]></doctitle>
          <bottom>
-            <![CDATA[<i>Copyright &#169; 2021 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
+            <![CDATA[<i>Copyright &#169; 2021, 2022 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
          </bottom>         
       </javadoc>
    </target>                     
