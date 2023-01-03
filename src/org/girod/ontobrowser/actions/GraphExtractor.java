@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022 Hervé Girod
+Copyright (c) 2021, 2022, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
  *
- * @version 0.2
+ * @version 0.3
  */
 public class GraphExtractor {
    private final OntModel model;
@@ -146,8 +146,13 @@ public class GraphExtractor {
       String localName = clazz.getLocalName();
       OwlRestriction owlRestriction;
       if (localName == null) {
-         Restriction restriction = clazz.asRestriction();
-         owlRestriction = getRestrictionFrom(restriction);
+         if (clazz.isRestriction()) {
+            Restriction restriction = clazz.asRestriction();
+            owlRestriction = getRestrictionFrom(restriction);
+         } else {
+            // the class may not be a restriction, in that case omit it
+            return null;
+         }
       } else {
          owlRestriction = new UnrestrictedOwlRestriction(clazz);
       }
