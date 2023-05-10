@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <index>
    The ontologyBrowser application allows to browse the content of an OWL/RDF model.
-   
+
+   The github repository where to look for the code is at
+   <a href="https://github.com/hervegirod/ontologyBrowser">github.com/hervegirod/ontologyBrowser</a>.
+
    <title title="Usage"/>
-   <moreInfo id="Usage" />   
-   
+   <moreInfo id="Usage" />
+
    <title title="License"/>
    <moreInfo id="License" />
-   
+
    <title title="Dependencies" />
-   See <ref id="Dependencies" />.      
-      
+   See <ref id="Dependencies" />.
+
    <title title="history"/>
    <moreInfo id="Release history" />
-   
+
    <cat id="general" />
 </index>

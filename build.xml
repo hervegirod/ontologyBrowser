@@ -17,28 +17,28 @@
    <target name="-post-init">
       <!-- general properties definition -->
       <property name="archiveName" value="ontoBrowser"/>
-      <property name="wikiDir" value="web/wiki/"/>  
+      <property name="wikiDir" value="web/wiki/"/>
       <condition property="wiki.exists">
          <available file="${wikiDir}/index.html" type="file"/>
-      </condition>         
+      </condition>
       <condition property="javadoc.exists">
          <available file="${dist.javadoc.dir}" type="dir"/>
-      </condition> 
-      <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />      
+      </condition>
+      <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />
       <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%201.5.6.4/docGenerator-bin-1.5.6.4.zip" />
-      <property name="docGeneratorDir" value="web/soft/"/>       
+      <property name="docGeneratorDir" value="web/soft/"/>
       <condition property="docgenerator.notexists">
          <not>
             <available file="web/soft/docGenerator.jar" type="file"/>
          </not>
-      </condition>    
+      </condition>
       <condition property="docgenerator.exists">
          <available file="web/soft/docGenerator.jar" type="file"/>
-      </condition>                  
-      <property name="j2seapi" value="http://docs.oracle.com/javase/7/docs/api/"/>        
+      </condition>
+      <property name="j2seapi" value="http://docs.oracle.com/javase/7/docs/api/"/>
       <!-- To set with your location of Java 8 JDK -->
       <property name="javadocDir" value="${jdk.home}/docs/api"/>
-      <property name="javadocEXE" value="${jdk.home}/bin/javadoc.exe"/>       
+      <property name="javadocEXE" value="${jdk.home}/bin/javadoc.exe"/>
    </target>
 
    <!-- =================================================================== -->
@@ -67,7 +67,7 @@
             <include name="**/*"/>
          </fileset>
       </zip>
-   </target> 
+   </target>
 
    <target depends="version, -post-init, zipjavadoc" description="create zip files" name="zip">
       <!-- zip binary files -->
@@ -76,13 +76,13 @@
             <include name="LICENSE"/>
             <include name="README.md"/>
             <include name="CHANGES.txt"/>
-         </fileset>    
+         </fileset>
          <fileset description="samples" dir=".">
             <include name="samples/**/*.*"/>
-         </fileset>    
+         </fileset>
          <fileset description="lib" dir=".">
             <include name="lib/**/*.*"/>
-         </fileset>                
+         </fileset>
          <fileset description="binaries" dir="${dist.dir}">
             <include name="ontoBrowser.jar"/>
          </fileset>
@@ -93,30 +93,32 @@
             <include name="src/**/*.java"/>
             <include name="src/**/*.properties"/>
             <include name="src/**/*.html"/>
-            <include name="src/**/*.xml"/>    
-            <include name="src/**/*.png"/>              
+            <include name="src/**/*.xml"/>
+            <include name="src/**/*.png"/>
             <include name="src/manifest*.mf"/>
-         </fileset>        
+         </fileset>
          <fileset description="binaries" dir="${dist.dir}">
             <include name="ontoBrowser.jar"/>
          </fileset>
          <fileset description="lib" dir=".">
             <include name="lib/**/*.*"/>
-         </fileset>             
+         </fileset>
+         <fileset description="tools" dir=".">
+            <include name="tools/**/*.*"/>
+         </fileset>
          <fileset description="project" dir="${dist.dir}/..">
             <include name="nbproject/**/*.*"/>
-         </fileset>         
+         </fileset>
          <fileset description="samples" dir=".">
             <include name="samples/*"/>
-         </fileset>       
+         </fileset>
          <fileset description="web" dir=".">
-            <include name="web/soft/**/*.*"/>
-            <include name="web/wiki/**/*.*"/>
-         </fileset>                                                 
+            <include name="web/**/*.*"/>
+         </fileset>
          <fileset description="misc" dir=".">
             <include name="LICENSE"/>
-            <include name="README.md"/>          
-            <include name="build.xml"/>           
+            <include name="README.md"/>
+            <include name="build.xml"/>
          </fileset>
       </zip>
       <!-- zip test source files  -->
@@ -124,9 +126,9 @@
          <fileset description="tests directory" dir="${test.src.dir}/..">
             <include name="test/**/*.*"/>
          </fileset>
-      </zip>      
+      </zip>
    </target>
-   
+
    <!-- zip wiki -->
    <target depends="version, -post-init" description="create wiki zip files" name="zipwiki" if="wiki.exists">
       <zip compress="true" defaultexcludes="true" zipfile="${dist.dir}/${archiveName}-wiki-${version}.zip">
@@ -135,9 +137,9 @@
             <exclude name="INTENTIONALLY_EMPTY"/>
          </fileset>
       </zip>
-   </target>      
-     
-    
+   </target>
+
+
    <!-- =================================================================== -->
    <!-- NB overwrite targets : javadocs                                     -->
    <!-- =================================================================== -->
@@ -152,113 +154,113 @@
                notree="${javadoc.notree}" private="${javadoc.private}"
                source="${javac.source}" splitindex="${javadoc.splitindex}"
                use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}"
-               windowtitle="${javadoc.windowtitle}" executable="${javadocEXE}" >         
+               windowtitle="${javadoc.windowtitle}" executable="${javadocEXE}" >
          <link href="${j2seapi}" />
          <!-- the Xdoclint argument avoid to get javadoc errors when the documentation format is not compliant for HTML 4, which was the case before
          Java 8. It would also not be a good idea, because empty tags like br are very useful -->
-         <arg line="-Xdoclint:none"/> 
+         <arg line="-Xdoclint:none"/>
          <fileset dir="${src.dir}" defaultexcludes="yes">
             <include name="org/girod/**/*.java"/>
-         </fileset>         
+         </fileset>
          <classpath>
             <path path="${javac.classpath}"/>
-         </classpath>                     
+         </classpath>
          <doctitle><![CDATA[<h1>ontologyBrowser documentation</h1>]]></doctitle>
          <bottom>
-            <![CDATA[<i>Copyright &#169; 2021, 2022 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
-         </bottom>         
+            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
+         </bottom>
       </javadoc>
-   </target>                     
+   </target>
 
    <!-- =================================================================== -->
    <!-- NB overwrite targets : jar                                     -->
    <!-- =================================================================== -->
 
    <target depends="init,compile,-pre-jar,-do-jar-without-manifest,-post-jar" description="Build JAR." name="jar"/>
-   
+
    <target name="-do-jar-without-manifest" depends="-jarlib" />
-   
+
    <target name="-jarlib" depends="init,compile,-pre-pre-jar,-pre-jar" >
       <!-- Jar construction -->
-      <jar description="core jar binary file" compress="true" jarfile="${dist.dir}/ontoBrowser.jar" 
+      <jar description="core jar binary file" compress="true" jarfile="${dist.dir}/ontoBrowser.jar"
            manifest="${src.dir}/manifest.mf" >
          <fileset defaultexcludes="yes" dir="${build.classes.dir}">
             <include name="org/girod/**/*.class"/>
-            <include name="org/girod/**/*.xml"/>    
-            <include name="org/girod/**/*.png"/>                   
-            <include name="org/girod/**/*.properties"/>          
+            <include name="org/girod/**/*.xml"/>
+            <include name="org/girod/**/*.png"/>
+            <include name="org/girod/**/*.properties"/>
          </fileset>
-      </jar>  
-   </target>   
-   
+      </jar>
+   </target>
+
    <!-- =================================================================== -->
    <!-- NB overwrite targets : wiki                                     -->
-   <!-- =================================================================== -->   
+   <!-- =================================================================== -->
    <target name="download docJGenerator"  description="download docJGenerator" depends="init, -post-init" if="docgenerator.notexists" >
       <get src="${docGeneratorURL}" dest="${docGeneratorDir}/docGenerator.zip" verbose="false" usetimestamp="false"/>
       <unzip src="${docGeneratorDir}/docGenerator.zip" dest="${docGeneratorDir}"/>
       <delete includeEmptyDirs="true">
          <fileset dir="${docGeneratorDir}/doc"  >
             <include name="**"/>
-         </fileset>	 
+         </fileset>
          <fileset dir="${docGeneratorDir}/tutorial"  >
             <include name="**"/>
-         </fileset>	 
+         </fileset>
          <fileset dir="${docGeneratorDir}/samples"  >
             <include name="**"/>
          </fileset>
          <fileset dir="${docGeneratorDir}"  >
             <include name="docGenerator.zip"/>
-         </fileset>	         	        
-      </delete>	      
-   </target>  
-   
+         </fileset>
+      </delete>
+   </target>
+
    <target name="delete docJGenerator"  description="delete docJGenerator" depends="init, -post-init" if="docgenerator.exists" >
       <delete includeEmptyDirs="true">
          <fileset dir="${docGeneratorDir}"  >
             <include name="docGenerator.jar"/>
             <include name="LICENSE.txt"/>
             <include name="README.txt"/>
-         </fileset>	     
+         </fileset>
          <fileset dir="${docGeneratorDir}/lib"  >
             <include name="**"/>
-         </fileset>	 	                 
-      </delete>	      
-   </target>    
-   
-   <target name="generateWiki" description="generate Wiki" depends="init, version" > 
+         </fileset>
+      </delete>
+   </target>
+
+   <target name="generateWiki" description="generate Wiki" depends="init, version" >
       <java classname="org.docgene.main.DocGenerator">
          <arg value="-input=web/source"/>
-         <arg value="-output=web/wiki"/>         
-         <arg value="-lightbox=true"/> 
+         <arg value="-output=web/wiki"/>
+         <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
          <arg value="-search=titles"/>
          <arg value="-fullTextSearch=true"/>
          <classpath>
-            <pathelement path="web/soft/docGenerator.jar"/>        
+            <pathelement path="web/soft/docGenerator.jar"/>
          </classpath>
       </java>
-   </target>   
-   
-   <target name="generateWikiForSourceForge" description="generate for sourceforge" depends="init, version" > 
+   </target>
+
+   <target name="generateWikiForSourceForge" description="generate for sourceforge" depends="init, version" >
       <java classname="org.docgene.main.DocGenerator">
          <arg value="-input=web/source"/>
-         <arg value="-output=web/sourceforge"/>         
-         <arg value="-lightbox=true"/> 
+         <arg value="-output=web/sourceforge"/>
+         <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
-         <arg value="-config=web/source/sourceforge.properties"/>         
+         <arg value="-config=web/source/sourceforge.properties"/>
          <arg value="-search=titles"/>
          <arg value="-fullTextSearch=true"/>
          <classpath>
-            <pathelement path="web/soft/docGenerator.jar"/>        
+            <pathelement path="web/soft/docGenerator.jar"/>
          </classpath>
       </java>
-   </target>      
-   
+   </target>
+
    <target name="cleanWiki" description="clean Wiki" depends="init, version" >
       <delete includeEmptyDirs="true" >
          <fileset dir="web/wiki" includes="**/*" excludes="INTENTIONALLY_EMPTY" />
          <fileset dir="web/sourceforge" includes="**/*" excludes="INTENTIONALLY_EMPTY" />
       </delete>
-   </target>                                       
+   </target>
 </project>

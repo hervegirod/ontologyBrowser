@@ -2,15 +2,16 @@
 <article desc="configuration">
    <meta desc="This article presents the configuration of the application" />
    The Options =&gt; Settings action allows to edit the configuration of the tool.
-   
+
    The configuration of the tool has the following settings:
-   <img id="config" />   
+   <img id="config" />
    <ul>
       <li>"Include Individuals": checked if individuals must be included in the result</li>
-      <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>      
-      <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>           
-      <li>"Width Padding" : the padding for the boxes widths</li> 
-      <li>"Width Padding" : the padding for the boxes height</li>       
+      <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
+      <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
+      <li>"Add Thing Class": checked if the the <code>Thing</code> class should be present</li>
+      <li>"Width Padding" : the padding for the boxes widths</li>
+      <li>"Height Padding" : the padding for the boxes height</li>
    </ul>
 
    <cat id="general" />

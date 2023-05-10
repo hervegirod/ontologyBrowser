@@ -2,9 +2,29 @@
 <article desc="Release history">
    <altTitle desc="history" />
    <meta desc="This article presents the history of the releases of the library" />
-   
-   <title title="Version 0.1" /> 
+
+   <title title="Version 0.1" />
    Initial release of the library.
-            
+
+   <title title="Version 0.2" />
+   <ul>
+      <li>Show the cardinality of the relations</li>
+   </ul>
+
+   <title title="Version 0.3" />
+   <ul>
+      <li>Fix the manifest</li>
+      <li>Fix some cases where the parsing would lead to an exception</li>
+   </ul>
+
+   <title title="Version 0.4" />
+   <ul>
+      <li>Use MDIUtilities 1.2.49</li>
+      <li>Use jGraphml 1.2.2</li>
+      <li>Use MDIFramework 1.3.10.1</li>
+      <li>Fix some cases where the parsing would lead to an exception</li>
+      <li>Add an option to allow not to add the Thing class in the diagram  </li>
+   </ul>
+
    <cat id="general" />
 </article>
