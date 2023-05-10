@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,9 @@ import java.util.Map;
 import org.apache.jena.ontology.DatatypeProperty;
 
 /**
+ * Represents an Owl Datatype property.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class OwlDatatypeProperty extends OwlProperty<DatatypeProperty> {
    private OwlClass owlClass = null;

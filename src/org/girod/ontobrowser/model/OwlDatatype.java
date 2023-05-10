@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 /**
+ * Represents an Owl datatype.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class OwlDatatype extends NamedOwlElement {
    public static final short CUSTOM = -1;

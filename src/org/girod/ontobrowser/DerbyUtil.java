@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,9 @@ package org.girod.ontobrowser;
 import java.io.OutputStream;
 
 /**
+ * This utility class allows not to write anything on the output stream for the Derby database.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class DerbyUtil {
    public static final OutputStream DEV_NULL = new OutputStream() {

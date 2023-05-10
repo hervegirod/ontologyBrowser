@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import org.girod.ontobrowser.utils.LabelUtils;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -52,16 +53,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.ontology.OntologyException;
 import org.apache.jena.ontology.impl.OntModelImpl;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.util.FileManager;
 import org.girod.ontobrowser.BrowserConfiguration;
-import org.girod.ontobrowser.MenuFactory;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
@@ -71,25 +74,24 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.app.swing.AbstractMDIApplication;
-import org.mdi.bootstrap.swing.AbstractMDIAction;
 import org.mdi.bootstrap.MDIApplication;
+import org.mdi.bootstrap.swing.AbstractMDIAction;
+import org.mdi.bootstrap.swing.GUIApplication;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdiutil.io.FileUtilities;
 
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
    private String name = null;
-   private MenuFactory factory = null;
    private OwlSchema schema = null;
    private OwlDiagram diagram = null;
    private SwingFileProperties prop = null;
    private JPanel panel = null;
-   private JSplitPane split = null;
    private static final String FONT_FAMILY = "Dialog";
    private static final int FONT_SIZE = 11;
 
@@ -104,7 +106,6 @@ public class OpenModelAction extends AbstractMDIAction {
    public OpenModelAction(MDIApplication app, String desc, String longDesc, File file) {
       super(app, "Open");
       this.file = file;
-      this.factory = (MenuFactory) ((AbstractMDIApplication) app).getMenuFactory();
       this.name = FileUtilities.getFileNameBody(file);
       this.setDescription(desc, longDesc);
    }
@@ -120,7 +121,6 @@ public class OpenModelAction extends AbstractMDIAction {
     */
    public OpenModelAction(MDIApplication app, String desc, String longDesc, SwingFileProperties prop, File file) {
       super(app, "Open");
-      this.factory = (MenuFactory) ((AbstractMDIApplication) app).getMenuFactory();
       this.file = file;
       this.prop = prop;
       this.name = FileUtilities.getFileNameBody(file);
@@ -139,33 +139,44 @@ public class OpenModelAction extends AbstractMDIAction {
    @Override
    public void run() throws Exception {
       URI uri = file.toURI();
+      OntoErrorHandler errorHandler = new OntoErrorHandler((GUIApplication) app);
+      ErrorHandlerFactory.setDefaultErrorHandler(errorHandler);
       OntModel model = createModel("OWL_MEM");
-      FileManager.get().readModel(model, uri.toString());
-      // getting a raw model is necessary because if we don't do that, we will use the reasoner when getting the individuals, and if can take a
-      // very long time
-      // see https://stackoverflow.com/questions/27645110/method-listindividual-takes-more-than-15-mins-with-dbpedia-2014-owl-2mb-siz
-      Model _model = model.getRawModel();
-      model = new OntModelImpl(OntModelSpec.OWL_MEM, _model);
+      try {
+         FileManager.get().readModel(model, uri.toString());
+         // getting a raw model is necessary because if we don't do that, we will use the reasoner when getting the individuals, and if can take a
+         // very long time
+         // see https://stackoverflow.com/questions/27645110/method-listindividual-takes-more-than-15-mins-with-dbpedia-2014-owl-2mb-siz
+         Model _model = model.getRawModel();
+         model = new OntModelImpl(OntModelSpec.OWL_MEM, _model);
 
-      GraphExtractor extractor = new GraphExtractor(model);
-      schema = extractor.getGraph();
-      diagram = new OwlDiagram(file.getName());
-      diagram.setFile(file);
-      diagram.setSchema(schema);
-      mxGraph graph = createGraph(schema);
-      diagram.setGraph(graph);
+         BrowserConfiguration conf = BrowserConfiguration.getInstance();
+         boolean addThingClass = conf.addThingClass;
+         boolean showPackages = conf.showPackages;
+         GraphExtractor extractor = new GraphExtractor(model, addThingClass, showPackages);
+         schema = extractor.getGraph();
+         diagram = new OwlDiagram(file.getName());
+         diagram.setFile(file);
+         diagram.setSchema(schema);
+         mxGraph graph = createGraph(schema);
+         diagram.setGraph(graph);
 
-      mxStylesheet stylesheet = graph.getStylesheet();
+         mxStylesheet stylesheet = graph.getStylesheet();
 
-      panel = new JPanel();
-      panel.setLayout(new BorderLayout());
-      stylesheet.getDefaultVertexStyle().put(mxConstants.STYLE_FONTSIZE, 8);
-      mxGraphComponent graphComp = new mxGraphComponent(graph);
-      diagram.setGraphComponent(graphComp);
-      graphComp.setPanning(true);
-      graphComp.zoom(1.5f);
-      graph.getModel().setGeometry(graph.getDefaultParent(), new mxGeometry(-300, -300, 300, 300));
-      panel.add(graphComp, BorderLayout.CENTER);
+         panel = new JPanel();
+         panel.setLayout(new BorderLayout());
+         stylesheet.getDefaultVertexStyle().put(mxConstants.STYLE_FONTSIZE, 8);
+         mxGraphComponent graphComp = new mxGraphComponent(graph);
+         diagram.setGraphComponent(graphComp);
+         graphComp.setPanning(true);
+         graphComp.zoom(1.5f);
+         graph.getModel().setGeometry(graph.getDefaultParent(), new mxGeometry(-300, -300, 300, 300));
+         panel.add(graphComp, BorderLayout.CENTER);
+      } catch (RiotException ex) {
+         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+      } catch (OntologyException ex) {
+         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);
+      }
    }
 
    private OntModel createModel(String ontologyModel) {
@@ -298,7 +309,7 @@ public class OpenModelAction extends AbstractMDIAction {
          ElementKey key = it2.next();
          OwlClass theClass = owlClasses.get(key);
          mxCell theCell = cell4Class.get(key);
-         Iterator<ElementKey> it3 = theClass.getSuperClasses().iterator();
+         Iterator<ElementKey> it3 = theClass.getSuperClasses().keySet().iterator();
          while (it3.hasNext()) {
             ElementKey parentKey = it3.next();
             if (owlClasses.containsKey(parentKey)) {

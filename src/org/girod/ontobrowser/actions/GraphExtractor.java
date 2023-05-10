@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.ontology.AllValuesFromRestriction;
 import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.DatatypeProperty;
@@ -51,6 +52,7 @@ import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.ontology.OntResource;
+import org.apache.jena.ontology.OntologyException;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.SomeValuesFromRestriction;
 import org.apache.jena.rdf.model.Literal;
@@ -81,16 +83,36 @@ import org.girod.ontobrowser.model.restriction.OwlQualifiedCardinalityRestrictio
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.girod.ontobrowser.model.restriction.OwlSomeValuesFromRestriction;
 import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
+import org.girod.ontobrowser.utils.DatatypeUtils;
 
 /**
+ * This class allows to extract the graph from an Owl model.
  *
- * @version 0.3
+ * @version 0.4
  */
 public class GraphExtractor {
    private final OntModel model;
+   private ElementKey thingKey = null;
+   private final boolean addThingClass;
+   private final boolean showPackages;
 
+   /**
+    * Constructor.
+    *
+    * @param model the Owl model
+    */
    public GraphExtractor(OntModel model) {
+      this(model, true, false);
+   }
+
+   public GraphExtractor(OntModel model, boolean addThingClass, boolean showPackages) {
       this.model = model;
+      this.showPackages = showPackages;
+      if (showPackages) {
+         this.addThingClass = false;
+      } else {
+         this.addThingClass = addThingClass;
+      }
    }
 
    private OwlRestriction getRestrictionFrom(Restriction restriction) {
@@ -159,11 +181,17 @@ public class GraphExtractor {
       return owlRestriction;
    }
 
-   public OwlSchema getGraph() {
-      OwlSchema graph = new OwlSchema();
+   /**
+    * Return the graph.
+    *
+    * @return the graph
+    */
+   public OwlSchema getGraph() throws OntologyException {
+      OwlSchema graph = new OwlSchema(model);
       OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
-      ElementKey thingKey = new ElementKey(thingClass.getNameSpace(), thingClass.getLocalName());
-      OwlClass owlThingClass = new OwlClass(thingClass);
+      OwlClass owlThingClass = graph.getThingClass();
+      thingKey = owlThingClass.getKey();
+
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties = new HashMap<>();
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
@@ -251,15 +279,21 @@ public class GraphExtractor {
          }
          OwlClass owlClass;
          if (thisClass.equals(thingClass)) {
-            owlClass = owlThingClass;
+            if (addThingClass) {
+               owlClass = owlThingClass;
+            } else {
+               owlClass = null;
+            }
             hasThingClass = true;
          } else {
             String nameSpace = thisClass.getNameSpace();
             owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
          }
-         graph.addOwlClass(owlClass);
+         if (owlClass != null) {
+            graph.addOwlClass(owlClass);
+         }
       }
-      if (!hasThingClass) {
+      if (!hasThingClass && addThingClass) {
          graph.addOwlClass(owlThingClass);
       }
 
@@ -297,32 +331,40 @@ public class GraphExtractor {
                ElementKey skey = new ElementKey(superClass.getNameSpace(), superClass.getLocalName());
                if (graph.hasOwlClass(skey)) {
                   OwlClass superOwlClass = graph.getOwlClass(skey);
-                  owlClass.addSuperClass(skey);
-                  superOwlClass.addSubClass(skey);
+                  if (addThingClass || !skey.equals(thingKey)) {
+                     owlClass.addSuperClass(skey, superOwlClass, thingKey);
+                     superOwlClass.addSubClass(key, owlClass);
+                  }
                }
             }
             // add root classes as children of Thing
-            if (isEmpty && !key.equals(thingKey)) {
-               owlThingClass.addSubClass(key);
-               owlClass.addSuperClass(thingKey);
+            if (addThingClass && isEmpty && !key.equals(thingKey)) {
+               owlThingClass.addSubClass(key, owlClass);
+               owlClass.addSuperClass(thingKey, owlThingClass, thingKey);
             }
          }
       }
-      if (!hasThingClass) {
+      if (!hasThingClass && addThingClass) {
          ExtendedIterator<OntClass> children = thingClass.listSubClasses();
          while (children.hasNext()) {
             OntClass childClass = children.next();
             ElementKey skey = new ElementKey(childClass.getNameSpace(), childClass.getLocalName());
             if (graph.hasOwlClass(skey)) {
                OwlClass childOwlClass = graph.getOwlClass(skey);
-               childOwlClass.addSuperClass(thingKey);
-               owlThingClass.addSubClass(skey);
+               childOwlClass.addSuperClass(thingKey, owlThingClass, thingKey);
+               owlThingClass.addSubClass(skey, childOwlClass);
             }
          }
       }
 
       // class to properties dependencies
       addDependencies(graph, domainClassToProperties, rangeClassToProperties);
+
+      if (showPackages) {
+         PackagesExtractor pExtractor = new PackagesExtractor(graph);
+         Map<ElementKey, OwlClass> packages = pExtractor.extractPackages();
+         graph.setPackages(packages);
+      }
 
       return graph;
    }
@@ -446,8 +488,13 @@ public class GraphExtractor {
          RDFNode node = restriction.getPropertyValue(property);
          if (node instanceof Literal) {
             Literal literal = (Literal) node;
-            int i = literal.getInt();
-            return new WrappedValue(i);
+            try {
+               int i = literal.getInt();
+               return new WrappedValue(i);
+            } catch (DatatypeFormatException e) {
+               int i = DatatypeUtils.getValueAsInt(literal);
+               return new WrappedValue(i);
+            }
          } else {
             return new WrappedValue();
          }

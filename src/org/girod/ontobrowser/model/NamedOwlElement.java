@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.girod.ontobrowser.model;
 /**
  * Represents a named Owl element.
  *
- * @since 0.1
+ * @version 0.4
  */
 public abstract class NamedOwlElement implements Cloneable {
    protected final String namespace;
@@ -48,7 +48,11 @@ public abstract class NamedOwlElement implements Cloneable {
 
    @Override
    public String toString() {
-      return namespace + ":" + name;
+      if (namespace == null) {
+         return name;
+      } else {
+         return namespace + ":" + name;
+      }
    }
 
    @Override
@@ -61,14 +65,29 @@ public abstract class NamedOwlElement implements Cloneable {
       }
    }
 
+   /**
+    * Return the element name.
+    *
+    * @return the name
+    */
    public String getName() {
       return name;
    }
 
+   /**
+    * Return the element namespace.
+    *
+    * @return the namespace
+    */
    public String getNamespace() {
       return namespace;
    }
 
+   /**
+    * Return the element key.
+    *
+    * @return the key
+    */
    public ElementKey getKey() {
       return new ElementKey(namespace, name);
    }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,15 +35,16 @@ package org.girod.ontobrowser.model;
 import java.util.Objects;
 
 /**
+ * Represents the reference to a class property.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class PropertyClassRef implements Cloneable {
-   private final ElementKey classKey;
+   private final ElementKey domainKey;
    private final ElementKey propertyKey;
 
-   public PropertyClassRef(ElementKey classKey, ElementKey propertyKey) {
-      this.classKey = classKey;
+   public PropertyClassRef(ElementKey domainKey, ElementKey propertyKey) {
+      this.domainKey = domainKey;
       this.propertyKey = propertyKey;
    }
 
@@ -59,13 +60,13 @@ public class PropertyClassRef implements Cloneable {
 
    @Override
    public String toString() {
-      return classKey.toString() + "#" + propertyKey.toString();
+      return domainKey.toString() + "#" + propertyKey.toString();
    }
 
    @Override
    public int hashCode() {
       int hash = 3;
-      hash = 73 * hash + Objects.hashCode(this.classKey);
+      hash = 73 * hash + Objects.hashCode(this.domainKey);
       hash = 73 * hash + Objects.hashCode(this.propertyKey);
       return hash;
    }
@@ -82,7 +83,7 @@ public class PropertyClassRef implements Cloneable {
          return false;
       }
       final PropertyClassRef other = (PropertyClassRef) obj;
-      if (!Objects.equals(this.classKey, other.classKey)) {
+      if (!Objects.equals(this.domainKey, other.domainKey)) {
          return false;
       }
       if (!Objects.equals(this.propertyKey, other.propertyKey)) {
@@ -91,10 +92,20 @@ public class PropertyClassRef implements Cloneable {
       return true;
    }
 
-   public ElementKey getClassKey() {
-      return classKey;
+   /**
+    * The domain key.
+    *
+    * @return the domain key
+    */
+   public ElementKey getDomainKey() {
+      return domainKey;
    }
 
+   /**
+    * The property key.
+    *
+    * @return the property key
+    */
    public ElementKey getPropertyKey() {
       return propertyKey;
    }

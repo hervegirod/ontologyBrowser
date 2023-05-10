@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022 Hervé Girod
+Copyright (c) 2021, 2022, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.2
+ * @version 0.4
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
@@ -52,6 +52,8 @@ public class BrowserSettings {
    private JCheckBox includeIndividualsCb;
    private JCheckBox showRelationsConstraintsCb;
    private JCheckBox showDataPropertiesTypesCb;
+   private JCheckBox addThingClassCb;
+   private JCheckBox showPackagesCb;
    private final SpinnerNumberModel padWidthSpinnerModel = new SpinnerNumberModel(15, 0, 100, 1);
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
@@ -94,6 +96,8 @@ public class BrowserSettings {
       includeIndividualsCb.setSelected(conf.includeIndividuals);
       showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
       showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
+      showPackagesCb.setSelected(conf.showPackages);
+      addThingClassCb.setSelected(conf.addThingClass);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
    }
@@ -129,6 +133,18 @@ public class BrowserSettings {
       showDataPropertiesTypesCb.setBackground(Color.WHITE);
       showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
          conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
+      });
+
+      showPackagesCb = new JCheckBox("", conf.showPackages);
+      showPackagesCb.setBackground(Color.WHITE);
+      showPackagesCb.addActionListener((ActionEvent e) -> {
+         conf.showPackages = showPackagesCb.isSelected();
+      });
+
+      addThingClassCb = new JCheckBox("", conf.addThingClass);
+      addThingClassCb.setBackground(Color.WHITE);
+      addThingClassCb.addActionListener((ActionEvent e) -> {
+         conf.addThingClass = addThingClassCb.isSelected();
       });
 
       padWidthSpinner = new JSpinner(padWidthSpinnerModel);
@@ -173,6 +189,8 @@ public class BrowserSettings {
       generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
+      generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
+      generalSettings.addProperty(showPackagesCb, "", "Show Packages");
       generalSettings.addProperty(padWidthSpinner, "", "Width Padding");
       generalSettings.addProperty(padHeightSpinner, "", "Height Padding");
       generalSettings.setVisible(true);

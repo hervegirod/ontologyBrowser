@@ -30,24 +30,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.utils;
 
-import org.apache.jena.ontology.Individual;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import org.girod.ontobrowser.BrowserConfiguration;
 
 /**
- * Represents an Individual.
+ * Utilities methods to handle labels in the output graph.
  *
  * @version 0.4
  */
-public class OwlIndividual extends NamedOwlElement {
-   private final OwlClass parentClass;
+public class LabelUtils {
+   private static final AffineTransform TRANSFORM = new AffineTransform();
+   private static final FontRenderContext FRC = new FontRenderContext(TRANSFORM, true, true);
 
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClass = parentClass;
+   private LabelUtils() {
    }
 
-   public OwlClass getParentClass() {
-      return parentClass;
+   private static Dimension getMinimumSize(String label, int fontSize, String fontFamily) {
+      Font font = new Font(fontFamily, Font.PLAIN, fontSize);
+      int textwidth = (int) (font.getStringBounds(label, FRC).getWidth());
+      int textheight = (int) (font.getStringBounds(label, FRC).getHeight());
+      return new Dimension(textwidth, textheight);
+   }
+
+   /**
+    * Return the dimension of a label.
+    *
+    * @param label the label
+    * @param fontSize the font size
+    * @param fontFamily the font family
+    * @return the dimension
+    */
+   public static Dimension getDimension(String label, int fontSize, String fontFamily) {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      if (label != null && !label.isEmpty()) {
+         Dimension size = getMinimumSize(label, fontSize, fontFamily);
+         int width = size.width + conf.padWidth;
+         int height = size.height + conf.padHeight;
+         return new Dimension(width, height);
+      } else {
+         return new Dimension(conf.padWidth, conf.padHeight);
+      }
    }
 }

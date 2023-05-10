@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,39 +32,37 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import org.girod.ontobrowser.BrowserConfiguration;
+import org.apache.jena.riot.system.ErrorHandler;
+import org.mdi.bootstrap.swing.GUIApplication;
+import org.mdi.gui.swing.SwingMessageArea;
 
 /**
+ * This class show errors encountered curing the Owl/ORDF model parsing.
  *
- * @since 0.1
+ * @since 0.4
  */
-public class LabelUtils {
-   private static final AffineTransform TRANSFORM = new AffineTransform();
-   private static final FontRenderContext FRC = new FontRenderContext(TRANSFORM, true, true);
+public class OntoErrorHandler implements ErrorHandler {
+   private final GUIApplication appli;
+   private final SwingMessageArea messageArea;
 
-   private LabelUtils() {
+   public OntoErrorHandler(GUIApplication appli) {
+      this.appli = appli;
+      this.messageArea = appli.getMessageArea();
    }
 
-   private static Dimension getMinimumSize(String label, int fontSize, String fontFamily) {
-      Font font = new Font(fontFamily, Font.PLAIN, fontSize);
-      int textwidth = (int) (font.getStringBounds(label, FRC).getWidth());
-      int textheight = (int) (font.getStringBounds(label, FRC).getHeight());
-      return new Dimension(textwidth, textheight);
+   @Override
+   public void warning(String message, long line, long col) {
+      messageArea.append("Warning in line " + line + ": " + message, "red");
    }
 
-   public static Dimension getDimension(String label, int fontSize, String fontFamily) {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      if (label != null && !label.isEmpty()) {
-         Dimension size = getMinimumSize(label, fontSize, fontFamily);
-         int width = size.width + conf.padWidth;
-         int height = size.height + conf.padHeight;
-         return new Dimension(width, height);
-      } else {
-         return new Dimension(conf.padWidth, conf.padHeight);
-      }
+   @Override
+   public void error(String message, long line, long col) {
+      messageArea.append("Error in line " + line + ": " + message, "red");
    }
+
+   @Override
+   public void fatal(String message, long line, long col) {
+      messageArea.append("Fatal error  in line " + line + ": " + message, "red");
+   }
+
 }

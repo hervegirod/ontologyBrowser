@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,9 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
  * An abstract OwlProperty.
+ *
  * @param <T> the property type
- * @version 0.2
+ * @version 0.4
  */
 public abstract class OwlProperty<T> extends NamedOwlElement {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
@@ -82,27 +83,27 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
    public boolean isObjectProperty() {
       return false;
    }
-   
+
    public boolean hasCardinalityRestriction() {
       return hasMinCardinality() || hasMaxCardinality();
-   }        
+   }
 
    public void setMinCardinality(int minCardinality) {
       this.minCardinality = minCardinality;
    }
-   
+
    public boolean hasMinCardinality() {
       return minCardinality > 0;
-   }     
+   }
 
    public int getMinCardinality() {
       return minCardinality;
-   } 
+   }
 
    public void setMaxCardinality(int maxCardinality) {
       this.maxCardinality = maxCardinality;
    }
-   
+
    public boolean hasMaxCardinality() {
       return maxCardinality != -1;
    }

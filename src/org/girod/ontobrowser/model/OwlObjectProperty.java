@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,9 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
 /**
+ * Represents an Owl Object property.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
    private final Map<ElementKey, OwlRestriction> range = new HashMap<>();

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022 Hervé Girod
+Copyright (c) 2021, 2022, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.mdiutil.swing.ExtensionFileFilter;
 /**
  * The browser configuration.
  *
- * @version 0.2
+ * @version 0.4
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -67,6 +67,8 @@ public class BrowserConfiguration implements Configuration {
    public boolean includeIndividuals = false;
    public boolean showRelationsConstraints = false;
    public boolean showDataPropertiesTypes = false;
+   public boolean addThingClass = true;
+   public boolean showPackages = false;   
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
@@ -136,6 +138,8 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("includeIndividuals", includeIndividuals);
       p.putBoolean("showRelationsConstraints", showRelationsConstraints);
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
+      p.putBoolean("addThingClass", addThingClass);
+      p.putBoolean("showPackages", showPackages);	  
    }
 
    @Override
@@ -146,6 +150,8 @@ public class BrowserConfiguration implements Configuration {
       includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
       showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
+      addThingClass = p.getBoolean("addThingClass", addThingClass);
+      showPackages = p.getBoolean("showPackages", showPackages);	  
    }
 
 }

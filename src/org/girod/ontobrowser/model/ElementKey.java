@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
+ * The element key, witha name and namespace.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class ElementKey implements Cloneable, Serializable {
    public static final String XML_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
@@ -84,7 +85,11 @@ public class ElementKey implements Cloneable, Serializable {
 
    @Override
    public String toString() {
-      return namespace + name;
+      if (namespace == null) {
+         return name;
+      } else {
+         return namespace + name;
+      }
    }
 
    @Override

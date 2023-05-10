@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,26 +45,32 @@ import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdiutil.prefs.NetworkPreferencesFactory;
 
 /**
+ * The main class of the application.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class OntoBrowser extends AbstractMDIApplication {
    private Preferences pref = null;
 
    public OntoBrowser() {
+      this(true);
+   }
+
+   public OntoBrowser(boolean startGUI) {
       super("Ontology Browser");
       configureDerby();
       configureLog4J();
       this.hasClosableTab(true);
       conf = BrowserConfiguration.getInstance();
 
-      initPreferencesFile();
-      super.initConfiguration(pref);
+      if (startGUI) {
+         initPreferencesFile();
+         super.initConfiguration(pref);
+         this.setSize(((BrowserConfiguration) conf).sizeX, ((BrowserConfiguration) conf).sizeY);
 
-      this.setSize(((BrowserConfiguration) conf).sizeX, ((BrowserConfiguration) conf).sizeY);
-
-      mfactory = new MenuFactory(this);
-      super.preparePanels(8, true, true, mfactory);
+         mfactory = new MenuFactory(this);
+         super.preparePanels(8, true, true, mfactory);
+      }
    }
 
    private void configureDerby() {

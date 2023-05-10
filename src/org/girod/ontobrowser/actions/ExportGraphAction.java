@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022 Hervé Girod
+Copyright (c) 2021, 2022, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.girod.jgraphml.GraphMLFactory;
 import org.girod.jgraphml.model.Arrows;
 import org.girod.jgraphml.model.DiagramDefaults;
 import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLDiagram;
 import org.girod.jgraphml.model.GraphMLEdge;
+import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
 import org.girod.jgraphml.model.NodeLabel;
 import org.girod.jgraphml.model.ShapeType;
@@ -56,20 +58,25 @@ import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
-import org.mdi.bootstrap.swing.AbstractMDIAction;
 import org.mdi.bootstrap.MDIApplication;
+import org.mdi.bootstrap.swing.AbstractMDIAction;
 
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.2
+ * @version 0.4
  */
 public class ExportGraphAction extends AbstractMDIAction {
    private static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
+   private static final String LIGHT_GREEN = "#90EE90";
    private File file = null;
    private OwlDiagram diagram = null;
+   private GraphMLDiagram graph;
    private boolean showRelationsConstraints = false;
    private boolean showDataPropertiesTypes = false;
+   private boolean showPackages = false;
+   private OwlSchema schema;
+   private Map<ElementKey, GraphMLGroupNode> packagesNodes = new HashMap<>();
    private DiagramDefaults defaults = null;
 
    /**
@@ -88,15 +95,132 @@ public class ExportGraphAction extends AbstractMDIAction {
       this.setDescription(desc, longDesc);
    }
 
+   private GraphMLGroupNode getPackageNode(OwlClass theClass, ElementKey key) {
+      OwlClass superClass = theClass.getFirstSuperClass();
+      if (superClass == null) {
+         GraphMLGroupNode node = graph.addGroupNode();
+         setGroupNodeStyle(node, theClass.getName());
+         packagesNodes.put(key, node);
+         return node;
+      } else {
+         ElementKey superclassKey = superClass.getKey();
+         if (packagesNodes.containsKey(superclassKey)) {
+            GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
+            GraphMLGroupNode node = superclassNode.addGroupNode();
+            setGroupNodeStyle(node, theClass.getName());
+            packagesNodes.put(key, node);
+            return node;
+         } else {
+            GraphMLGroupNode superclassNode = getPackageNode(schema.getOwlClass(superclassKey), superclassKey);
+            GraphMLGroupNode node = superclassNode.addGroupNode();
+            setGroupNodeStyle(node, theClass.getName());
+            packagesNodes.put(key, node);
+            return node;
+         }
+      }
+   }
+
+   private void setGroupNodeStyle(GraphMLGroupNode node, String name) {
+      node.setType(ShapeType.ROUNDRECTANGLE);
+      node.setFillColor(LIGHT_GREEN);
+      NodeLabel label = node.setLabel(name);
+      label.setFontSize(14);
+   }
+
+   private GraphMLGroupNode getGroupParent(ElementKey key, OwlClass owlClass) {
+      if (packagesNodes == null || !owlClass.isInPackage()) {
+         return null;
+      } else {
+         ElementKey thePackageKey = owlClass.getPackage();
+         return packagesNodes.get(thePackageKey);
+      }
+   }
+
+   private GraphMLNode addIndividual(OwlClass owlClass, GraphMLNode node, OwlIndividual individual) {
+      GraphMLNode inode;
+      if (owlClass.isInPackage()) {
+         ElementKey packageKey = owlClass.getPackage();
+         GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
+         inode = groupNode.addNode();
+      } else {
+         inode = graph.addNode();
+      }
+      inode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+      inode.getShapeNode().setFillColor(Color.MAGENTA);
+      NodeLabel ilabel = inode.createLabel(true);
+      ilabel.setFontSize(11);
+      ilabel.setLabel(individual.getName());
+      GraphMLEdge edge = graph.addEdge(node, inode);
+      Arrows arrows = edge.getArrows();
+      arrows.setSource(Arrows.NONE);
+      arrows.setTarget(Arrows.NONE);
+      return inode;
+   }
+
+   private GraphMLNode addDataProperty(OwlClass owlClass, OwlDatatypeProperty dataProperty) {
+      GraphMLNode propertyNode;
+      if (owlClass.isInPackage()) {
+         ElementKey packageKey = owlClass.getPackage();
+         GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
+         propertyNode = groupNode.addNode();
+      } else {
+         propertyNode = graph.addNode();
+      }
+      propertyNode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+      propertyNode.getShapeNode().setFillColor(Color.CYAN);
+      NodeLabel label = propertyNode.createLabel(true);
+      label.setFontSize(11);
+      if (showDataPropertiesTypes) {
+         String typeS = getType(dataProperty);
+         if (typeS != null) {
+            label.setLabel(dataProperty.getName() + "\n" + typeS);
+            propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
+         } else {
+            label.setLabel(dataProperty.getName());
+         }
+      } else {
+         label.setLabel(dataProperty.getName());
+      }
+      return propertyNode;
+   }
+
+   private GraphMLNode addLeafNode(Map<ElementKey, GraphMLNode> elementToNode, ElementKey key, OwlClass owlClass) {
+      GraphMLGroupNode groupNode = getGroupParent(key, owlClass);
+      GraphMLNode node;
+      if (groupNode == null) {
+         node = graph.addNode();
+      } else {
+         node = groupNode.addNode();
+      }
+      node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+      node.getShapeNode().setFillColor(Color.LIGHT_GRAY);
+      NodeLabel label = node.createLabel(true);
+      label.setFontSize(11);
+      label.setLabel(owlClass.getName());
+      elementToNode.put(key, node);
+
+      // individuals
+      if (owlClass.hasIndividuals()) {
+         Iterator<OwlIndividual> it2 = owlClass.getIndividuals().values().iterator();
+         while (it2.hasNext()) {
+            OwlIndividual individual = it2.next();
+            addIndividual(owlClass, node, individual);
+         }
+      }
+      return node;
+   }
+
    @Override
    public void run() throws Exception {
+      packagesNodes = new HashMap<>();
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       this.showRelationsConstraints = conf.showRelationsConstraints;
       this.showDataPropertiesTypes = conf.showDataPropertiesTypes;
+      this.showPackages = diagram.hasPackages();
 
       GraphMLFactory factory = GraphMLFactory.getInstance();
-      GraphMLDiagram _diagram = factory.newDiagram();
-      defaults = _diagram.getDefaults();
+      graph = factory.newDiagram();
+      defaults = graph.getDefaults();
       defaults.edgeLabelAutoRotate = true;
       defaults.edgeLabelAutoFlip = true;
       defaults.nodeFontSize = 11;
@@ -110,37 +234,28 @@ public class ExportGraphAction extends AbstractMDIAction {
       defaults.arrowTarget = Arrows.STANDARD;
 
       Map<ElementKey, GraphMLNode> elementToNode = new HashMap<>();
-      OwlSchema schema = diagram.getSchema();
+      schema = diagram.getSchema();
 
       Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
-      Iterator<ElementKey> it = owlClasses.keySet().iterator();
-      while (it.hasNext()) {
-         ElementKey key = it.next();
-         OwlClass owlClass = owlClasses.get(key);
-         GraphMLNode node = _diagram.addNode();
-         node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-         node.getShapeNode().setFillColor(Color.LIGHT_GRAY);
-         NodeLabel label = node.createLabel(true);
-         label.setFontSize(11);
-         label.setLabel(owlClass.getName());
-         elementToNode.put(key, node);
-
-         // individuals
-         if (owlClass.hasIndividuals()) {
-            Iterator<OwlIndividual> it2 = owlClass.getIndividuals().values().iterator();
-            while (it2.hasNext()) {
-               OwlIndividual individual = it2.next();
-               GraphMLNode inode = _diagram.addNode();
-               inode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-               inode.getShapeNode().setFillColor(Color.MAGENTA);
-               NodeLabel ilabel = inode.createLabel(true);
-               ilabel.setFontSize(11);
-               ilabel.setLabel(individual.getName());
-               GraphMLEdge edge = _diagram.addEdge(node, inode);
-               Arrows arrows = edge.getArrows();
-               arrows.setSource(Arrows.NONE);
-               arrows.setTarget(Arrows.NONE);
+      if (showPackages) {
+         Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
+         while (it.hasNext()) {
+            Entry<ElementKey, OwlClass> entry = it.next();
+            ElementKey key = entry.getKey();
+            OwlClass owlClass = entry.getValue();
+            if (schema.isPackage(key)) {
+               getPackageNode(owlClass, key);
             }
+         }
+      }
+
+      Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, OwlClass> entry = it.next();
+         ElementKey key = entry.getKey();
+         OwlClass owlClass = entry.getValue();
+         if (!showPackages || !packagesNodes.containsKey(key)) {
+            addLeafNode(elementToNode, key, owlClass);
          }
       }
 
@@ -149,16 +264,21 @@ public class ExportGraphAction extends AbstractMDIAction {
       while (it2.hasNext()) {
          ElementKey key = it2.next();
          OwlClass theClass = owlClasses.get(key);
-         GraphMLNode theNode = elementToNode.get(key);
-         Iterator<ElementKey> it3 = theClass.getSuperClasses().iterator();
-         while (it3.hasNext()) {
-            ElementKey parentKey = it3.next();
-            if (owlClasses.containsKey(parentKey)) {
-               GraphMLNode source = elementToNode.get(parentKey);
-               GraphMLEdge edge = _diagram.addEdge(source, theNode);
-               Arrows arrows = edge.getArrows();
-               arrows.setSource(Arrows.WHITE_DELTA);
-               arrows.setTarget(Arrows.NONE);
+         if (!showPackages || !packagesNodes.containsKey(key)) {
+            GraphMLNode theNode = elementToNode.get(key);
+            Iterator<ElementKey> it3 = theClass.getSuperClasses().keySet().iterator();
+            while (it3.hasNext()) {
+               ElementKey parentKey = it3.next();
+               if (owlClasses.containsKey(parentKey)) {
+                  OwlClass parentClass = owlClasses.get(parentKey);
+                  if (!showPackages || !parentClass.isPackage()) {
+                     GraphMLNode source = elementToNode.get(parentKey);
+                     GraphMLEdge edge = graph.addEdge(source, theNode);
+                     Arrows arrows = edge.getArrows();
+                     arrows.setSource(Arrows.WHITE_DELTA);
+                     arrows.setTarget(Arrows.NONE);
+                  }
+               }
             }
          }
       }
@@ -179,7 +299,7 @@ public class ExportGraphAction extends AbstractMDIAction {
                   ElementKey propKey = it4.next();
                   if (owlClasses.containsKey(propKey)) {
                      GraphMLNode rangeNode = elementToNode.get(propKey);
-                     GraphMLEdge edge = _diagram.addEdge(rangeNode, theNode);
+                     GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                      EdgeLabel label = edge.createLabel(true);
                      label.setLabel(property.getName());
                      Arrows arrows = edge.getArrows();
@@ -196,24 +316,9 @@ public class ExportGraphAction extends AbstractMDIAction {
                }
             } else {
                OwlDatatypeProperty dataProperty = (OwlDatatypeProperty) property;
-               GraphMLNode propertyNode = _diagram.addNode();
-               propertyNode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-               propertyNode.getShapeNode().setFillColor(Color.CYAN);
-               NodeLabel label = propertyNode.createLabel(true);
-               label.setFontSize(11);
-               if (showDataPropertiesTypes) {
-                  String typeS = getType(dataProperty);
-                  if (typeS != null) {
-                     label.setLabel(dataProperty.getName() + "\n" + typeS);
-                     propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
-                  } else {
-                     label.setLabel(dataProperty.getName());
-                  }
-               } else {
-                  label.setLabel(dataProperty.getName());
-               }
+               GraphMLNode propertyNode = addDataProperty(theClass, dataProperty);
 
-               GraphMLEdge edge = _diagram.addEdge(propertyNode, theNode);
+               GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
                EdgeLabel elabel = edge.createLabel(true);
                elabel.setLabel(property.getName());
                Arrows arrows = edge.getArrows();
@@ -222,7 +327,7 @@ public class ExportGraphAction extends AbstractMDIAction {
             }
          }
       }
-      factory.saveDiagram(_diagram, file);
+      factory.saveDiagram(graph, file);
    }
 
    private String getType(OwlDatatypeProperty dataProperty) {

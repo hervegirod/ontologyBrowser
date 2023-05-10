@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.mdiutil.lang.swing.ResourceUILoader;
 /**
  * This class creates the Menus for the application.
  *
- * @since 0.1
+ * @version 0.4
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
@@ -241,18 +241,19 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    }
 
    private mxIGraphLayout createLayout(String layoutName, mxGraph graph) {
-      if (layoutName.equals("Organic Layout")) {
-         return new mxOrganicLayout(graph);
-      } else if (layoutName.equals("Hierarchical Layout")) {
-         return new mxHierarchicalLayout(graph);
-      } else if (layoutName.equals("Partition Layout")) {
-         return new mxPartitionLayout(graph);
-      } else if (layoutName.equals("CompactTree Layout")) {
-         return new mxCompactTreeLayout(graph);
-      } else if (layoutName.equals("ParallelEdge Layout")) {
-         return new mxParallelEdgeLayout(graph);
-      } else {
-         return null;
+      switch (layoutName) {
+         case "Organic Layout":
+            return new mxOrganicLayout(graph);
+         case "Hierarchical Layout":
+            return new mxHierarchicalLayout(graph);
+         case "Partition Layout":
+            return new mxPartitionLayout(graph);
+         case "CompactTree Layout":
+            return new mxCompactTreeLayout(graph);
+         case "ParallelEdge Layout":
+            return new mxParallelEdgeLayout(graph);
+         default:
+            return null;
       }
    }
 
@@ -295,6 +296,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
          }
       }
    }
+
    private void exportModel() {
       exportModel(null);
    }

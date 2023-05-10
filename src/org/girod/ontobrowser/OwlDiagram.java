@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,9 @@ import java.io.File;
 import org.girod.ontobrowser.model.OwlSchema;
 
 /**
- * A framework diagram shown in the browser.
+ * An Owl diagram shown in the browser.
  *
- * @version 0.6.27.1
+ * @version 0.4
  */
 public class OwlDiagram {
    private mxGraph graph = null;
@@ -92,6 +92,15 @@ public class OwlDiagram {
     */
    public OwlSchema getSchema() {
       return schema;
+   }
+
+   /**
+    * Return true if there are packages in the model.
+    *
+    * @return true if there are packages in the model
+    */
+   public boolean hasPackages() {
+      return schema.hasPackages();
    }
 
    /**
