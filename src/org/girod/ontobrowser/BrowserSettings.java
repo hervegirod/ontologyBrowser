@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2024 Hervé Girod
+Copyright (c) 2021, 2022, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,14 @@ package org.girod.ontobrowser;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
+import org.mdiutil.swing.JFileSelector;
 import org.mdiutil.swing.PropertyEditor;
 
 /**
@@ -49,15 +53,21 @@ public class BrowserSettings {
    private static BrowserSettings settings = null;
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
+   private final PropertyEditor styleSettings = new PropertyEditor();
+   private final PropertyEditor packageSettings = new PropertyEditor();
    private JCheckBox includeIndividualsCb;
    private JCheckBox showRelationsConstraintsCb;
    private JCheckBox showDataPropertiesTypesCb;
    private JCheckBox addThingClassCb;
    private JCheckBox showPackagesCb;
+   private JCheckBox showPackagesAsClosedCb;
+   private JCheckBox showPackagesInPackageViewCb;
    private final SpinnerNumberModel padWidthSpinnerModel = new SpinnerNumberModel(15, 0, 100, 1);
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
    private JSpinner padHeightSpinner;
+   private JCheckBox hasCustomStylesCb;
+   private JFileSelector customStylesFs;
 
    private BrowserSettings() {
       super();
@@ -89,6 +99,24 @@ public class BrowserSettings {
    }
 
    /**
+    * Return the general Settings.
+    *
+    * @return the general Settings
+    */
+   public PropertyEditor getStyleSettings() {
+      return styleSettings;
+   }
+
+   /**
+    * Return the package Settings.
+    *
+    * @return the package Settings
+    */
+   public PropertyEditor getPackageSettings() {
+      return packageSettings;
+   }
+
+   /**
     * Reset the settings to the configuration values.
     */
    public void resetSettings() {
@@ -97,9 +125,14 @@ public class BrowserSettings {
       showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
       showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
       showPackagesCb.setSelected(conf.showPackages);
+      showPackagesAsClosedCb.setSelected(conf.showPackagesAsClosed);
+      showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
       addThingClassCb.setSelected(conf.addThingClass);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
+      hasCustomStylesCb.setSelected(conf.hasCustomStyles());
+      customStylesFs.setSelectedFile(conf.getCustomGraphStylesFile());
+      customStylesFs.setEnabled(conf.hasCustomStyles());
    }
 
    /**
@@ -107,8 +140,40 @@ public class BrowserSettings {
     */
    public void initialize() {
       initializeGeneralSettings();
+      initializeStyleSettings();
+      initializePackageSettings();
 
       configureSettings();
+   }
+
+   /**
+    * Initialize the style Settings.
+    */
+   private void initializeStyleSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      hasCustomStylesCb = new JCheckBox("", conf.hasCustomStyles());
+      hasCustomStylesCb.setBackground(Color.WHITE);
+      hasCustomStylesCb.addActionListener((ActionEvent e) -> {
+         conf.setHasCustomStyles(hasCustomStylesCb.isSelected());
+         customStylesFs.setEnabled(conf.hasCustomStyles());
+         if (!conf.hasCustomStyles()) {
+            conf.customGraphStyles.reset();
+         }
+      });
+
+      File dir = conf.getDefaultDirectory();
+
+      customStylesFs = new JFileSelector("Graph Style");
+      customStylesFs.setCurrentDirectory(dir);
+      customStylesFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      customStylesFs.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            File file = ((JFileChooser) e.getSource()).getSelectedFile();
+            conf.setCustomStylesConfiguration(file);
+         }
+      });
    }
 
    /**
@@ -133,12 +198,6 @@ public class BrowserSettings {
       showDataPropertiesTypesCb.setBackground(Color.WHITE);
       showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
          conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
-      });
-
-      showPackagesCb = new JCheckBox("", conf.showPackages);
-      showPackagesCb.setBackground(Color.WHITE);
-      showPackagesCb.addActionListener((ActionEvent e) -> {
-         conf.showPackages = showPackagesCb.isSelected();
       });
 
       addThingClassCb = new JCheckBox("", conf.addThingClass);
@@ -181,6 +240,31 @@ public class BrowserSettings {
    }
 
    /**
+    * Initialize the package Settings.
+    */
+   private void initializePackageSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      showPackagesCb = new JCheckBox("", conf.showPackages);
+      showPackagesCb.setBackground(Color.WHITE);
+      showPackagesCb.addActionListener((ActionEvent e) -> {
+         conf.showPackages = showPackagesCb.isSelected();
+      });
+
+      showPackagesInPackageViewCb = new JCheckBox("", conf.showPackagesInPackageView);
+      showPackagesInPackageViewCb.setBackground(Color.WHITE);
+      showPackagesInPackageViewCb.addActionListener((ActionEvent e) -> {
+         conf.showPackagesInPackageView = showPackagesInPackageViewCb.isSelected();
+      });
+
+      showPackagesAsClosedCb = new JCheckBox("", conf.showPackagesAsClosed);
+      showPackagesAsClosedCb.setBackground(Color.WHITE);
+      showPackagesAsClosedCb.addActionListener((ActionEvent e) -> {
+         conf.showPackagesAsClosed = showPackagesAsClosedCb.isSelected();
+      });
+   }
+
+   /**
     * Configure the Settings.
     */
    private void configureSettings() {
@@ -190,9 +274,17 @@ public class BrowserSettings {
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
       generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
-      generalSettings.addProperty(showPackagesCb, "", "Show Packages");
       generalSettings.addProperty(padWidthSpinner, "", "Width Padding");
       generalSettings.addProperty(padHeightSpinner, "", "Height Padding");
       generalSettings.setVisible(true);
+
+      styleSettings.addProperty(hasCustomStylesCb, "", "Has Custom Styles");
+      styleSettings.addProperty(customStylesFs, "", "Custom Styles");
+      styleSettings.setVisible(true);
+
+      packageSettings.addProperty(showPackagesCb, "", "Show Packages");
+      packageSettings.addProperty(showPackagesAsClosedCb, "", "Show Packages as Closed");
+      packageSettings.addProperty(showPackagesInPackageViewCb, "", "Show Packages in Package View");
+      packageSettings.setVisible(true);
    }
 }

@@ -78,6 +78,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    private BrowserSettings settings = null;
    private Icon zoomInIcon = null;
    private Icon zoomOutIcon = null;
+   private Icon centerIcon = null;
 
    /**
     * Constructor.
@@ -96,6 +97,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       ResourceUILoader loader = new ResourceUILoader("org/girod/ontobrowser/resources");
       zoomInIcon = loader.getIcon("zoomIn.png");
       zoomOutIcon = loader.getIcon("zoomOut.png");
+      centerIcon = loader.getIcon("center.png");
    }
 
    /**
@@ -138,10 +140,22 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       zoomOutButton.setIcon(zoomOutIcon);
       zoomOutButton.setToolTipText("Zoom Out");
 
+      AbstractAction centerAction = new AbstractAction("Center Graph") {
+         @Override
+         public void actionPerformed(ActionEvent ae) {
+            centerGraph();
+         }
+      };
+      JButton centerButton = new JButton(centerAction);
+      centerButton.setText("");
+      centerButton.setIcon(centerIcon);
+      centerButton.setToolTipText("Center Graph");
+
       JToolBar tbar = new JToolBar("File");
       getToolBarPanel().add(tbar);
       tbar.add(zoomInButton);
       tbar.add(zoomOutButton);
+      tbar.add(centerButton);
 
       JMenu layoutMenu = new JMenu("Layout");
       createLayoutMenu(layoutMenu);
@@ -169,6 +183,8 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       settingsAction.getSettingsComponent().setPreferredSize(new Dimension(700, 500));
       settingsAction.initialize();
       settingsAction.addNode(null, "General", settings.getGeneralSettings(), null);
+      settingsAction.addNode(null, "Style", settings.getStyleSettings(), null);
+      settingsAction.addNode(null, "Packages", settings.getPackageSettings(), null);
       optionsmenu.add(new JMenuItem((AbstractSettingsAction) settingsAction));
 
       // create main menus
@@ -185,6 +201,15 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       Mbar.add(optionsmenu);
       Mbar.add(toolsmenu);
       Mbar.add(helpmenu);
+   }
+
+   private void centerGraph() {
+      OwlDiagram elt = getElement();
+      if (elt != null) {
+         mxGraphComponent comp = elt.getGraphComponent();
+         comp.setCenterPage(true);
+         comp.scrollToCenter(true);
+      }
    }
 
    private OwlDiagram getElement() {

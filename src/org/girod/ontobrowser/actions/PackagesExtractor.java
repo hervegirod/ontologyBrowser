@@ -48,7 +48,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
- * THis class attempt to extract packages from the class hierarchy.
+ * This class attempt to extract packages from the class hierarchy.
  *
  * @since 0.4
  */
@@ -131,6 +131,20 @@ public class PackagesExtractor {
             if (set.size() == 1) {
                ElementKey key = set.iterator().next();
                theClass.setPackage(key);
+            } else {
+               Set<ElementKey> possiblePackages = new HashSet<>();
+               Iterator<OwlClass> it3 = theClass.getSuperClasses().values().iterator();
+               while (it3.hasNext()) {
+                  OwlClass superClass = it3.next();
+                  if (superClass.isPackage()) {
+                     possiblePackages.add(superClass.getKey());
+                  }
+               }
+               if (possiblePackages.size() == 1) {
+                  theClass.setPackage(possiblePackages.iterator().next());
+               } else {
+                  theClass.setPackage(null);
+               }
             }
          }
       }
@@ -143,7 +157,6 @@ public class PackagesExtractor {
          Iterator<OwlClass> it2 = subClasses.values().iterator();
          while (it2.hasNext()) {
             OwlClass theClass2 = it2.next();
-            theClass2.setPackage(packageKey);
             if (!theClass2.isPackage()) {
                PackagesList packList = getPackagesListFromSuperClass(theClass2);
                if (packList.hasUniquePackage()) {
@@ -152,6 +165,8 @@ public class PackagesExtractor {
                } else {
                   notAddedClasses.put(theClass2.getKey(), theClass2);
                }
+            } else {
+               theClass2.setPackage(packageKey);
             }
          }
       } else {
@@ -159,7 +174,6 @@ public class PackagesExtractor {
          Iterator<OwlClass> it2 = subClasses.values().iterator();
          while (it2.hasNext()) {
             OwlClass theClass2 = it2.next();
-            theClass2.setPackage(packageKey);
             if (!theClass2.isPackage()) {
                PackagesList packList = getPackagesListFromSuperClass(theClass);
                if (packList.hasUniquePackage()) {
@@ -168,6 +182,8 @@ public class PackagesExtractor {
                } else {
                   notAddedClasses.put(theClass2.getKey(), theClass2);
                }
+            } else {
+               theClass2.setPackage(packageKey);
             }
          }
       }

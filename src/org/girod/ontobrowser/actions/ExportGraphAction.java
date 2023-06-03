@@ -32,52 +32,35 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.girod.jgraphml.GraphMLFactory;
 import org.girod.jgraphml.model.Arrows;
-import org.girod.jgraphml.model.DiagramDefaults;
 import org.girod.jgraphml.model.EdgeLabel;
-import org.girod.jgraphml.model.GraphMLDiagram;
 import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
 import org.girod.jgraphml.model.NodeLabel;
 import org.girod.jgraphml.model.ShapeType;
-import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
-import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
-import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIApplication;
-import org.mdi.bootstrap.swing.AbstractMDIAction;
 
 /**
  * The Action that save schemas as yEd diagrams.
  *
  * @version 0.4
  */
-public class ExportGraphAction extends AbstractMDIAction {
-   private static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
-   private static final String LIGHT_GREEN = "#90EE90";
-   private File file = null;
-   private OwlDiagram diagram = null;
-   private GraphMLDiagram graph;
-   private boolean showRelationsConstraints = false;
-   private boolean showDataPropertiesTypes = false;
+public class ExportGraphAction extends AbstractExportGraphAction {
    private boolean showPackages = false;
-   private OwlSchema schema;
-   private Map<ElementKey, GraphMLGroupNode> packagesNodes = new HashMap<>();
-   private DiagramDefaults defaults = null;
 
    /**
     * Create the export File Action.
@@ -89,50 +72,45 @@ public class ExportGraphAction extends AbstractMDIAction {
     * @param file the file to open
     */
    public ExportGraphAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, File file) {
-      super(app, "Export Graph");
-      this.file = file;
-      this.diagram = diagram;
-      this.setDescription(desc, longDesc);
+      super(app, desc, longDesc, diagram, file);
    }
 
-   private GraphMLGroupNode getPackageNode(OwlClass theClass, ElementKey key) {
-      OwlClass superClass = theClass.getFirstSuperClass();
-      if (superClass == null) {
-         GraphMLGroupNode node = graph.addGroupNode();
-         setGroupNodeStyle(node, theClass.getName());
-         packagesNodes.put(key, node);
-         return node;
+   @Override
+   protected GraphMLGroupNode getPackageNode(OwlClass theClass, ElementKey key) {
+      if (packagesNodes.containsKey(key)) {
+         return packagesNodes.get(key);
       } else {
-         ElementKey superclassKey = superClass.getKey();
-         if (packagesNodes.containsKey(superclassKey)) {
-            GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
-            GraphMLGroupNode node = superclassNode.addGroupNode();
+         OwlClass superClass = theClass.getFirstSuperClass();
+         if (superClass == null) {
+            GraphMLGroupNode node = graph.addGroupNode();
             setGroupNodeStyle(node, theClass.getName());
             packagesNodes.put(key, node);
             return node;
          } else {
-            GraphMLGroupNode superclassNode = getPackageNode(schema.getOwlClass(superclassKey), superclassKey);
-            GraphMLGroupNode node = superclassNode.addGroupNode();
-            setGroupNodeStyle(node, theClass.getName());
-            packagesNodes.put(key, node);
-            return node;
+            ElementKey superclassKey = superClass.getKey();
+            if (packagesNodes.containsKey(superclassKey)) {
+               GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
+               GraphMLGroupNode node = superclassNode.addGroupNode();
+               setGroupNodeStyle(node, theClass.getName());
+               packagesNodes.put(key, node);
+               return node;
+            } else {
+               GraphMLGroupNode superclassNode = getPackageNode(schema.getOwlClass(superclassKey), superclassKey);
+               GraphMLGroupNode node = superclassNode.addGroupNode();
+               setGroupNodeStyle(node, theClass.getName());
+               packagesNodes.put(key, node);
+               return node;
+            }
          }
       }
-   }
-
-   private void setGroupNodeStyle(GraphMLGroupNode node, String name) {
-      node.setType(ShapeType.ROUNDRECTANGLE);
-      node.setFillColor(LIGHT_GREEN);
-      NodeLabel label = node.setLabel(name);
-      label.setFontSize(14);
    }
 
    private GraphMLGroupNode getGroupParent(ElementKey key, OwlClass owlClass) {
       if (packagesNodes == null || !owlClass.isInPackage()) {
          return null;
       } else {
-         ElementKey thePackageKey = owlClass.getPackage();
-         return packagesNodes.get(thePackageKey);
+         ElementKey _thePackageKey = owlClass.getPackage();
+         return packagesNodes.get(_thePackageKey);
       }
    }
 
@@ -146,7 +124,7 @@ public class ExportGraphAction extends AbstractMDIAction {
          inode = graph.addNode();
       }
       inode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-      inode.getShapeNode().setFillColor(Color.MAGENTA);
+      inode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.INDIVIDUAL));
       NodeLabel ilabel = inode.createLabel(true);
       ilabel.setFontSize(11);
       ilabel.setLabel(individual.getName());
@@ -167,7 +145,7 @@ public class ExportGraphAction extends AbstractMDIAction {
          propertyNode = graph.addNode();
       }
       propertyNode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-      propertyNode.getShapeNode().setFillColor(Color.CYAN);
+      propertyNode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.PROPERTY));
       NodeLabel label = propertyNode.createLabel(true);
       label.setFontSize(11);
       if (showDataPropertiesTypes) {
@@ -193,7 +171,7 @@ public class ExportGraphAction extends AbstractMDIAction {
          node = groupNode.addNode();
       }
       node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-      node.getShapeNode().setFillColor(Color.LIGHT_GRAY);
+      node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
       NodeLabel label = node.createLabel(true);
       label.setFontSize(11);
       label.setLabel(owlClass.getName());
@@ -210,43 +188,24 @@ public class ExportGraphAction extends AbstractMDIAction {
       return node;
    }
 
-   @Override
-   public void run() throws Exception {
-      packagesNodes = new HashMap<>();
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      this.showRelationsConstraints = conf.showRelationsConstraints;
-      this.showDataPropertiesTypes = conf.showDataPropertiesTypes;
-      this.showPackages = diagram.hasPackages();
-
-      GraphMLFactory factory = GraphMLFactory.getInstance();
-      graph = factory.newDiagram();
-      defaults = graph.getDefaults();
-      defaults.edgeLabelAutoRotate = true;
-      defaults.edgeLabelAutoFlip = true;
-      defaults.nodeFontSize = 11;
-      defaults.edgeFontSize = 11;
-      defaults.autosized = true;
-      defaults.padWidth = conf.padWidth;
-      defaults.padHeight = conf.padHeight;
-      defaults.edgeLabelDistance = -4f;
-      defaults.edgeLabelPosition = EdgeLabel.ParamModel.POSITION_TAIL;
-      defaults.arrowSource = Arrows.NONE;
-      defaults.arrowTarget = Arrows.STANDARD;
-
-      Map<ElementKey, GraphMLNode> elementToNode = new HashMap<>();
-      schema = diagram.getSchema();
-
-      Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
+   private void addPackages() {
       if (showPackages) {
-         Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
+         Map<ElementKey, OwlClass> owlPackages = schema.getPackages();
+         Iterator<Entry<ElementKey, OwlClass>> it = owlPackages.entrySet().iterator();
          while (it.hasNext()) {
             Entry<ElementKey, OwlClass> entry = it.next();
             ElementKey key = entry.getKey();
-            OwlClass owlClass = entry.getValue();
-            if (schema.isPackage(key)) {
-               getPackageNode(owlClass, key);
-            }
+            OwlClass owlPackage = entry.getValue();
+            getPackageNode(owlPackage, key);
          }
+      }
+   }
+
+   private void exportAllImpl() {
+      Map<ElementKey, GraphMLNode> elementToNode = new HashMap<>();
+      Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
+      if (showPackages) {
+         addPackages();
       }
 
       Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
@@ -327,61 +286,19 @@ public class ExportGraphAction extends AbstractMDIAction {
             }
          }
       }
-      factory.saveDiagram(graph, file);
    }
-
-   private String getType(OwlDatatypeProperty dataProperty) {
-      Map<ElementKey, OwlDatatype> types = dataProperty.getTypes();
-      if (types != null && types.size() == 1) {
-         OwlDatatype dataType = types.values().iterator().next();
-         String ns = dataType.getNamespace();
-         if (ns != null && ns.equals(DEFAULT_NS)) {
-            String name = "xs: " + dataType.getName();
-            return name;
-         }
-         return null;
-      } else {
-         return null;
-      }
-   }
-
-   private void addDefaultCardinalityRestriction(GraphMLEdge edge) {
-      EdgeLabel label = edge.createAdditionalLabel("0..n", 0.02f);
-      label.setAutoFlip(false);
-      label.setAutoRotate(false);
-   }
-
-   private void addCardinalityRestriction(OwlProperty property, GraphMLEdge edge) {
-      StringBuilder buf = new StringBuilder();
-      boolean isUniqueCardinality = false;
-      if (property.hasMinCardinality()) {
-         int minCardinality = property.getMinCardinality();
-         int maxCardinality = property.getMaxCardinality();
-         if (minCardinality == maxCardinality) {
-            isUniqueCardinality = true;
-            buf.append(minCardinality);
-         } else {
-            buf.append(minCardinality);
-         }
-      } else {
-         buf.append(0);
-      }
-      if (!isUniqueCardinality) {
-         buf.append("...");
-         if (property.hasMaxCardinality()) {
-            int maxCardinality = property.getMaxCardinality();
-            buf.append(maxCardinality);
-         } else {
-            buf.append("n");
-         }
-      }
-      EdgeLabel label = edge.createAdditionalLabel(buf.toString(), 0.02f);
-      label.setAutoFlip(false);
-      label.setAutoRotate(false);
+   
+   @Override
+   protected void configure() {
+      super.configure();
+      this.showPackages = diagram.hasPackages();      
    }
 
    @Override
-   public String getMessage() {
-      return this.getLongDescription() + " exported successfully";
+   public void run() throws Exception {
+      configure();
+      
+      exportAllImpl();
+      saveDiagram();
    }
 }

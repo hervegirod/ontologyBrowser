@@ -33,12 +33,17 @@ the project website at the project page on https://github.com/hervegirod/owlToGr
 package org.girod.ontobrowser;
 
 import java.io.File;
+import java.net.URL;
 import java.util.PropertyResourceBundle;
 import java.util.prefs.Preferences;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.mdi.bootstrap.Configuration;
 import org.mdiutil.lang.swing.ResourceUILoader;
 import org.mdiutil.prefs.PreferencesHelper;
 import org.mdiutil.swing.ExtensionFileFilter;
+import org.mdiutil.swing.JErrorPane;
 
 /**
  * The browser configuration.
@@ -68,10 +73,20 @@ public class BrowserConfiguration implements Configuration {
    public boolean showRelationsConstraints = false;
    public boolean showDataPropertiesTypes = false;
    public boolean addThingClass = true;
-   public boolean showPackages = false;   
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
+   // packages
+   public boolean showPackages = false;
+   public boolean showPackagesAsClosed = false;
+   public boolean showPackagesInPackageView = false;
+   // GUI
+   private boolean hasCustomStyles = false;
+   private File customGraphStylesFile = null;
+   public final CustomGraphStyles customGraphStyles = new CustomGraphStyles();
+   // graph styles Schema
+   private final URL graphStylesXSD;
+
    /**
     * The owl/rdf file filter.
     */
@@ -84,6 +99,8 @@ public class BrowserConfiguration implements Configuration {
    private BrowserConfiguration() {
       // load ressources
       ResourceUILoader loader = new ResourceUILoader("org/girod/ontobrowser/resources");
+      graphStylesXSD = loader.getURL("customGraphStyles.xsd");
+
       PropertyResourceBundle prb = loader.getPropertyResourceBundle("browser.properties");
 
       // load size
@@ -130,8 +147,51 @@ public class BrowserConfiguration implements Configuration {
       return defaultDir;
    }
 
+   /**
+    * Return the graph styles Schema.
+    *
+    * @return the graph styles Schema
+    */
+   public URL getGraphStylesSchema() {
+      return graphStylesXSD;
+   }
+
+   public CustomGraphStyles getCustomGraphStyles() {
+      return customGraphStyles;
+   }
+
+   public File getCustomGraphStylesFile() {
+      return customGraphStylesFile;
+   }
+
+   public boolean hasCustomStyles() {
+      return hasCustomStyles;
+   }
+
+   public void setHasCustomStyles(boolean hasCustomStyles) {
+      this.hasCustomStyles = hasCustomStyles;
+      if (hasCustomStyles && customGraphStylesFile != null && customGraphStylesFile.exists()) {
+         setCustomStylesConfiguration(customGraphStylesFile);
+      }
+   }
+
+   public void setCustomStylesConfiguration(File customGraphStylesFile) {
+      if (hasCustomStyles) {
+         this.customGraphStylesFile = customGraphStylesFile;
+         CustomGraphStylesParser parser = new CustomGraphStylesParser();
+         try {
+            parser.parse(customGraphStylesFile);
+         } catch (Exception e) {
+            JErrorPane pane = new JErrorPane(e, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(null, "Exception");
+            dialog.setModal(false);
+            dialog.setVisible(true);
+         }
+      }
+   }
+
    @Override
-   public void putConfiguration(Preferences p, File file) {
+   public void putConfiguration(Preferences p, File dir) {
       PreferencesHelper.putFile(p, "defaultDir", defaultDir);
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
@@ -139,11 +199,15 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showRelationsConstraints", showRelationsConstraints);
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       p.putBoolean("addThingClass", addThingClass);
-      p.putBoolean("showPackages", showPackages);	  
+      p.putBoolean("showPackages", showPackages);
+      p.putBoolean("showPackagesAsClosed", showPackagesAsClosed);
+      p.putBoolean("showPackagesInPackageView", showPackagesInPackageView);
+      p.putBoolean("hasCustomStyles", hasCustomStyles);
+      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
    }
 
    @Override
-   public void getConfiguration(Preferences p, File file) {
+   public void getConfiguration(Preferences p, File dir) {
       defaultDir = PreferencesHelper.getFile(p, "defaultDir", defaultDir);
       padWidth = p.getInt("padWidth", padWidth);
       padHeight = p.getInt("padHeight", padHeight);
@@ -151,7 +215,16 @@ public class BrowserConfiguration implements Configuration {
       showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       addThingClass = p.getBoolean("addThingClass", addThingClass);
-      showPackages = p.getBoolean("showPackages", showPackages);	  
+      showPackages = p.getBoolean("showPackages", showPackages);
+      showPackagesAsClosed = p.getBoolean("showPackagesAsClosed", showPackagesAsClosed);
+      showPackagesInPackageView = p.getBoolean("showPackagesInPackageView", showPackagesInPackageView);
+      customGraphStylesFile = PreferencesHelper.getFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
+      hasCustomStyles = p.getBoolean("hasCustomStyles", hasCustomStyles);
+      if (customGraphStylesFile != null && customGraphStylesFile.exists()) {
+         setCustomStylesConfiguration(customGraphStylesFile);
+      } else {
+         customGraphStyles.reset();
+      }
    }
 
 }

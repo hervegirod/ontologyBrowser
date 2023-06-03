@@ -34,7 +34,11 @@ package org.girod.ontobrowser.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 
@@ -46,15 +50,49 @@ import org.apache.jena.ontology.OntModel;
 public class OwlSchema implements Cloneable, Serializable {
    private final OntModel ontModel;
    private OwlClass owlThingClass;
+   private final Map<String, String> prefixMap = new HashMap<>();
    private final Map<ElementKey, OwlClass> classes = new HashMap<>();
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
    private final Map<ElementKey, OwlObjectProperty> objectProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
+   private final Set<String> namespaces = new HashSet<>();
    private Map<ElementKey, OwlClass> packages = null;
 
    public OwlSchema(OntModel ontModel) {
       this.ontModel = ontModel;
+      computePrefixMap();
+   }
+
+   private void computePrefixMap() {
+      Iterator<Entry<String, String>> it = ontModel.getNsPrefixMap().entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<String, String> entry = it.next();
+         String ns = entry.getValue();
+         String prefix = entry.getKey();
+         if (!prefix.isEmpty()) {
+            prefixMap.put(ns, prefix);
+         }
+      }
+   }
+
+   /**
+    * Return the prefix for a namespace.
+    *
+    * @param namespace the namespace
+    * @return the prefix
+    */
+   public String getPrefix(String namespace) {
+      return prefixMap.get(namespace);
+   }
+
+   /**
+    * Return the namespaces.
+    *
+    * @return the namespaces
+    */
+   public Set<String> getNamespaces() {
+      return namespaces;
    }
 
    /**
@@ -68,6 +106,15 @@ public class OwlSchema implements Cloneable, Serializable {
          owlThingClass = new OwlClass(thingClass);
       }
       return owlThingClass;
+   }
+
+   /**
+    * Return true if there are packages in the model.
+    *
+    * @return true if there are packages in the model
+    */
+   public boolean hasPackages() {
+      return packages != null;
    }
 
    /**
@@ -102,16 +149,8 @@ public class OwlSchema implements Cloneable, Serializable {
       }
    }
 
-   /**
-    * Return true if there are packages in the model.
-    *
-    * @return true if there are packages in the model
-    */
-   public boolean hasPackages() {
-      return packages != null;
-   }
-
    public void addIndividual(OwlIndividual individual) {
+      addNamespace(individual);
       individuals.put(individual.getKey(), individual);
       individual.getParentClass().addIndividual(individual);
    }
@@ -134,7 +173,15 @@ public class OwlSchema implements Cloneable, Serializable {
    }
 
    public void addOwlClass(OwlClass owlClass) {
+      addNamespace(owlClass);
       classes.put(owlClass.getKey(), owlClass);
+   }
+
+   private void addNamespace(NamedOwlElement element) {
+      String namespace = element.getNamespace();
+      if (namespace != null && !namespaces.contains(namespace)) {
+         namespaces.add(namespace);
+      }
    }
 
    /**
@@ -155,6 +202,7 @@ public class OwlSchema implements Cloneable, Serializable {
    }
 
    public void addOwlProperty(OwlProperty owlProperty) {
+      addNamespace(owlProperty);
       properties.put(owlProperty.getKey(), owlProperty);
       if (owlProperty instanceof OwlDatatypeProperty) {
          datatypeProperties.put(owlProperty.getKey(), (OwlDatatypeProperty) owlProperty);

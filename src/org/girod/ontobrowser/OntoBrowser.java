@@ -70,6 +70,7 @@ public class OntoBrowser extends AbstractMDIApplication {
 
          mfactory = new MenuFactory(this);
          super.preparePanels(8, true, true, mfactory);
+         this.message.manageClipBoard(true);
       }
    }
 

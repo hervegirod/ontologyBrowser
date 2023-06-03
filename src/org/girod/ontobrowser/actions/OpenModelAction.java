@@ -32,17 +32,14 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import org.girod.ontobrowser.utils.LabelUtils;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
@@ -54,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.OntologyException;
@@ -66,6 +62,8 @@ import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.util.FileManager;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.gui.CustomGraphStyles;
+import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
@@ -73,6 +71,7 @@ import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
+import org.girod.ontobrowser.utils.LabelUtils;
 import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
@@ -91,7 +90,8 @@ public class OpenModelAction extends AbstractMDIAction {
    private OwlSchema schema = null;
    private OwlDiagram diagram = null;
    private SwingFileProperties prop = null;
-   private JPanel panel = null;
+   private GraphPanel graphPanel = null;
+   private Map<ElementKey, mxCell> cell4Class = null;
    private static final String FONT_FAMILY = "Dialog";
    private static final int FONT_SIZE = 11;
 
@@ -143,6 +143,7 @@ public class OpenModelAction extends AbstractMDIAction {
       ErrorHandlerFactory.setDefaultErrorHandler(errorHandler);
       OntModel model = createModel("OWL_MEM");
       try {
+         // see https://web-semantique.developpez.com/tutoriels/jena/io/#LV-A
          FileManager.get().readModel(model, uri.toString());
          // getting a raw model is necessary because if we don't do that, we will use the reasoner when getting the individuals, and if can take a
          // very long time
@@ -160,18 +161,10 @@ public class OpenModelAction extends AbstractMDIAction {
          diagram.setSchema(schema);
          mxGraph graph = createGraph(schema);
          diagram.setGraph(graph);
+         diagram.setKeyToCell(cell4Class);
 
-         mxStylesheet stylesheet = graph.getStylesheet();
-
-         panel = new JPanel();
-         panel.setLayout(new BorderLayout());
-         stylesheet.getDefaultVertexStyle().put(mxConstants.STYLE_FONTSIZE, 8);
-         mxGraphComponent graphComp = new mxGraphComponent(graph);
-         diagram.setGraphComponent(graphComp);
-         graphComp.setPanning(true);
-         graphComp.zoom(1.5f);
-         graph.getModel().setGeometry(graph.getDefaultParent(), new mxGeometry(-300, -300, 300, 300));
-         panel.add(graphComp, BorderLayout.CENTER);
+         graphPanel = new GraphPanel((GUIApplication) app);
+         graphPanel.setDiagram(diagram);
       } catch (RiotException ex) {
          JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
       } catch (OntologyException ex) {
@@ -215,7 +208,7 @@ public class OpenModelAction extends AbstractMDIAction {
    }
 
    private void createStyles(mxGraph graph) {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      CustomGraphStyles customStyles = BrowserConfiguration.getInstance().getCustomGraphStyles();;
       mxStylesheet stylesheet = graph.getStylesheet();
       Map<String, Object> styles = stylesheet.getDefaultEdgeStyle();
 
@@ -246,25 +239,33 @@ public class OpenModelAction extends AbstractMDIAction {
 
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
-      styles.put(mxConstants.STYLE_FILLCOLOR, "#D3D3D3");
+      styles.put(mxConstants.STYLE_FILLCOLOR, customStyles.getBackgroundColorAsString(CustomGraphStyles.CLASS));
       styles.put(mxConstants.STYLE_FONTSIZE, FONT_SIZE);
       stylesheet.putCellStyle("class", styles);
 
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
-      styles.put(mxConstants.STYLE_FILLCOLOR, "#FF66FF");
+      styles.put(mxConstants.STYLE_FILLCOLOR, customStyles.getBackgroundColorAsString(CustomGraphStyles.INDIVIDUAL));
       styles.put(mxConstants.STYLE_FONTSIZE, FONT_SIZE);
       stylesheet.putCellStyle("individual", styles);
 
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
-      styles.put(mxConstants.STYLE_FILLCOLOR, "#32CD32");
+      styles.put(mxConstants.STYLE_FILLCOLOR, customStyles.getBackgroundColorAsString(CustomGraphStyles.PROPERTY));
       styles.put(mxConstants.STYLE_FONTSIZE, 11);
       stylesheet.putCellStyle("dataProperty", styles);
    }
 
+   /**
+    * Return the map from class keys to the cell.
+    *
+    * @return the map
+    */
+   public Map<ElementKey, mxCell> getKeyToCell() {
+      return cell4Class;
+   }
+
    private mxGraph createGraph(OwlSchema schema) {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       mxGraph graph = new mxGraph();
       graph.setDisconnectOnMove(false);
       graph.setAutoOrigin(true);
@@ -274,7 +275,7 @@ public class OpenModelAction extends AbstractMDIAction {
       graph.getModel().beginUpdate();
       Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
       Map<ElementKey, OwlDatatypeProperty> owlDatatypeProperties = schema.getOwlDatatypeProperties();
-      Map<ElementKey, mxCell> cell4Class = new HashMap<>();
+      cell4Class = new HashMap<>();
       Map<ElementKey, mxCell> cell4Dataproperty = new HashMap<>();
       List<mxCell> allCells = new ArrayList<>();
 
@@ -470,8 +471,8 @@ public class OpenModelAction extends AbstractMDIAction {
             name = postName;
          }
 
-         prop = new SwingFileProperties(name, panel, diagram);
-         ((AbstractMDIApplication) app).addTab(panel, prop);
+         prop = new SwingFileProperties(name, graphPanel, diagram);
+         ((AbstractMDIApplication) app).addTab(graphPanel, prop);
       }
    }
 
@@ -504,8 +505,8 @@ public class OpenModelAction extends AbstractMDIAction {
 
       private mxPoint addEdge() {
          updateCellEdges();
-         double x = 0;
-         double y = 0;
+         double x;
+         double y;
          if (points.isEmpty()) {
             double deltaX = destRec.getX() - origRec.getX();
             double deltaY = destRec.getY() - origRec.getY();

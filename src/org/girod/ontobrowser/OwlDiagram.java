@@ -32,9 +32,12 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import java.io.File;
+import java.util.Map;
+import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlSchema;
 
 /**
@@ -45,6 +48,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 public class OwlDiagram {
    private mxGraph graph = null;
    private mxGraphComponent comp = null;
+   private Map<ElementKey, mxCell> keyToCell = null;
    private String name = null;
    private File file;
    private OwlSchema schema = null;
@@ -128,6 +132,34 @@ public class OwlDiagram {
     */
    public void setGraphComponent(mxGraphComponent comp) {
       this.comp = comp;
+   }
+
+   /**
+    * Set the map from class keys to the cell.
+    *
+    * @param keyToCell the map
+    */
+   public void setKeyToCell(Map<ElementKey, mxCell> keyToCell) {
+      this.keyToCell = keyToCell;
+   }
+
+   /**
+    * Return the map from class keys to the cell.
+    *
+    * @return the map
+    */
+   public Map<ElementKey, mxCell> getKeyToCell() {
+      return keyToCell;
+   }
+
+   /**
+    * Return the cell for a key.
+    *
+    * @param key the element key
+    * @return the cell
+    */
+   public mxCell getCell(ElementKey key) {
+      return keyToCell.get(key);
    }
 
    /**

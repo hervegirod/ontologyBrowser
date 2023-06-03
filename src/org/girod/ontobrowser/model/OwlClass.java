@@ -70,13 +70,6 @@ public class OwlClass extends NamedOwlElement {
     */
    public void setIsPackage(boolean isPackage) {
       this.isPackage = isPackage;
-      if (isPackage) {
-         Iterator<OwlClass> it = subClasses.values().iterator();
-         while (it.hasNext()) {
-            OwlClass theClass = it.next();
-            theClass.setPackage(getKey());
-         }
-      }
    }
 
    /**
@@ -95,13 +88,6 @@ public class OwlClass extends NamedOwlElement {
     */
    public void setPackage(ElementKey packageKey) {
       this.packageKey = packageKey;
-      if (!isPackage && packageKey != null) {
-         Iterator<OwlClass> it = subClasses.values().iterator();
-         while (it.hasNext()) {
-            OwlClass theClass = it.next();
-            theClass.setPackage(packageKey);
-         }
-      }
    }
 
    public boolean isInPackage() {
