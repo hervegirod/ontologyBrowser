@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <images>
    <image id="browser" url="browser.png" />
+   <image id="browserPackages" url="browserPackages.png" />
+   <image id="options" url="options.png" /> 
    <image id="graphml" url="graphml.png" />  
-   <image id="config" url="config.png" /> 
+   <image id="openWithPackages" url="openWithPackages.png" /> 
+   <image id="openWithoutPackages" url="openWithoutPackages.png" /> 
+   <image id="exportClass" url="exportClass.png" /> 
+   <image id="exportPackage" url="exportPackage.png" /> 
+   <image id="configGeneral" url="configGeneral.png" /> 
+   <image id="configStyles" url="configStyles.png" />
+   <image id="configPackages" url="configPackages.png" /> 
+   <image id="export1" url="export1.png" /> 
+   <image id="export2" url="export2.png" />
+   <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />  
+   <image id="exportResult" url="exportResult.png" />  
 </images>

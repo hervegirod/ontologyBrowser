@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="Usage">
    <meta desc="This article presents the usage of the application" />
-   This application allows to open a OWL/RDF model, and generate a graphML diagram compatible with the pupular yEd editor.
-   <img id="browser" width="60%"/>
+   This application allows to open a OWL/RDF model, and generate a graphML diagram compatible with the popular yEd editor.   
+   
+   <title title="browser" />  
+   <img id="browser" width="60%"/> 
+   The browser has the following elements:
+   <ul>
+      <li>The left part of the GUI presents a tree which shows the graph of Owl classes. It can also present the list of <ref id="packages" /> found by the tool
+      if the corresponding option is selected</li>
+      <li>The right part of the GUI presents the graph of the Owl diagram</li>   
+      <li>The bottom part of the GUI presents messages about the tool</li>      
+   </ul>
+   Clicking on a Class on thr left tree will center the diagram on the selected Class.
+   
+   <title level="2" title="options" />
+   <img id="options" />
+   There are several options in the browser:
+   <ul>
+      <li>"File": To open an Owl/RDF graph or save the selected graph as a graphML diagram (compatible with the <ref id="yEd" /> free editor)</li>
+      <li>"Options": to set the <ref id="#configuration" desc="configuration" /></li>
+      <li>"Tools": to change the layout of the selected graph</li>
+      <li>"Help": shows the version of the tool</li>
+   </ul>
+   The toolbar has the following options:
+   <ul>
+      <li>Zoom or Dezoom the selected graph</li>
+      <li>Center the selected graph</li>
+   </ul>
+   
+   <title level="2" title="exporting diagrams" />
+   <moreInfo id="yEd" />
+   After selecting a Class in the tree, it is possible to save the content selected graph under this Class by right-clicking on the Class in its tree.
+   <img id="exportClass" />
+   
+   Also, after selecting a package in the <ref id="packages" /> tree, it is possible to save the content selected graph under this Class by right-clicking 
+   on the package in its tree.
+   <img id="exportPackage" />
    
    <title title="configuration" />
    <moreInfo id="configuration" />
@@ -12,7 +46,8 @@
    <ul>
       <li>Classes are presented in a Grey background</li>
       <li>Individuals are presented in a Magenta background</li>      
-      <li>Data properties are presented in a Cyan background</li>            
+      <li>Data properties are presented in a Cyan background</li> 
+      <li>Classes from other <ref id="packages" /> are presented in a orange background</li>            
    </ul>
    The tools present the class hierarchy, and also the relations between classes and Data properties. 
 

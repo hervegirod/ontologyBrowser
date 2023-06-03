@@ -7,6 +7,7 @@
 
    <title title="Usage"/>
    <moreInfo id="Usage" />
+   This application allows to open a OWL/RDF model, and generate a graphML diagram compatible with the popular yEd editor.
 
    <title title="License"/>
    <moreInfo id="License" />
@@ -16,6 +17,10 @@
 
    <title title="history"/>
    <moreInfo id="Release history" />
+
+   <title title="Troubleshooting"/>
+   <moreInfo id="Troubleshooting" />
+   The Troubleshooting article present possible problems and their solution.
 
    <cat id="general" />
 </index>

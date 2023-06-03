@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="custom styles">
+   <meta desc="This article presents the customization of the graph style" />
+   The <ref id="configuration#Styles settings" desc="Styles settings" /> allows to configure the style of the diagram. This etting allows to specify
+   a file which will define the custom style for the diagram.
+   
+   <title title="file grammar" />
+   The <resource href="customGraphStyles.xsd">customGraphStyles.xsd</resource> specifies the grammar of the xml file specifying the custom style.
+   
+   <title title="file content"/>
+   There are several <code>element</code> nodes for the different types of Owl/RDF elements:
+   <ul>
+      <li>The <code>class</code> is used for the representation of a Class</li>
+      <li>The <code>package</code> is used for the representation of a <ref id="packages" desc="package" /></li>      
+      <li>The <code>individual</code> is used for the representation of an Individual</li>
+      <li>The <code>property</code> is used for the representation of a Data property</li>      
+      <li>The <code>externalPackage</code> is used for the representation of an external packahe when exporting the content of a package</li>            
+   </ul>
+   Under each of this element:
+   <ul>
+      <li>The <code>background</code> element represents the color of the background of the box representing the element. note that this color can be 
+      specified as an html color name (for example "Yellow"), or its hexadecimal representation (for example: "#2D2D2D")</li>
+      <li>The <code>showInnerGraphDisplay</code> property can be used for the <code>package</code> element and specifies if the inner graph display should be
+      shown for the Yed export</li>
+   </ul>
+   <messageBox type="info">
+      You don't need to specigfy all the elemetns. Those which are not specified will have a default value.
+   </messageBox>
+   
+   <title title="example"/>
+   <pre syntax="xml">
+      &lt;customStyles&gt;
+         &lt;element type="class"&gt;
+            &lt;background color="Yellow" /&gt;
+         &lt;/element&gt;
+         &lt;element type="property"&gt;
+            &lt;background color="Red" /&gt;
+         &lt;/element&gt;   
+         &lt;element type="package"&gt;
+            &lt;property key="showInnerGraphDisplay" value="true"/&gt;
+         &lt;/element&gt;      
+      &lt;/customStyles&gt;
+   </pre>
+   
+
+   <see id="configuration#Styles settings" desc="Styles settings" />
+   <cat id="general" />
+</article>
