@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#"
+     xml:base="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7Link -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7Link">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class5"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PropertyLink -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PropertyLink">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class2"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class4"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#topObjectProperty -->
+
+    <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#topObjectProperty">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class5"/>
+    </rdf:Description>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Name">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class1"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class1 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class1">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package1"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class2 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class2">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package1"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class3 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class3">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class1"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class4 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class4">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package2"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class5 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class5">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package2"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class6 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class6">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package1"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class7">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#NamedElement"/>
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package2"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#NamedElement -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#NamedElement">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PackageCommon"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package1 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package1"/>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package2 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Package2"/>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PackageCommon -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PackageCommon"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Individual1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Individual1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class5"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Individual2 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Individual2">
+        <rdf:type rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class6"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+
