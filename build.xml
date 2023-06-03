@@ -94,7 +94,9 @@
             <include name="src/**/*.properties"/>
             <include name="src/**/*.html"/>
             <include name="src/**/*.xml"/>
+            <include name="src/**/*.xsd"/>
             <include name="src/**/*.png"/>
+            <include name="src/**/*.gif"/>
             <include name="src/manifest*.mf"/>
          </fileset>
          <fileset description="binaries" dir="${dist.dir}">
@@ -187,7 +189,9 @@
          <fileset defaultexcludes="yes" dir="${build.classes.dir}">
             <include name="org/girod/**/*.class"/>
             <include name="org/girod/**/*.xml"/>
+            <include name="org/girod/**/*.xsd"/>
             <include name="org/girod/**/*.png"/>
+            <include name="org/girod/**/*.gif"/>
             <include name="org/girod/**/*.properties"/>
          </fileset>
       </jar>
@@ -232,6 +236,7 @@
       <java classname="org.docgene.main.DocGenerator">
          <arg value="-input=web/source"/>
          <arg value="-output=web/wiki"/>
+         <arg value="-checkHTTPLinks=false"/>         
          <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
          <arg value="-search=titles"/>
