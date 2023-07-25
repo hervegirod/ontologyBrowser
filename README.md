@@ -21,3 +21,8 @@ at https://github.com/hervegirod/ontologyBrowser.
  - Add the notion of packages
  - Add a tree showing the packages and the classes on the left of the UI
  - Center the diagram when selecting a class
+
+## 0.5
+ - Use MDIUtilities 1.2.54
+ - Use docJGenerator 1.6.5
+ - Use Netbeans 12.5 for the development
