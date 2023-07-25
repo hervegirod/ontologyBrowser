@@ -25,7 +25,7 @@
          <available file="${dist.javadoc.dir}" type="dir"/>
       </condition>
       <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />
-      <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%201.5.6.4/docGenerator-bin-1.5.6.4.zip" />
+      <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%201.6.5/docGenerator-bin-1.6.5.zip" />
       <property name="docGeneratorDir" value="web/soft/"/>
       <condition property="docgenerator.notexists">
          <not>
@@ -205,18 +205,18 @@
       <unzip src="${docGeneratorDir}/docGenerator.zip" dest="${docGeneratorDir}"/>
       <delete includeEmptyDirs="true">
          <fileset dir="${docGeneratorDir}/doc"  >
-            <include name="**"/>
-         </fileset>
-         <fileset dir="${docGeneratorDir}/tutorial"  >
-            <include name="**"/>
+            <include name="**/*"/>
          </fileset>
          <fileset dir="${docGeneratorDir}/samples"  >
-            <include name="**"/>
+            <include name="**/*"/>
          </fileset>
          <fileset dir="${docGeneratorDir}"  >
             <include name="docGenerator.zip"/>
+            <include name="ImageMapConverter.jar"/>
          </fileset>
       </delete>
+      <delete dir="${docGeneratorDir}/doc" />
+      <delete dir="${docGeneratorDir}/samples" />
    </target>
 
    <target name="delete docJGenerator"  description="delete docJGenerator" depends="init, -post-init" if="docgenerator.exists" >
@@ -236,7 +236,7 @@
       <java classname="org.docgene.main.DocGenerator">
          <arg value="-input=web/source"/>
          <arg value="-output=web/wiki"/>
-         <arg value="-checkHTTPLinks=false"/>         
+         <arg value="-checkHTTPLinks=false"/>
          <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
          <arg value="-search=titles"/>
