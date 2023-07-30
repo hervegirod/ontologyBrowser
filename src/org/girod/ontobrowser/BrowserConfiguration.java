@@ -38,8 +38,8 @@ import java.util.PropertyResourceBundle;
 import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
+import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.mdi.bootstrap.Configuration;
 import org.mdiutil.lang.swing.ResourceUILoader;
 import org.mdiutil.prefs.PreferencesHelper;
@@ -82,7 +82,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showPackagesAsClosed = false;
    public boolean showPackagesInPackageView = false;
    private boolean hasPackagesConfiguration = false;
-   private File packagesConfigurationFile = null;   
+   private File packagesConfigurationFile = null;
    public final PackagesConfiguration packagesConfiguration = new PackagesConfiguration();
    // GUI
    private boolean hasCustomStyles = false;
@@ -117,10 +117,10 @@ public class BrowserConfiguration implements Configuration {
       date = prb.getString("date");
 
       defaultDir = new File(System.getProperty("user.dir"));
-      String[] ext1 = {"owl", "rdf"};
+      String[] ext1 = { "owl", "rdf", "ttl" };
       owlfilter = new ExtensionFileFilter(ext1, "OWL/RDF Files");
 
-      String[] ext2 = {"graphml"};
+      String[] ext2 = { "graphml" };
       graphmlfilter = new ExtensionFileFilter(ext2, "graphml Files");
    }
 
@@ -211,7 +211,7 @@ public class BrowserConfiguration implements Configuration {
          }
       }
    }
-   
+
    /**
     * Return the Schema for the packages configuration.
     *
@@ -229,7 +229,7 @@ public class BrowserConfiguration implements Configuration {
    public PackagesConfiguration getPackagesConfiguration() {
       return packagesConfiguration;
    }
-   
+
    /**
     * Return true if there is a packagesConfiguration.
     *
@@ -237,7 +237,7 @@ public class BrowserConfiguration implements Configuration {
     */
    public boolean hasPackagesConfiguration() {
       return hasPackagesConfiguration;
-   }   
+   }
 
    /**
     * Return the packages configuration file.
@@ -247,13 +247,13 @@ public class BrowserConfiguration implements Configuration {
    public File getPackagesToForgetFile() {
       return packagesConfigurationFile;
    }
-   
+
    public void setHasPackagesConfiguration(boolean hasPackagesConfiguration) {
       this.hasPackagesConfiguration = hasPackagesConfiguration;
       if (hasPackagesConfiguration && packagesConfigurationFile != null && packagesConfigurationFile.exists()) {
          setPackagesConfiguration(packagesConfigurationFile);
       }
-   }   
+   }
 
    public void setPackagesConfiguration(File packagesConfiguration) {
       if (hasPackagesConfiguration) {
@@ -268,7 +268,7 @@ public class BrowserConfiguration implements Configuration {
             dialog.setVisible(true);
          }
       }
-   }   
+   }
 
    @Override
    public void putConfiguration(Preferences p, File dir) {
@@ -313,7 +313,7 @@ public class BrowserConfiguration implements Configuration {
          setPackagesConfiguration(packagesConfigurationFile);
       } else {
          packagesConfiguration.reset();
-      }      
+      }
    }
 
 }
