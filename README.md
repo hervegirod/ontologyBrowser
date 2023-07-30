@@ -26,3 +26,9 @@ at https://github.com/hervegirod/ontologyBrowser.
  - Use MDIUtilities 1.2.54
  - Use docJGenerator 1.6.5
  - Use Netbeans 12.5 for the development
+ - Reorganize the libraries to put jena libraries in a specific folder
+ - Add trees showing the properties and individuals on the left of the UI
+ - Show the linked elements in a popup panel when right-clicking on the element in a tree
+ - Add a search function
+ - Allow parsing Turtle files
+ - Protect the parser against unsupported Owl2 files
