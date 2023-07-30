@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.gui;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.jena.ontology.Individual;
+import java.awt.Component;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JList;
+import org.girod.ontobrowser.gui.tree.ModelTreeRenderer;
 
 /**
- * Represents an Individual.
+ * The renderer in the individuals window.
  *
- * @version 0.5
+ * @since 0.5
  */
-public class OwlIndividual extends NamedOwlElement {
-   private final Map<ElementKey, OwlClass> parentClasses;
-   
-   public OwlIndividual(Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-   }     
+public class IndividualListCellRenderer extends DefaultListCellRenderer {
+   private static final Icon INDIVIDUAL_ICON;
 
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-      this.parentClasses.put(parentClass.getKey(), parentClass);
+   static {
+      INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
    }
-   
-   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = parentClasses;
-   }   
 
-   public Map<ElementKey, OwlClass> getParentClasses() {
-      return parentClasses;
-   }   
+   public IndividualListCellRenderer() {
+      super();
+   }
+
+   @Override
+   public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+      Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      setIcon(INDIVIDUAL_ICON);
+      return this;
+   }
 }

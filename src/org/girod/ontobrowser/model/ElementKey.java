@@ -38,9 +38,9 @@ import java.util.Objects;
 /**
  * The element key, witha name and namespace.
  *
- * @version 0.4
+ * @version 0.5
  */
-public class ElementKey implements Cloneable, Serializable {
+public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializable  {
    public static final String XML_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
    private final String namespace;
    private final String name;
@@ -112,6 +112,24 @@ public class ElementKey implements Cloneable, Serializable {
       }
       return true;
    }
+   
+   @Override
+   public int compareTo(ElementKey o) {
+      if (o.namespace == null && namespace == null) {
+         return o.name.compareTo(name);
+      } else if (o.namespace == null) {
+         return 1;
+      } else if (namespace == null) {         
+         return -1;         
+      } else {
+         int compared = o.namespace.compareTo(namespace);
+         if (compared == 0) {
+            return o.name.compareTo(name);
+         } else {
+            return compared;
+         }
+      }
+   }   
 
    public String getName() {
       return name;

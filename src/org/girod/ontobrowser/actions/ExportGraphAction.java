@@ -42,6 +42,7 @@ import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
+import org.girod.jgraphml.model.IGraphMLNode;
 import org.girod.jgraphml.model.NodeLabel;
 import org.girod.jgraphml.model.ShapeType;
 import org.girod.ontobrowser.OwlDiagram;
@@ -57,7 +58,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class ExportGraphAction extends AbstractExportGraphAction {
    private boolean showPackages = false;
@@ -83,6 +84,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
          OwlClass superClass = theClass.getFirstSuperClass();
          if (superClass == null) {
             GraphMLGroupNode node = graph.addGroupNode();
+            elementToNode.put(key, node);
             setGroupNodeStyle(node, theClass.getName());
             packagesNodes.put(key, node);
             return node;
@@ -91,12 +93,13 @@ public class ExportGraphAction extends AbstractExportGraphAction {
             if (packagesNodes.containsKey(superclassKey)) {
                GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
                GraphMLGroupNode node = superclassNode.addGroupNode();
+               elementToNode.put(key, node);
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
                return node;
             } else {
-               GraphMLGroupNode superclassNode = getPackageNode(schema.getOwlClass(superclassKey), superclassKey);
-               GraphMLGroupNode node = superclassNode.addGroupNode();
+               GraphMLGroupNode node = graph.addGroupNode();
+               elementToNode.put(key, node);
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
                return node;
@@ -109,15 +112,15 @@ public class ExportGraphAction extends AbstractExportGraphAction {
       if (packagesNodes == null || !owlClass.isInPackage()) {
          return null;
       } else {
-         ElementKey _thePackageKey = owlClass.getPackage();
-         return packagesNodes.get(_thePackageKey);
+         ElementKey thePackageKey = owlClass.getPackage();
+         return packagesNodes.get(thePackageKey);
       }
    }
 
    private GraphMLNode addIndividual(OwlClass owlClass, GraphMLNode node, OwlIndividual individual) {
       GraphMLNode inode;
-      if (owlClass.isInPackage()) {
-         ElementKey packageKey = owlClass.getPackage();
+      if (owlClass.isPackageOrInPackage()) {
+         ElementKey packageKey = owlClass.getPackage(false);
          GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
          inode = groupNode.addNode();
       } else {
@@ -137,8 +140,8 @@ public class ExportGraphAction extends AbstractExportGraphAction {
 
    private GraphMLNode addDataProperty(OwlClass owlClass, OwlDatatypeProperty dataProperty) {
       GraphMLNode propertyNode;
-      if (owlClass.isInPackage()) {
-         ElementKey packageKey = owlClass.getPackage();
+      if (owlClass.isPackageOrInPackage()) {
+         ElementKey packageKey = owlClass.getPackage(false);
          GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
          propertyNode = groupNode.addNode();
       } else {
@@ -162,7 +165,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
       return propertyNode;
    }
 
-   private GraphMLNode addLeafNode(Map<ElementKey, GraphMLNode> elementToNode, ElementKey key, OwlClass owlClass) {
+   private GraphMLNode addLeafNode(ElementKey key, OwlClass owlClass) {
       GraphMLGroupNode groupNode = getGroupParent(key, owlClass);
       GraphMLNode node;
       if (groupNode == null) {
@@ -202,7 +205,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
    }
 
    private void exportAllImpl() {
-      Map<ElementKey, GraphMLNode> elementToNode = new HashMap<>();
+      elementToNode = new HashMap<>();
       Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
       if (showPackages) {
          addPackages();
@@ -214,7 +217,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
          ElementKey key = entry.getKey();
          OwlClass owlClass = entry.getValue();
          if (!showPackages || !packagesNodes.containsKey(key)) {
-            addLeafNode(elementToNode, key, owlClass);
+            addLeafNode(key, owlClass);
          }
       }
 
@@ -224,14 +227,14 @@ public class ExportGraphAction extends AbstractExportGraphAction {
          ElementKey key = it2.next();
          OwlClass theClass = owlClasses.get(key);
          if (!showPackages || !packagesNodes.containsKey(key)) {
-            GraphMLNode theNode = elementToNode.get(key);
+            IGraphMLNode theNode = elementToNode.get(key);
             Iterator<ElementKey> it3 = theClass.getSuperClasses().keySet().iterator();
             while (it3.hasNext()) {
                ElementKey parentKey = it3.next();
                if (owlClasses.containsKey(parentKey)) {
                   OwlClass parentClass = owlClasses.get(parentKey);
                   if (!showPackages || !parentClass.isPackage()) {
-                     GraphMLNode source = elementToNode.get(parentKey);
+                     IGraphMLNode source = elementToNode.get(parentKey);
                      GraphMLEdge edge = graph.addEdge(source, theNode);
                      Arrows arrows = edge.getArrows();
                      arrows.setSource(Arrows.WHITE_DELTA);
@@ -247,7 +250,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
       while (it2.hasNext()) {
          ElementKey key = it2.next();
          OwlClass theClass = owlClasses.get(key);
-         GraphMLNode theNode = elementToNode.get(key);
+         IGraphMLNode theNode = elementToNode.get(key);
          Iterator<OwlProperty> it3 = theClass.getOwlProperties().values().iterator();
          while (it3.hasNext()) {
             OwlProperty property = it3.next();
@@ -257,7 +260,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                while (it4.hasNext()) {
                   ElementKey propKey = it4.next();
                   if (owlClasses.containsKey(propKey)) {
-                     GraphMLNode rangeNode = elementToNode.get(propKey);
+                     IGraphMLNode rangeNode = elementToNode.get(propKey);
                      GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                      EdgeLabel label = edge.createLabel(true);
                      label.setLabel(property.getName());
@@ -287,18 +290,27 @@ public class ExportGraphAction extends AbstractExportGraphAction {
          }
       }
    }
-   
+
    @Override
    protected void configure() {
       super.configure();
-      this.showPackages = diagram.hasPackages();      
+      this.showPackages = diagram.hasPackages();
+   }
+
+   /**
+    * Perform the export.
+    */
+   @Override
+   public void export() {
+      elementToNode = new HashMap<>();
+      exportAllImpl();
    }
 
    @Override
    public void run() throws Exception {
       configure();
-      
-      exportAllImpl();
+
+      export();
       saveDiagram();
    }
 }

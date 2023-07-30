@@ -42,6 +42,7 @@ import java.util.Set;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.ontology.AllValuesFromRestriction;
 import org.apache.jena.ontology.CardinalityRestriction;
+import org.apache.jena.ontology.ConversionException;
 import org.apache.jena.ontology.DatatypeProperty;
 import org.apache.jena.ontology.HasValueRestriction;
 import org.apache.jena.ontology.Individual;
@@ -88,10 +89,11 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class GraphExtractor {
    private final OntModel model;
+   private OwlSchema graph = null;
    private ElementKey thingKey = null;
    private final boolean addThingClass;
    private final boolean showPackages;
@@ -182,15 +184,38 @@ public class GraphExtractor {
    }
 
    /**
+    * Return the list of Owl classes which have an existing individual. There may be more than one of course. The getOntClass() method from
+    * Jena is not what we look for here because we will only have the first one in that case.
+    *
+    * @param individual the Individual
+    * @return the list of Owl classes which have the specified individual
+    */
+   private List<OntClass> getOwlClasses(Individual individual) {
+      List<OntClass> list = new ArrayList<>();
+      ExtendedIterator<Resource> it = individual.listRDFTypes(true);
+      while (it.hasNext()) {
+         Resource res = it.next();
+         try {
+            OntClass theClass = res.as(OntClass.class);
+            list.add(theClass);
+         } catch (ConversionException e) {
+            // this can happen if the Resource is not a Class
+         }
+      }
+      return list;
+   }
+
+   /**
     * Return the graph.
     *
     * @return the graph
     */
    public OwlSchema getGraph() throws OntologyException {
-      OwlSchema graph = new OwlSchema(model);
+      graph = new OwlSchema(model);
       OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
       OwlClass owlThingClass = graph.getThingClass();
       thingKey = owlThingClass.getKey();
+      List<OwlRestriction> restrictions = new ArrayList<>();
 
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties = new HashMap<>();
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
@@ -216,6 +241,7 @@ public class GraphExtractor {
                   if (restriction != null) {
                      ElementKey domainKey = restriction.getKey();
                      owlProperty.addDomain(restriction);
+                     restrictions.add(restriction);
                      addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
                   }
                }
@@ -230,6 +256,7 @@ public class GraphExtractor {
                   if (restriction != null) {
                      ElementKey rangeKey = restriction.getKey();
                      owlProperty.addRange(restriction);
+                     restrictions.add(restriction);
                      addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
                   }
                }
@@ -247,6 +274,7 @@ public class GraphExtractor {
                   if (restriction != null) {
                      ElementKey domainKey = restriction.getKey();
                      owlProperty.addDomain(restriction);
+                     restrictions.add(restriction);
                      addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
                   }
                }
@@ -302,11 +330,19 @@ public class GraphExtractor {
          ExtendedIterator individuals = model.listIndividuals();
          while (individuals.hasNext()) {
             Individual thisIndividual = (Individual) individuals.next();
-            OntClass theClass = thisIndividual.getOntClass();
-            ElementKey theKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
-            if (graph.hasOwlClass(theKey)) {
-               OwlClass theOwlClass = graph.getOwlClass(theKey);
-               OwlIndividual owlIndividual = new OwlIndividual(theOwlClass, thisIndividual);
+            List<OntClass> theClasses = getOwlClasses(thisIndividual);
+            if (!theClasses.isEmpty()) {
+               Iterator<OntClass> it = theClasses.iterator();
+               Map<ElementKey, OwlClass> parentClasses = new HashMap<>();
+               while (it.hasNext()) {
+                  OntClass theClass = it.next();
+                  ElementKey theKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
+                  if (graph.hasOwlClass(theKey)) {
+                     OwlClass theOwlClass = graph.getOwlClass(theKey);
+                     parentClasses.put(theKey, theOwlClass);
+                  }
+               }
+               OwlIndividual owlIndividual = new OwlIndividual(parentClasses, thisIndividual);
                graph.addIndividual(owlIndividual);
             }
          }
@@ -358,7 +394,14 @@ public class GraphExtractor {
       }
 
       // class to properties dependencies
-      addDependencies(graph, domainClassToProperties, rangeClassToProperties);
+      addDependencies(graph, restrictions, domainClassToProperties, rangeClassToProperties);
+
+      // setup restrictions
+      Iterator<OwlRestriction> itr = restrictions.iterator();
+      while (itr.hasNext()) {
+         OwlRestriction restriction = itr.next();
+         restriction.setup(graph);
+      }
 
       if (showPackages) {
          PackagesExtractor pExtractor = new PackagesExtractor(graph);
@@ -369,7 +412,7 @@ public class GraphExtractor {
       return graph;
    }
 
-   private void addDependencies(OwlSchema graph, Map<ElementKey, Set<ElementKey>> domainClassToProperties,
+   private void addDependencies(OwlSchema graph, List<OwlRestriction> restrictions, Map<ElementKey, Set<ElementKey>> domainClassToProperties,
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties) {
       Map<ElementKey, OwlClass> modelClasses = graph.getOwlClasses();
       Map<ElementKey, OwlProperty> modelProps = graph.getOwlProperties();
@@ -385,8 +428,9 @@ public class GraphExtractor {
             while (it2.hasNext()) {
                ElementKey propKey = it2.next();
                OwlProperty property = modelProps.get(propKey);
-               theClass.addOwlProperty(property);
-               property.addDomain(classKey);
+               theClass.addOwlProperty(graph, property);
+               UnrestrictedOwlRestriction restriction = property.addDomain(classKey);
+               restrictions.add(restriction);
             }
          }
          if (rangeClassToProperties.containsKey(classKey)) {
@@ -396,7 +440,8 @@ public class GraphExtractor {
                ElementKey propKey = it2.next();
                OwlProperty property = modelProps.get(propKey);
                if (property instanceof OwlObjectProperty) {
-                  ((OwlObjectProperty) property).addRange(classKey);
+                  UnrestrictedOwlRestriction restriction = ((OwlObjectProperty) property).addRange(classKey);
+                  restrictions.add(restriction);
                }
             }
          }
@@ -434,7 +479,7 @@ public class GraphExtractor {
                OwlClass theClass = classes.get(classKey);
                Iterator<PropertyClassRef> it3 = listRangeRef.iterator();
                while (it3.hasNext()) {
-                  theClass.addToRange(it3.next());
+                  theClass.addFromDomain(it3.next());
                }
             }
             it = objectProp.getRange().keySet().iterator();
@@ -443,7 +488,7 @@ public class GraphExtractor {
                OwlClass theClass = classes.get(classKey);
                Iterator<PropertyClassRef> it3 = listDomainRef.iterator();
                while (it3.hasNext()) {
-                  theClass.addFromDomain(it3.next());
+                  theClass.addToRange(it3.next());
                }
             }
          }

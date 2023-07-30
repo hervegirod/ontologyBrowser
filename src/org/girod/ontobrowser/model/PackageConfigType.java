@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,35 +32,22 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.jena.ontology.Individual;
-
 /**
- * Represents an Individual.
+ * The configuration type for classes defined in the packages configuration file.
  *
- * @version 0.5
+ * @since 0.5
  */
-public class OwlIndividual extends NamedOwlElement {
-   private final Map<ElementKey, OwlClass> parentClasses;
-   
-   public OwlIndividual(Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-   }     
-
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-      this.parentClasses.put(parentClass.getKey(), parentClass);
-   }
-   
-   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = parentClasses;
-   }   
-
-   public Map<ElementKey, OwlClass> getParentClasses() {
-      return parentClasses;
-   }   
+public interface PackageConfigType {
+   /**
+    * The default value. The class will be a package depending on its definition.
+    */
+   public static short DEFAULT = 0;
+   /**
+    * The class is forced not to be a package regardless of its definition.
+    */   
+   public static short FORGET_PACKAGE = 1;
+   /**
+    * The class is forced to be a package regardless of its definition.
+    */      
+   public static short FORCE_PACKAGE = 2;
 }

@@ -47,7 +47,7 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
@@ -68,6 +68,8 @@ public class BrowserSettings {
    private JSpinner padHeightSpinner;
    private JCheckBox hasCustomStylesCb;
    private JFileSelector customStylesFs;
+   private JCheckBox hasPackagesConfigurationCb;
+   private JFileSelector packagesConfigurationFs;
 
    private BrowserSettings() {
       super();
@@ -133,6 +135,9 @@ public class BrowserSettings {
       hasCustomStylesCb.setSelected(conf.hasCustomStyles());
       customStylesFs.setSelectedFile(conf.getCustomGraphStylesFile());
       customStylesFs.setEnabled(conf.hasCustomStyles());
+      hasPackagesConfigurationCb.setSelected(conf.hasPackagesConfiguration());
+      packagesConfigurationFs.setSelectedFile(conf.getPackagesToForgetFile());
+      packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());      
    }
 
    /**
@@ -262,6 +267,29 @@ public class BrowserSettings {
       showPackagesAsClosedCb.addActionListener((ActionEvent e) -> {
          conf.showPackagesAsClosed = showPackagesAsClosedCb.isSelected();
       });
+      
+      hasPackagesConfigurationCb = new JCheckBox("", conf.hasCustomStyles());
+      hasPackagesConfigurationCb.setBackground(Color.WHITE);
+      hasPackagesConfigurationCb.addActionListener((ActionEvent e) -> {
+         conf.setHasPackagesConfiguration(hasPackagesConfigurationCb.isSelected());
+         packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());
+         if (!conf.hasPackagesConfiguration()) {
+            conf.packagesConfiguration.reset();
+         }
+      });
+
+      File dir = conf.getDefaultDirectory();
+
+      packagesConfigurationFs = new JFileSelector("Packages Configuration");
+      packagesConfigurationFs.setCurrentDirectory(dir);
+      packagesConfigurationFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      packagesConfigurationFs.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            File file = ((JFileChooser) e.getSource()).getSelectedFile();
+            conf.setPackagesConfiguration(file);
+         }
+      });      
    }
 
    /**
@@ -285,6 +313,8 @@ public class BrowserSettings {
       packageSettings.addProperty(showPackagesCb, "", "Show Packages");
       packageSettings.addProperty(showPackagesAsClosedCb, "", "Show Packages as Closed");
       packageSettings.addProperty(showPackagesInPackageViewCb, "", "Show Packages in Package View");
+      packageSettings.addProperty(hasPackagesConfigurationCb, "", "Has Packages Configuration");
+      packageSettings.addProperty(packagesConfigurationFs, "", "Packages Configuration");      
       packageSettings.setVisible(true);
    }
 }

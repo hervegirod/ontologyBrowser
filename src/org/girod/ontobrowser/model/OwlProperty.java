@@ -62,8 +62,10 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
       domain.put(restriction.getKey(), restriction);
    }
 
-   public void addDomain(ElementKey key) {
-      domain.put(key, new UnrestrictedOwlRestriction(key));
+   public UnrestrictedOwlRestriction addDomain(ElementKey key) {
+      UnrestrictedOwlRestriction restriction = new UnrestrictedOwlRestriction(key);
+      domain.put(key, restriction);
+      return restriction;
    }
 
    public Map<ElementKey, OwlRestriction> getDomain() {

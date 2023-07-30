@@ -62,7 +62,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private final OwlClass thePackage;
@@ -71,7 +71,6 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private final Set<ElementKey> subPackages = new HashSet<>();
    private Map<ElementKey, OwlClass> owlClasses = null;
    private Map<ElementKey, OwlClass> allOwlClasses = null;
-   private final Map<ElementKey, IGraphMLNode> elementToNode = new HashMap<>();
 
    /**
     * Create the export File Action.
@@ -114,8 +113,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                packagesNodes.put(key, node);
                return node;
             } else {
-               GraphMLGroupNode superclassNode = getPackageNode(schema.getOwlClass(superclassKey), superclassKey);
-               GraphMLGroupNode node = superclassNode.addGroupNode();
+               GraphMLGroupNode node = graph.addGroupNode();
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
                return node;
@@ -441,20 +439,28 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
       // properties
       addProperties();
    }
-   
+
    @Override
    protected void configure() {
       super.configure();
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      this.showPackagesInPackageView = conf.showPackagesInPackageView;   
-   }   
+      this.showPackagesInPackageView = conf.showPackagesInPackageView;
+   }
+
+   /**
+    * Perform the export.
+    */
+   @Override
+   public void export() {
+      elementToNode = new HashMap<>();
+      exportPackageImpl();
+   }
 
    @Override
    public void run() throws Exception {
       configure();
 
-      exportPackageImpl();
-
+      export();
       saveDiagram();
    }
 }

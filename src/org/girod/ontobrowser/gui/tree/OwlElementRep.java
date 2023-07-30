@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.gui.tree;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.jena.ontology.Individual;
+import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.OwlClass;
+import org.girod.ontobrowser.model.OwlSchema;
 
 /**
- * Represents an Individual.
+ * Represents an Owl element represented in its tree.
  *
  * @version 0.5
  */
-public class OwlIndividual extends NamedOwlElement {
-   private final Map<ElementKey, OwlClass> parentClasses;
-   
-   public OwlIndividual(Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-   }     
+public class OwlElementRep {
+   private final NamedOwlElement element;
+   private final String name;
+   private final String prefix;
 
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-      this.parentClasses.put(parentClass.getKey(), parentClass);
+   public OwlElementRep(NamedOwlElement element, OwlSchema schema) {
+      this.element = element;
+      this.name = element.getName();
+      this.prefix = schema.getPrefix(element.getNamespace());
    }
-   
-   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = parentClasses;
-   }   
 
-   public Map<ElementKey, OwlClass> getParentClasses() {
-      return parentClasses;
-   }   
+   public boolean isPackage() {
+      if (element instanceof OwlClass) {
+         return ((OwlClass) element).isPackage();
+      } else {
+         return false;
+      }
+   }
+
+   @Override
+   public String toString() {
+      if (prefix == null) {
+         return name;
+      } else {
+         return prefix + ":" + name;
+      }
+   }
+
+   /**
+    * Return the Owl element.
+    *
+    * @return the Owl element
+    */
+   public NamedOwlElement getOwlElement() {
+      return element;
+   }
 }

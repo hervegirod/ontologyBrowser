@@ -36,6 +36,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -152,7 +153,11 @@ public class OwlSchema implements Cloneable, Serializable {
    public void addIndividual(OwlIndividual individual) {
       addNamespace(individual);
       individuals.put(individual.getKey(), individual);
-      individual.getParentClass().addIndividual(individual);
+      Iterator<OwlClass> it = individual.getParentClasses().values().iterator();
+      while (it.hasNext()) {
+         OwlClass theClass = it.next();
+         theClass.addIndividual(individual);
+      }
    }
 
    /**
@@ -224,10 +229,20 @@ public class OwlSchema implements Cloneable, Serializable {
       return properties;
    }
 
+   /**
+    * Return the datatypes properties.
+    *
+    * @return the properties
+    */   
    public Map<ElementKey, OwlDatatypeProperty> getOwlDatatypeProperties() {
       return datatypeProperties;
    }
 
+   /**
+    * Return the object properties.
+    *
+    * @return the properties
+    */
    public Map<ElementKey, OwlObjectProperty> getOwlObjectProperties() {
       return objectProperties;
    }

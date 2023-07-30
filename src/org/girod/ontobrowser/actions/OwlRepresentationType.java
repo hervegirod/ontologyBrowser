@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
-
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.jena.ontology.Individual;
+package org.girod.ontobrowser.actions;
 
 /**
- * Represents an Individual.
+ * Represents the type of an owl file.
  *
- * @version 0.5
+ * @since 0.5
  */
-public class OwlIndividual extends NamedOwlElement {
-   private final Map<ElementKey, OwlClass> parentClasses;
-   
-   public OwlIndividual(Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-   }     
-
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = new HashMap<>();
-      this.parentClasses.put(parentClass.getKey(), parentClass);
-   }
-   
-   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
-      super(individual.getNameSpace(), individual.getLocalName());
-      this.parentClasses = parentClasses;
-   }   
-
-   public Map<ElementKey, OwlClass> getParentClasses() {
-      return parentClasses;
-   }   
+public interface OwlRepresentationType {
+   /**
+    * The undefined type.
+    */
+   public static short TYPE_UNDEFINED = -1;
+   /**
+    * The XML type.
+    */
+   public static short TYPE_OWL_XML = 0;
+   /**
+    * The Turtle type.
+    */
+   public static short TYPE_OWL_TURTLE = 1;
+   /**
+    * The unsupported Owl2 type.
+    */
+   public static short TYPE_OWL2_UNSUPPORTED = 2;
+   /**
+    * The unsupported type.
+    */
+   public static short TYPE_UNSUPPORTED = 3;
 }

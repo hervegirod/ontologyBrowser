@@ -38,11 +38,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.apache.jena.ontology.OntClass;
+import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
  * Represents an Owl class.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();
@@ -54,6 +55,7 @@ public class OwlClass extends NamedOwlElement {
    private ElementKey packageKey = null;
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
+   private final Map<ElementKey, OwlProperty> toProperties = new HashMap<>();
 
    public OwlClass(OntClass ontClass) {
       super(ontClass.getNameSpace(), ontClass.getLocalName());
@@ -90,12 +92,34 @@ public class OwlClass extends NamedOwlElement {
       this.packageKey = packageKey;
    }
 
+   /**
+    * Return true if this class is a package or the Owl class is in a package.
+    *
+    * @return true if this class is a package or the Owl class is in a package
+    */
+   public boolean isPackageOrInPackage() {
+      return isPackage || packageKey != null;
+   }
+
+   /**
+    * Return true if the Owl class is in a package.
+    *
+    * @return true if the Owl class is in a package
+    */
    public boolean isInPackage() {
       return packageKey != null;
    }
 
+   public ElementKey getPackage(boolean isStrict) {
+      if (isPackage) {
+         return getKey();
+      } else {
+         return packageKey;
+      }
+   }
+
    public ElementKey getPackage() {
-      return packageKey;
+      return getPackage(true);
    }
 
    /**
@@ -230,12 +254,38 @@ public class OwlClass extends NamedOwlElement {
       return toRange;
    }
 
-   public void addOwlProperty(OwlProperty owlProperty) {
+   /**
+    * Add an Owl property.
+    *
+    * @param schema the schema
+    * @param owlProperty the property
+    */
+   public void addOwlProperty(OwlSchema schema, OwlProperty owlProperty) {
       properties.put(owlProperty.getKey(), owlProperty);
+      if (owlProperty instanceof OwlObjectProperty) {
+         OwlObjectProperty objectProperty = (OwlObjectProperty) owlProperty;
+         Map<ElementKey, OwlRestriction> range = objectProperty.getRange();
+         Iterator<ElementKey> it = range.keySet().iterator();
+         while (it.hasNext()) {
+            ElementKey key = it.next();
+            if (schema.hasOwlClass(key)) {
+               OwlClass owlClass = schema.getOwlClass(key);
+               owlClass.toProperties.put(owlProperty.getKey(), owlProperty);
+            }
+         }
+      }
    }
 
    public Map<ElementKey, OwlProperty> getOwlProperties() {
       return properties;
+   }
+
+   public Map<ElementKey, OwlProperty> getDomainOwlProperties() {
+      return getOwlProperties();
+   }
+
+   public Map<ElementKey, OwlProperty> getRangeOwlProperties() {
+      return toProperties;
    }
 
    public OwlProperty getOwlProperty(ElementKey key) {

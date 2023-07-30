@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,21 +34,27 @@ package org.girod.ontobrowser.model.restriction;
 
 import org.apache.jena.ontology.OntClass;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.OwlClass;
+import org.girod.ontobrowser.model.OwlSchema;
 
 /**
  * An owl restriction specifies an element in the domain or range of a property.
  *
- * @since 0.1
+ * @version 0.5
  */
 public abstract class OwlRestriction {
    /**
-    * The key of the element which is refered by the restriction.
+    * The key of the Owl Class which is refered by the restriction.
     */
    protected ElementKey key = null;
+   /**
+    * The Owl Class which is refered by the restriction.
+    */
+   private OwlClass theClass = null;
 
    public OwlRestriction() {
    }
-   
+
    /**
     * Constructor.
     *
@@ -56,9 +62,9 @@ public abstract class OwlRestriction {
     */
    public OwlRestriction(OntClass clazz) {
       String localName = clazz.getLocalName();
-      String namespace = clazz.getNameSpace();      
+      String namespace = clazz.getNameSpace();
       this.key = new ElementKey(namespace, localName);
-   }   
+   }
 
    /**
     * Constructor.
@@ -70,11 +76,32 @@ public abstract class OwlRestriction {
    }
 
    /**
-    * Return the key of the element which is refered by the restriction.
+    * Return the key of the Owl Class which is refered by the restriction.
     *
     * @return the key
     */
    public ElementKey getKey() {
       return key;
    }
+
+   /**
+    * Return the Owl Class which is refered by the restriction.
+    *
+    * @return the Owl Class
+    */
+   public OwlClass getOwlClass() {
+      return theClass;
+   }
+
+   /**
+    * Setup the restriction.
+    *
+    * @param schema the schema
+    */
+   public void setup(OwlSchema schema) {
+      if (schema.hasOwlClass(key)) {
+         theClass = schema.getOwlClass(key);
+      }
+   }
+
 }

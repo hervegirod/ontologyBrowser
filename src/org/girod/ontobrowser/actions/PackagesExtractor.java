@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import org.girod.ontobrowser.model.PackagesConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,21 +41,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
+import org.girod.ontobrowser.model.PackageConfigType;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
  * This class attempt to extract packages from the class hierarchy.
  *
- * @since 0.4
+ * @version 0.5
  */
 public class PackagesExtractor {
    private final OwlSchema schema;
    private ElementKey thingKey;
+   private PackagesConfiguration packagesConfiguration = null;
    private final Map<ElementKey, Boolean> processedPackages = new HashMap<>();
    private final Map<ElementKey, OwlClass> packages = new HashMap<>();
    private final Set<ElementKey> propertiesRanges = new HashSet<>();
@@ -64,6 +68,9 @@ public class PackagesExtractor {
    }
 
    public Map<ElementKey, OwlClass> extractPackages() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      packagesConfiguration = conf.getPackagesConfiguration();
+
       extractPackagesImpl();
       Map<ElementKey, OwlClass> notAddedClasses = extractPackagesContent();
       if (!notAddedClasses.isEmpty()) {
@@ -206,7 +213,8 @@ public class PackagesExtractor {
       Iterator<OwlClass> it = schema.getOwlClasses().values().iterator();
       while (it.hasNext()) {
          OwlClass theClass = it.next();
-         if (!theClass.getKey().equals(thingKey)) {
+         ElementKey key = theClass.getKey();
+         if (!key.equals(thingKey)) {
             checkIsPackage(theClass);
          }
       }
@@ -232,6 +240,15 @@ public class PackagesExtractor {
     */
    private boolean checkIsPackage(OwlClass theClass) {
       ElementKey theKey = theClass.getKey();
+      switch (packagesConfiguration.acceptAsPackage(theKey)) {
+         case PackageConfigType.FORCE_PACKAGE:
+            processedPackages.put(theKey, true);
+            theClass.setIsPackage(true);
+            return true;
+         case PackageConfigType.FORGET_PACKAGE:
+            processedPackages.put(theKey, false);
+            return false;
+      }
       if (propertiesRanges.contains(theKey)) {
          processedPackages.put(theKey, false);
          return false;
@@ -289,8 +306,8 @@ public class PackagesExtractor {
                OwlClass theRangeClass = schema.getOwlClass(key);
                if (theRangeClass.getPackage() != null) {
                   list.packages.add(theRangeClass.getPackage());
-               } else {
-                  list.hasUndefinedPackage = true;
+               } else if (!packagesConfiguration.forceAsNotPackage(key)) {
+                  list.setUndefinedPackage(true);
                }
             }
          }
@@ -307,8 +324,8 @@ public class PackagesExtractor {
             list.packages.add(theSuperclass.getKey());
          } else if (theSuperclass.getPackage() != null) {
             list.packages.add(theSuperclass.getPackage());
-         } else {
-            list.hasUndefinedPackage = true;
+         } else if (!packagesConfiguration.forceAsNotPackage(theSuperclass.getKey())) {
+            list.setUndefinedPackage(true);
          }
       }
       return list;
@@ -321,18 +338,14 @@ public class PackagesExtractor {
       private boolean hasUniquePackage() {
          return packages.size() == 1 && !hasUndefinedPackage;
       }
+      
+      private void setUndefinedPackage(boolean hasUndefinedPackage) {
+         this.hasUndefinedPackage = hasUndefinedPackage;
+      }
 
       @Override
       public String toString() {
          return Integer.toString(packages.size());
-      }
-
-      private ElementKey getUniquePackage() {
-         if (packages.size() != 1) {
-            return null;
-         } else {
-            return packages.iterator().next();
-         }
       }
    }
 }

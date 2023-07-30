@@ -35,7 +35,7 @@ package org.girod.ontobrowser.model;
 /**
  * Represents an Owl datatype.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class OwlDatatype extends NamedOwlElement {
    public static final short CUSTOM = -1;
@@ -89,6 +89,15 @@ public class OwlDatatype extends NamedOwlElement {
             default:
                type = CUSTOM;
          }
+      }
+   }
+
+   @Override
+   public String toString() {
+      if (namespace.equals(XML_SCHEMA)) {
+         return "xs:" + name;
+      } else {
+         return super.toString();
       }
    }
 

@@ -40,6 +40,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.girod.ontobrowser.actions.SearchAction;
+import org.girod.ontobrowser.gui.GraphPanel;
+import org.girod.ontobrowser.gui.search.SearchOptions;
 import org.mdi.app.LauncherConf;
 import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdiutil.prefs.NetworkPreferencesFactory;
@@ -47,7 +50,7 @@ import org.mdiutil.prefs.NetworkPreferencesFactory;
 /**
  * The main class of the application.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class OntoBrowser extends AbstractMDIApplication {
    private Preferences pref = null;
@@ -117,4 +120,9 @@ public class OntoBrowser extends AbstractMDIApplication {
       }
       return prefFactory;
    }
+   
+   public void search(SearchOptions options) {
+      SearchAction searchAction = new SearchAction(this, (GraphPanel) tab.getSelectedComponent(), options);
+      executeAction(searchAction);
+   }   
 }

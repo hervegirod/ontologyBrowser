@@ -38,6 +38,7 @@ import java.util.PropertyResourceBundle;
 import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.mdi.bootstrap.Configuration;
 import org.mdiutil.lang.swing.ResourceUILoader;
@@ -48,7 +49,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -80,12 +81,17 @@ public class BrowserConfiguration implements Configuration {
    public boolean showPackages = false;
    public boolean showPackagesAsClosed = false;
    public boolean showPackagesInPackageView = false;
+   private boolean hasPackagesConfiguration = false;
+   private File packagesConfigurationFile = null;   
+   public final PackagesConfiguration packagesConfiguration = new PackagesConfiguration();
    // GUI
    private boolean hasCustomStyles = false;
    private File customGraphStylesFile = null;
    public final CustomGraphStyles customGraphStyles = new CustomGraphStyles();
    // graph styles Schema
    private final URL graphStylesXSD;
+   // packages configuration Schema
+   private final URL packagesConfigurationXSD;
 
    /**
     * The owl/rdf file filter.
@@ -100,6 +106,7 @@ public class BrowserConfiguration implements Configuration {
       // load ressources
       ResourceUILoader loader = new ResourceUILoader("org/girod/ontobrowser/resources");
       graphStylesXSD = loader.getURL("customGraphStyles.xsd");
+      packagesConfigurationXSD = loader.getURL("packagesConfiguration.xsd");
 
       PropertyResourceBundle prb = loader.getPropertyResourceBundle("browser.properties");
 
@@ -110,10 +117,10 @@ public class BrowserConfiguration implements Configuration {
       date = prb.getString("date");
 
       defaultDir = new File(System.getProperty("user.dir"));
-      String[] ext1 = { "owl", "rdf" };
+      String[] ext1 = {"owl", "rdf"};
       owlfilter = new ExtensionFileFilter(ext1, "OWL/RDF Files");
 
-      String[] ext2 = { "graphml" };
+      String[] ext2 = {"graphml"};
       graphmlfilter = new ExtensionFileFilter(ext2, "graphml Files");
    }
 
@@ -156,14 +163,29 @@ public class BrowserConfiguration implements Configuration {
       return graphStylesXSD;
    }
 
+   /**
+    * Return the custom graph styles.
+    *
+    * @return the custom graph styles
+    */
    public CustomGraphStyles getCustomGraphStyles() {
       return customGraphStyles;
    }
 
+   /**
+    * Return the custom graph styles file.
+    *
+    * @return the custom graph styles file
+    */
    public File getCustomGraphStylesFile() {
       return customGraphStylesFile;
    }
 
+   /**
+    * Return true if there are custom graph styles.
+    *
+    * @return true if there are custom graph styles
+    */
    public boolean hasCustomStyles() {
       return hasCustomStyles;
    }
@@ -189,6 +211,64 @@ public class BrowserConfiguration implements Configuration {
          }
       }
    }
+   
+   /**
+    * Return the Schema for the packages configuration.
+    *
+    * @return the Schema for the packages configuration
+    */
+   public URL getPackagesConfigurationSchema() {
+      return packagesConfigurationXSD;
+   }
+
+   /**
+    * Return the packages configuration.
+    *
+    * @return the packages configuration
+    */
+   public PackagesConfiguration getPackagesConfiguration() {
+      return packagesConfiguration;
+   }
+   
+   /**
+    * Return true if there is a packagesConfiguration.
+    *
+    * @return true if there is a packagesConfiguration
+    */
+   public boolean hasPackagesConfiguration() {
+      return hasPackagesConfiguration;
+   }   
+
+   /**
+    * Return the packages configuration file.
+    *
+    * @return the packages configuration file
+    */
+   public File getPackagesToForgetFile() {
+      return packagesConfigurationFile;
+   }
+   
+   public void setHasPackagesConfiguration(boolean hasPackagesConfiguration) {
+      this.hasPackagesConfiguration = hasPackagesConfiguration;
+      if (hasPackagesConfiguration && packagesConfigurationFile != null && packagesConfigurationFile.exists()) {
+         setPackagesConfiguration(packagesConfigurationFile);
+      }
+   }   
+
+   public void setPackagesConfiguration(File packagesConfiguration) {
+      if (hasPackagesConfiguration) {
+         this.packagesConfigurationFile = packagesConfiguration;
+         PackagesConfigurationParser parser = new PackagesConfigurationParser();
+         try {
+            parser.parse(packagesConfiguration);
+         } catch (Exception e) {
+            JErrorPane pane = new JErrorPane(e, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(null, "Exception");
+            dialog.setModal(false);
+            dialog.setVisible(true);
+         }
+      }
+   }   
 
    @Override
    public void putConfiguration(Preferences p, File dir) {
@@ -204,6 +284,8 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showPackagesInPackageView", showPackagesInPackageView);
       p.putBoolean("hasCustomStyles", hasCustomStyles);
       PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
+      p.putBoolean("hasPackagesConfiguration", hasPackagesConfiguration);
+      PreferencesHelper.putFileRelativeTo(p, "packagesConfiguration", packagesConfigurationFile, dir);
    }
 
    @Override
@@ -225,6 +307,13 @@ public class BrowserConfiguration implements Configuration {
       } else {
          customGraphStyles.reset();
       }
+      hasPackagesConfiguration = p.getBoolean("hasPackagesConfiguration", hasPackagesConfiguration);
+      packagesConfigurationFile = PreferencesHelper.getFileRelativeTo(p, "packagesConfiguration", packagesConfigurationFile, dir);
+      if (packagesConfigurationFile != null && packagesConfigurationFile.exists()) {
+         setPackagesConfiguration(packagesConfigurationFile);
+      } else {
+         packagesConfiguration.reset();
+      }      
    }
 
 }

@@ -45,6 +45,7 @@ import org.girod.jgraphml.model.GraphMLDiagram;
 import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GroupStateNode;
+import org.girod.jgraphml.model.IGraphMLNode;
 import org.girod.jgraphml.model.LabelPlacement;
 import org.girod.jgraphml.model.LabelStyle;
 import org.girod.jgraphml.model.NodeLabel;
@@ -63,7 +64,7 @@ import org.mdi.bootstrap.swing.AbstractMDIAction;
 
 /**
  *
- * @since 0.4
+ * @version 0.5
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
@@ -72,6 +73,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected OwlSchema schema;
    protected GraphMLDiagram graph;
    protected Map<ElementKey, GraphMLGroupNode> packagesNodes = new HashMap<>();
+   protected Map<ElementKey, IGraphMLNode> elementToNode;
    protected boolean showRelationsConstraints = false;
    protected boolean showDataPropertiesTypes = false;
    protected DiagramDefaults defaults = null;
@@ -102,6 +104,11 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    public GraphMLDiagram getGraph() {
       return graph;
    }
+   
+   /**
+    * Perform the export.
+    */
+   public abstract void export();
 
    /**
     * Save the diagram.

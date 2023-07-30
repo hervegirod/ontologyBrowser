@@ -66,8 +66,10 @@ public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
       range.put(restriction.getKey(), restriction);
    }
 
-   public void addRange(ElementKey key) {
-      range.put(key, new UnrestrictedOwlRestriction(key));
+   public UnrestrictedOwlRestriction addRange(ElementKey key) {
+      UnrestrictedOwlRestriction restriction = new UnrestrictedOwlRestriction(key);
+      range.put(key, restriction);
+      return restriction;
    }
 
    public Map<ElementKey, OwlRestriction> getRange() {

@@ -35,11 +35,12 @@ package org.girod.ontobrowser.model;
 /**
  * Represents a named Owl element.
  *
- * @version 0.4
+ * @version 0.5
  */
 public abstract class NamedOwlElement implements Cloneable {
    protected final String namespace;
    protected final String name;
+   private ElementKey key = null;
 
    public NamedOwlElement(String namespace, String name) {
       this.namespace = namespace;
@@ -51,7 +52,24 @@ public abstract class NamedOwlElement implements Cloneable {
       if (namespace == null) {
          return name;
       } else {
-         return namespace + ":" + name;
+         return namespace + name;
+      }
+   }
+
+   /**
+    * Return the type of the element.
+    *
+    * @return the element type
+    */
+   public String getElementType() {
+      if (this instanceof OwlClass) {
+         return ElementTypes.CLASS;
+      } else if (this instanceof OwlProperty) {
+         return ElementTypes.PROPERTY;
+      } else if (this instanceof OwlIndividual) {
+         return ElementTypes.INDIVIDUAL;
+      } else {
+         return null;
       }
    }
 
@@ -89,6 +107,9 @@ public abstract class NamedOwlElement implements Cloneable {
     * @return the key
     */
    public ElementKey getKey() {
-      return new ElementKey(namespace, name);
+      if (key == null) {
+         key = new ElementKey(namespace, name);
+      }
+      return key;
    }
 }

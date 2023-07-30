@@ -54,18 +54,23 @@ import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import org.girod.ontobrowser.actions.ExportGraphAction;
 import org.girod.ontobrowser.actions.OpenModelAction;
+import org.girod.ontobrowser.gui.GraphPanel;
+import org.girod.ontobrowser.gui.search.SearchDialog;
+import org.girod.ontobrowser.gui.search.SearchOptions;
 import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdi.app.swing.AbstractMDIMenuFactory;
+import org.mdi.bootstrap.MDIDialogType;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdi.gui.swing.AbstractSettingsAction;
 import org.mdi.gui.swing.DefaultSettingsAction;
 import org.mdiutil.io.FileUtilities;
 import org.mdiutil.lang.swing.ResourceUILoader;
+import org.mdiutil.swing.GenericDialog;
 
 /**
  * This class creates the Menus for the application.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
@@ -74,11 +79,15 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu optionsmenu = new JMenu("Options");
    private AbstractAction aboutAction;
    private OntoBrowser browser = null;
+   private final SearchDialog searchDialog = new SearchDialog();
+   private final SearchDialogListener searchDialogListener = new SearchDialogListener();   
+   private boolean startSearch = false;
    private final BrowserConfiguration bconf;
    private BrowserSettings settings = null;
    private Icon zoomInIcon = null;
    private Icon zoomOutIcon = null;
    private Icon centerIcon = null;
+   private Icon searchIcon = null;
 
    /**
     * Constructor.
@@ -88,6 +97,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    public MenuFactory(OntoBrowser browser) {
       this.bconf = BrowserConfiguration.getInstance();
       this.browser = browser;
+      searchDialog.addDialogListener(searchDialogListener);
    }
 
    /**
@@ -98,6 +108,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       zoomInIcon = loader.getIcon("zoomIn.png");
       zoomOutIcon = loader.getIcon("zoomOut.png");
       centerIcon = loader.getIcon("center.png");
+      searchIcon = loader.getIcon("search.gif");
    }
 
    /**
@@ -116,6 +127,15 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       AbstractAction exportAction = new AbstractAction("Export as graphml") {
          public void actionPerformed(ActionEvent ae) {
             exportModel();
+         }
+      };
+      
+      AbstractAction searchAction = new AbstractAction("Search", searchIcon) {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            if (!startSearch) {
+               doSearch();
+            }
          }
       };
 
@@ -150,9 +170,14 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       centerButton.setText("");
       centerButton.setIcon(centerIcon);
       centerButton.setToolTipText("Center Graph");
+      
+      JButton searchButton = new JButton(searchAction);
+      searchButton.setText("");
+      searchButton.setToolTipText("Search");      
 
       JToolBar tbar = new JToolBar("File");
       getToolBarPanel().add(tbar);
+      tbar.add(searchButton);
       tbar.add(zoomInButton);
       tbar.add(zoomOutButton);
       tbar.add(centerButton);
@@ -302,6 +327,17 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       }
    }
 
+   public void startSearch(boolean startSearch) {
+      this.startSearch = startSearch;
+   }
+
+   public void doSearch() {
+      GraphPanel graphpanel = (GraphPanel) ((AbstractMDIApplication) appli).getSelectedComponent();
+      if (graphpanel != null) {
+         appli.showDialog(searchDialog, MDIDialogType.UNLIMITED);
+      }
+   }
+
    private void openModel() {
       JFileChooser chooser = new JFileChooser();
       chooser.setDialogTitle("Open OWL/RDF");
@@ -346,4 +382,17 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       }
    }
 
+   private class SearchDialogListener extends GenericDialog.DialogAdapter {
+
+      @Override
+      public void apply(GenericDialog gd) {
+         SearchOptions options = new SearchOptions();
+         options.categories = searchDialog.getAvailableCategories();
+         options.category = searchDialog.getSearchCategory();
+         options.matchCase = searchDialog.matchCase();
+         options.regex = searchDialog.isRegexSearch();
+         options.searchString = searchDialog.getSearchString();
+         ((OntoBrowser) appli).search(options);
+      }
+   }   
 }

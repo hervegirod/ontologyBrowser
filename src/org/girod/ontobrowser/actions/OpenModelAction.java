@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.swing.JOptionPane;
+import javax.xml.namespace.QName;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.OntologyException;
@@ -78,11 +79,12 @@ import org.mdi.bootstrap.swing.AbstractMDIAction;
 import org.mdi.bootstrap.swing.GUIApplication;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdiutil.io.FileUtilities;
+import org.mdiutil.xml.XMLRootDetector;
 
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.4
+ * @version 0.5
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -94,6 +96,7 @@ public class OpenModelAction extends AbstractMDIAction {
    private Map<ElementKey, mxCell> cell4Class = null;
    private static final String FONT_FAMILY = "Dialog";
    private static final int FONT_SIZE = 11;
+   private short owlRepresentationType = OwlRepresentationType.TYPE_UNDEFINED;
 
    /**
     * Constructor.
@@ -136,15 +139,73 @@ public class OpenModelAction extends AbstractMDIAction {
       return diagram;
    }
 
+   /**
+    * Return the Owl representation type.
+    *
+    * @param file the file
+    * @return the Owl representation type
+    */
+   protected short getOwlRepresentationType(File file) {
+      String extension = FileUtilities.getFileExtension(file);
+      if (extension == null) {
+         return OwlRepresentationType.TYPE_UNDEFINED;
+      } else {
+         switch (extension.toLowerCase()) {
+            case "owl":
+            case "rdf": {
+               XMLRootDetector detector = new XMLRootDetector();
+               QName rootName = detector.getQualifiedRootName(file);
+               if (rootName.getLocalPart().equals("Ontology")) {
+                  return OwlRepresentationType.TYPE_OWL2_UNSUPPORTED;
+               } else if (rootName.getLocalPart().equals("RDF") && rootName.getPrefix().equals("rdf")) {
+                  return OwlRepresentationType.TYPE_OWL_XML;
+               } else {
+                  return OwlRepresentationType.TYPE_UNSUPPORTED;
+               }
+            }
+            case "ttl":
+               return OwlRepresentationType.TYPE_OWL_TURTLE;
+            default:
+               return OwlRepresentationType.TYPE_UNDEFINED;
+         }
+      }
+   }
+
    @Override
    public void run() throws Exception {
+      owlRepresentationType = getOwlRepresentationType(file);
+      switch (owlRepresentationType) {
+         case OwlRepresentationType.TYPE_UNDEFINED:
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "Undefined Owl representation", "Could not parse model", JOptionPane.ERROR_MESSAGE);
+            return;
+         case OwlRepresentationType.TYPE_OWL2_UNSUPPORTED:
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "Owl2 representation unsupported", "Could not parse model", JOptionPane.ERROR_MESSAGE);
+            return;
+         case OwlRepresentationType.TYPE_UNSUPPORTED:
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "XML representation unsupported", "Could not parse model", JOptionPane.ERROR_MESSAGE);
+            return;
+         case OwlRepresentationType.TYPE_OWL_TURTLE:
+         case OwlRepresentationType.TYPE_OWL_XML:
+            parseImpl(owlRepresentationType);
+            break;
+      }
+   }
+
+   private void parseImpl(short owlType) {
       URI uri = file.toURI();
       OntoErrorHandler errorHandler = new OntoErrorHandler((GUIApplication) app);
       ErrorHandlerFactory.setDefaultErrorHandler(errorHandler);
       OntModel model = createModel("OWL_MEM");
       try {
          // see https://web-semantique.developpez.com/tutoriels/jena/io/#LV-A
-         FileManager.get().readModel(model, uri.toString());
+         switch (owlType) {
+            case OwlRepresentationType.TYPE_OWL_XML:
+               FileManager.get().readModel(model, uri.toString(), "N-TRIPLES");
+               break;
+            case OwlRepresentationType.TYPE_OWL_TURTLE:
+               FileManager.get().readModel(model, uri.toString(), "TURTLE");
+               break;
+         }
          // getting a raw model is necessary because if we don't do that, we will use the reasoner when getting the individuals, and if can take a
          // very long time
          // see https://stackoverflow.com/questions/27645110/method-listindividual-takes-more-than-15-mins-with-dbpedia-2014-owl-2mb-siz
@@ -478,8 +539,19 @@ public class OpenModelAction extends AbstractMDIAction {
 
    @Override
    public String getMessage() {
-      return this.getLongDescription() + " opened successfully";
-
+      switch (owlRepresentationType) {
+         case OwlRepresentationType.TYPE_UNDEFINED:
+            return "Owl2 Representation undefined";
+         case OwlRepresentationType.TYPE_OWL2_UNSUPPORTED:
+            return "Owl2 Representation unsupported";
+         case OwlRepresentationType.TYPE_UNSUPPORTED:
+            return "Representation unsupported";
+         case OwlRepresentationType.TYPE_OWL_TURTLE:
+         case OwlRepresentationType.TYPE_OWL_XML:
+            return this.getLongDescription() + " opened successfully";
+         default:
+            return "Owl2 Representation undefined";
+      }
    }
 
    private static class CellEdges {
