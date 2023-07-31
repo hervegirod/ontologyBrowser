@@ -42,53 +42,67 @@ import javax.swing.ImageIcon;
 import javax.swing.JList;
 import org.girod.ontobrowser.gui.tree.ModelTreeRenderer;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
- * The renderer in the properties window.
+ * The renderer for the dependencies window.
  *
  * @since 0.5
  */
-public class PropertyListCellRenderer extends DefaultListCellRenderer {
+public class DependenciesListCellRenderer extends DefaultListCellRenderer {
+   private static final Icon CLASS_ICON;
    private static final Icon DATAPROPERTY_ICON;
    private static final Icon OBJECTPROPERTY_ICON;
+   private static final Icon INDIVIDUAL_ICON;
 
    static {
+      CLASS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("class.gif"));
       DATAPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydata.png"));
       OBJECTPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobject.png"));
+      INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
    }
 
-   public PropertyListCellRenderer() {
+   public DependenciesListCellRenderer() {
       super();
    }
 
    @Override
    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
       Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-      Icon icon;
-      PropertyBridge bridge = (PropertyBridge) value;
-      if (bridge.isObjectProperty()) {
-         if (bridge.isFromProperty()) {
-            icon = OBJECTPROPERTY_ICON;
+      if (value instanceof String) {
+         setIcon(null);
+         c.setFont(c.getFont().deriveFont(Font.ITALIC));
+      } else if (value instanceof PropertyBridge) {
+         Icon icon;
+         PropertyBridge bridge = (PropertyBridge) value;
+         if (bridge.isObjectProperty()) {
+            if (bridge.isFromProperty()) {
+               icon = OBJECTPROPERTY_ICON;
+            } else {
+               icon = OBJECTPROPERTY_ICON;
+            }
          } else {
-            icon = OBJECTPROPERTY_ICON;
+            icon = DATAPROPERTY_ICON;
          }
-      } else {
-         icon = DATAPROPERTY_ICON;
+         setIcon(icon);
+         c.setFont(c.getFont().deriveFont(Font.PLAIN));
+         String text = getPropertyText(bridge);
+         setText(text);
+      } else if (value instanceof OwlIndividual) {
+         setIcon(INDIVIDUAL_ICON);
+      } else if (value instanceof OwlClass) {
+         setIcon(CLASS_ICON);
       }
-      setIcon(icon);
-      c.setFont(c.getFont().deriveFont(Font.PLAIN));
-      String text = getPropertyText(bridge);
-      setText(text);
       return this;
    }
 
-   public String getPropertyText(PropertyBridge bridge) {
+   private String getPropertyText(PropertyBridge bridge) {
       OwlProperty property = bridge.getOwlProperty();
       if (bridge.isObjectProperty()) {
          OwlObjectProperty objectProperty = (OwlObjectProperty) property;

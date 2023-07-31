@@ -76,7 +76,6 @@ import org.girod.ontobrowser.model.ElementTypes;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlIndividual;
-import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIDialogType;
@@ -483,25 +482,14 @@ public class GraphPanel extends JSplitPane {
 
    private void clickOnPropertiesTree(int x, int y) {
       JPopupMenu menu = new JPopupMenu();
-      JMenuItem item = new JMenuItem("Show Domain Classes");
+      JMenuItem item = new JMenuItem("Show Dependencies");
       item.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
-            showDomainClasses(x, y);
+            showDependencies(x, y);
          }
       });
       menu.add(item);
-      NamedOwlElement owlElement = selectedElement.getOwlElement();
-      if (owlElement instanceof OwlObjectProperty) {
-         item = new JMenuItem("Show Range Classes");
-         item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-               showRangeClasses(x, y);
-            }
-         });
-         menu.add(item);
-      }
       item = new JMenuItem("Copy to Clipboard");
       item.addActionListener(new ActionListener() {
          @Override
@@ -515,11 +503,11 @@ public class GraphPanel extends JSplitPane {
 
    private void clickOnIndividualsTree(int x, int y) {
       JPopupMenu menu = new JPopupMenu();
-      JMenuItem item = new JMenuItem("Show Classes");
+      JMenuItem item = new JMenuItem("Show Dependencies");
       item.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
-            showClasses(x, y);
+            showDependencies(x, y);
          }
       });
       menu.add(item);
@@ -536,19 +524,11 @@ public class GraphPanel extends JSplitPane {
 
    private void clickOnClassTree(int x, int y) {
       JPopupMenu menu = new JPopupMenu();
-      JMenuItem item = new JMenuItem("Show Properties");
+      JMenuItem item = new JMenuItem("Show Dependencies");
       item.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
-            showProperties(x, y);
-         }
-      });
-      menu.add(item);
-      item = new JMenuItem("Show Individuals");
-      item.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            showIndividuals(x, y);
+            showDependencies(x, y);
          }
       });
       menu.add(item);
@@ -590,37 +570,9 @@ public class GraphPanel extends JSplitPane {
       clpbrd.setContents(stringSelection, null);
    }
 
-   private void showClasses(int x, int y) {
-      OwlIndividual individual = (OwlIndividual) selectedElement.getOwlElement();
-      ShowClassesDialog dialog = new ShowClassesDialog(individual, this, browser.getApplicationWindow());
-      dialog.setDialogLocation(new Point(x, y));
-      browser.showDialog(dialog, MDIDialogType.UNLIMITED);
-   }
-
-   private void showDomainClasses(int x, int y) {
-      OwlProperty property = (OwlProperty) selectedElement.getOwlElement();
-      ShowDomainClassesDialog dialog = new ShowDomainClassesDialog(property, this, browser.getApplicationWindow());
-      dialog.setDialogLocation(new Point(x, y));
-      browser.showDialog(dialog, MDIDialogType.UNLIMITED);
-   }
-
-   private void showRangeClasses(int x, int y) {
-      OwlObjectProperty property = (OwlObjectProperty) selectedElement.getOwlElement();
-      ShowRangeClassesDialog dialog = new ShowRangeClassesDialog(property, this, browser.getApplicationWindow());
-      dialog.setDialogLocation(new Point(x, y));
-      browser.showDialog(dialog, MDIDialogType.UNLIMITED);
-   }
-
-   private void showIndividuals(int x, int y) {
-      OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
-      ShowIndividualsDialog dialog = new ShowIndividualsDialog(theClass, this, browser.getApplicationWindow());
-      dialog.setDialogLocation(new Point(x, y));
-      browser.showDialog(dialog, MDIDialogType.UNLIMITED);
-   }
-
-   private void showProperties(int x, int y) {
-      OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
-      ShowPropertiesDialog dialog = new ShowPropertiesDialog(theClass, this, browser.getApplicationWindow());
+   private void showDependencies(int x, int y) {
+      NamedOwlElement element = (NamedOwlElement) selectedElement.getOwlElement();
+      ShowDependenciesDialog dialog = new ShowDependenciesDialog(element, this, browser.getApplicationWindow());
       dialog.setDialogLocation(new Point(x, y));
       browser.showDialog(dialog, MDIDialogType.UNLIMITED);
    }
