@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.ontology.AllValuesFromRestriction;
@@ -289,7 +290,6 @@ public class GraphExtractor {
                   owlProperty.addType(dtype);
                }
             }
-
             graph.addOwlProperty(owlProperty);
          }
          if (owlProp != null) {
@@ -298,6 +298,7 @@ public class GraphExtractor {
       }
 
       boolean hasThingClass = false;
+      Map<ElementKey, Set<ElementKey>> equivalentClasses = new HashMap<>();
       // list classes
       ExtendedIterator classes = model.listClasses();
       while (classes.hasNext()) {
@@ -318,12 +319,14 @@ public class GraphExtractor {
             owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
          }
          if (owlClass != null) {
+            addEquivalentClasses(equivalentClasses, thisClass, owlClass.getKey());
             graph.addOwlClass(owlClass);
          }
       }
       if (!hasThingClass && addThingClass) {
          graph.addOwlClass(owlThingClass);
       }
+      fillEquivalentClasses(equivalentClasses);
 
       // list individuals
       if (BrowserConfiguration.getInstance().includeIndividuals) {
@@ -410,6 +413,45 @@ public class GraphExtractor {
       }
 
       return graph;
+   }
+
+   private void fillEquivalentClasses(Map<ElementKey, Set<ElementKey>> equivalentKeys) {
+      Iterator<Entry<ElementKey, Set<ElementKey>>> it = equivalentKeys.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, Set<ElementKey>> entry = it.next();
+         Set<ElementKey> set = entry.getValue();
+         if (!set.isEmpty()) {
+            OwlClass thisClass = graph.getOwlClass(entry.getKey());
+            Map<ElementKey, OwlClass> equivalentClasses = thisClass.getEquivalentClasses();
+            Iterator<ElementKey> it2 = set.iterator();
+            while (it2.hasNext()) {
+               ElementKey theKey = it2.next();
+               if (graph.hasOwlClass(theKey)) {
+                  OwlClass theOtherClass = graph.getOwlClass(theKey);
+                  equivalentClasses.put(theOtherClass.getKey(), theOtherClass);
+               }
+            }
+         }
+      }
+   }
+
+   private void addEquivalentClasses(Map<ElementKey, Set<ElementKey>> equivalentClasses, OntClass thisClass, ElementKey key) {
+      Set<ElementKey> set;
+      if (equivalentClasses.containsKey(key)) {
+         set = equivalentClasses.get(key);
+      } else {
+         set = new HashSet<>();
+         equivalentClasses.put(key, set);
+      }
+      ExtendedIterator<OntClass> it = thisClass.listEquivalentClasses();
+      while (it.hasNext()) {
+         OntClass theClass = it.next();
+         if (thisClass.getNameSpace() == null && thisClass.getLocalName() == null) {
+            continue;
+         }
+         ElementKey otherKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
+         set.add(otherKey);
+      }
    }
 
    private void addDependencies(OwlSchema graph, List<OwlRestriction> restrictions, Map<ElementKey, Set<ElementKey>> domainClassToProperties,

@@ -59,6 +59,7 @@ public class BrowserSettings {
    private JCheckBox showRelationsConstraintsCb;
    private JCheckBox showDataPropertiesTypesCb;
    private JCheckBox addThingClassCb;
+   private JCheckBox showIndirectRelationsCb;
    private JCheckBox showPackagesCb;
    private JCheckBox showPackagesAsClosedCb;
    private JCheckBox showPackagesInPackageViewCb;
@@ -130,6 +131,7 @@ public class BrowserSettings {
       showPackagesAsClosedCb.setSelected(conf.showPackagesAsClosed);
       showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
       addThingClassCb.setSelected(conf.addThingClass);
+      showIndirectRelationsCb.setSelected(conf.showIndirectRelations);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
       hasCustomStylesCb.setSelected(conf.hasCustomStyles());
@@ -137,7 +139,7 @@ public class BrowserSettings {
       customStylesFs.setEnabled(conf.hasCustomStyles());
       hasPackagesConfigurationCb.setSelected(conf.hasPackagesConfiguration());
       packagesConfigurationFs.setSelectedFile(conf.getPackagesToForgetFile());
-      packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());      
+      packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());
    }
 
    /**
@@ -179,37 +181,6 @@ public class BrowserSettings {
             conf.setCustomStylesConfiguration(file);
          }
       });
-   }
-
-   /**
-    * Initialize the general Settings.
-    */
-   private void initializeGeneralSettings() {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
-
-      includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
-      includeIndividualsCb.setBackground(Color.WHITE);
-      includeIndividualsCb.addActionListener((ActionEvent e) -> {
-         conf.includeIndividuals = includeIndividualsCb.isSelected();
-      });
-
-      showRelationsConstraintsCb = new JCheckBox("", conf.showRelationsConstraints);
-      showRelationsConstraintsCb.setBackground(Color.WHITE);
-      showRelationsConstraintsCb.addActionListener((ActionEvent e) -> {
-         conf.showRelationsConstraints = showRelationsConstraintsCb.isSelected();
-      });
-
-      showDataPropertiesTypesCb = new JCheckBox("", conf.showDataPropertiesTypes);
-      showDataPropertiesTypesCb.setBackground(Color.WHITE);
-      showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
-         conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
-      });
-
-      addThingClassCb = new JCheckBox("", conf.addThingClass);
-      addThingClassCb.setBackground(Color.WHITE);
-      addThingClassCb.addActionListener((ActionEvent e) -> {
-         conf.addThingClass = addThingClassCb.isSelected();
-      });
 
       padWidthSpinner = new JSpinner(padWidthSpinnerModel);
       padWidthSpinner.setEditor(new JSpinner.NumberEditor(padWidthSpinner, "###"));
@@ -245,6 +216,43 @@ public class BrowserSettings {
    }
 
    /**
+    * Initialize the general Settings.
+    */
+   private void initializeGeneralSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
+      includeIndividualsCb.setBackground(Color.WHITE);
+      includeIndividualsCb.addActionListener((ActionEvent e) -> {
+         conf.includeIndividuals = includeIndividualsCb.isSelected();
+      });
+
+      showRelationsConstraintsCb = new JCheckBox("", conf.showRelationsConstraints);
+      showRelationsConstraintsCb.setBackground(Color.WHITE);
+      showRelationsConstraintsCb.addActionListener((ActionEvent e) -> {
+         conf.showRelationsConstraints = showRelationsConstraintsCb.isSelected();
+      });
+
+      showDataPropertiesTypesCb = new JCheckBox("", conf.showDataPropertiesTypes);
+      showDataPropertiesTypesCb.setBackground(Color.WHITE);
+      showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
+         conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
+      });
+
+      addThingClassCb = new JCheckBox("", conf.addThingClass);
+      addThingClassCb.setBackground(Color.WHITE);
+      addThingClassCb.addActionListener((ActionEvent e) -> {
+         conf.addThingClass = addThingClassCb.isSelected();
+      });
+
+      showIndirectRelationsCb = new JCheckBox("", conf.showIndirectRelations);
+      showIndirectRelationsCb.setBackground(Color.WHITE);
+      showIndirectRelationsCb.addActionListener((ActionEvent e) -> {
+         conf.showIndirectRelations = showIndirectRelationsCb.isSelected();
+      });
+   }
+
+   /**
     * Initialize the package Settings.
     */
    private void initializePackageSettings() {
@@ -267,7 +275,7 @@ public class BrowserSettings {
       showPackagesAsClosedCb.addActionListener((ActionEvent e) -> {
          conf.showPackagesAsClosed = showPackagesAsClosedCb.isSelected();
       });
-      
+
       hasPackagesConfigurationCb = new JCheckBox("", conf.hasCustomStyles());
       hasPackagesConfigurationCb.setBackground(Color.WHITE);
       hasPackagesConfigurationCb.addActionListener((ActionEvent e) -> {
@@ -289,7 +297,7 @@ public class BrowserSettings {
             File file = ((JFileChooser) e.getSource()).getSelectedFile();
             conf.setPackagesConfiguration(file);
          }
-      });      
+      });
    }
 
    /**
@@ -301,11 +309,12 @@ public class BrowserSettings {
       generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
+      generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations");
       generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
-      generalSettings.addProperty(padWidthSpinner, "", "Width Padding");
-      generalSettings.addProperty(padHeightSpinner, "", "Height Padding");
       generalSettings.setVisible(true);
 
+      styleSettings.addProperty(padWidthSpinner, "", "Width Padding");
+      styleSettings.addProperty(padHeightSpinner, "", "Height Padding");
       styleSettings.addProperty(hasCustomStylesCb, "", "Has Custom Styles");
       styleSettings.addProperty(customStylesFs, "", "Custom Styles");
       styleSettings.setVisible(true);
@@ -314,7 +323,7 @@ public class BrowserSettings {
       packageSettings.addProperty(showPackagesAsClosedCb, "", "Show Packages as Closed");
       packageSettings.addProperty(showPackagesInPackageViewCb, "", "Show Packages in Package View");
       packageSettings.addProperty(hasPackagesConfigurationCb, "", "Has Packages Configuration");
-      packageSettings.addProperty(packagesConfigurationFs, "", "Packages Configuration");      
+      packageSettings.addProperty(packagesConfigurationFs, "", "Packages Configuration");
       packageSettings.setVisible(true);
    }
 }

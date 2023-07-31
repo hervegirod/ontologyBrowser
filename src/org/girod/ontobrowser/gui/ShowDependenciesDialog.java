@@ -41,7 +41,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.swing.Box;
@@ -117,10 +116,9 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          model.addElement("Parent Classes");
          OwlIndividual individual = (OwlIndividual) element;
          SortedMap<ElementKey, OwlClass> map = new TreeMap<>(individual.getParentClasses());
-         Iterator<Entry<ElementKey, OwlClass>> it = map.entrySet().iterator();
+         Iterator<OwlClass> it = map.values().iterator();
          while (it.hasNext()) {
-            Entry<ElementKey, OwlClass> entry = it.next();
-            OwlClass theClass = entry.getValue();
+            OwlClass theClass = it.next();
             model.addElement(theClass);
          }
       } else if (element instanceof OwlClass) {
@@ -128,43 +126,49 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          // data properties of the Class
          model.addElement("Data Properties");
          SortedMap<ElementKey, OwlProperty> mapp = new TreeMap<>(theClass.getOwlProperties());
-         Iterator<Entry<ElementKey, OwlProperty>> itp = mapp.entrySet().iterator();
+         Iterator<OwlProperty> itp = mapp.values().iterator();
          while (itp.hasNext()) {
-            Entry<ElementKey, OwlProperty> entry = itp.next();
-            OwlProperty property = entry.getValue();
+            OwlProperty property = itp.next();
             if (property instanceof OwlDatatypeProperty) {
-               model.addElement(new PropertyBridge(entry.getValue(), true));
+               model.addElement(new PropertyBridge(property, true));
             }
          }
          // domain properties of the Class
          model.addElement("Object Properties Domain");
          mapp = new TreeMap<>(theClass.getOwlProperties());
-         itp = mapp.entrySet().iterator();
+         itp = mapp.values().iterator();
          while (itp.hasNext()) {
-            Entry<ElementKey, OwlProperty> entry = itp.next();
-            OwlProperty property = entry.getValue();
+            OwlProperty property = itp.next();
             if (property instanceof OwlObjectProperty) {
-               model.addElement(new PropertyBridge(entry.getValue(), false));
+               model.addElement(new PropertyBridge(property, false));
             }
          }
          // range properties of the Class
          model.addElement("Object Properties Range");
          mapp = new TreeMap<>(theClass.getRangeOwlProperties());
-         itp = mapp.entrySet().iterator();
+         itp = mapp.values().iterator();
          while (itp.hasNext()) {
-            Entry<ElementKey, OwlProperty> entry = itp.next();
-            OwlProperty property = entry.getValue();
+            OwlProperty property = itp.next();
             if (property instanceof OwlObjectProperty) {
-               model.addElement(new PropertyBridge(entry.getValue(), true));
+               model.addElement(new PropertyBridge(property, true));
+            }
+         }
+         // equivalent classes
+         if (theClass.hasEquivalentClasses()) {
+            model.addElement("Equivalent Classes");
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getEquivalentClasses());
+            Iterator<OwlClass> iti = mapc.values().iterator();
+            while (iti.hasNext()) {
+               OwlClass alias = iti.next();
+               model.addElement(alias);
             }
          }
          // individuals of the Class
          model.addElement("Individuals");
          SortedMap<ElementKey, OwlIndividual> mapi = new TreeMap<>(theClass.getIndividuals());
-         Iterator<Entry<ElementKey, OwlIndividual>> iti = mapi.entrySet().iterator();
+         Iterator<OwlIndividual> iti = mapi.values().iterator();
          while (iti.hasNext()) {
-            Entry<ElementKey, OwlIndividual> entry = iti.next();
-            OwlIndividual individual = entry.getValue();
+            OwlIndividual individual = iti.next();
             model.addElement(individual);
          }
       } else if (element instanceof OwlProperty) {
@@ -173,10 +177,9 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          // Classes of the domain
          model.addElement("Domain Classes");
          SortedMap<ElementKey, OwlRestriction> map = new TreeMap<>(theProperty.getDomain());
-         Iterator<Entry<ElementKey, OwlRestriction>> it = map.entrySet().iterator();
+         Iterator<OwlRestriction> it = map.values().iterator();
          while (it.hasNext()) {
-            Entry<ElementKey, OwlRestriction> entry = it.next();
-            OwlRestriction restriction = entry.getValue();
+            OwlRestriction restriction = it.next();
             model.addElement(restriction.getOwlClass());
          }
          if (theProperty instanceof OwlObjectProperty) {
@@ -184,10 +187,9 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             // Classes of the range
             model.addElement("Range Classes");
             map = new TreeMap<>(theObjectProperty.getRange());
-            it = map.entrySet().iterator();
+            it = map.values().iterator();
             while (it.hasNext()) {
-               Entry<ElementKey, OwlRestriction> entry = it.next();
-               OwlRestriction restriction = entry.getValue();
+               OwlRestriction restriction = it.next();
                model.addElement(restriction.getOwlClass());
             }
          }
@@ -199,7 +201,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
 
    protected void rightClickOnList(int x, int y) {
       Object o = list.getSelectedValue();
-      if (o != null) {
+      if (o instanceof OwlClass) {
          OwlClass selectedClass = (OwlClass) o;
          JPopupMenu menu = new JPopupMenu();
          JMenuItem item = new JMenuItem("Goto Class");
@@ -207,6 +209,31 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                gotoClass(selectedClass);
+            }
+         });
+         menu.add(item);
+         menu.show(list, x, y);
+      } else if (o instanceof OwlIndividual) {
+         OwlIndividual selectedIndividual = (OwlIndividual) o;
+         JPopupMenu menu = new JPopupMenu();
+         JMenuItem item = new JMenuItem("Goto Individual");
+         item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               gotoIndividual(selectedIndividual);
+            }
+         });
+         menu.add(item);
+         menu.show(list, x, y);
+      } else if (o instanceof PropertyBridge) {
+         PropertyBridge bridge = (PropertyBridge) o;
+         OwlProperty selectedProperty = bridge.getOwlProperty();
+         JPopupMenu menu = new JPopupMenu();
+         JMenuItem item = new JMenuItem("Goto Property");
+         item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               gotoProperty(selectedProperty);
             }
          });
          menu.add(item);
@@ -219,6 +246,16 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
       panel.selectClass(key);
    }
 
+   private void gotoIndividual(OwlIndividual selectedIndividual) {
+      ElementKey key = selectedIndividual.getKey();
+      panel.selectIndividual(key);
+   }
+
+   private void gotoProperty(OwlProperty selectedProperty) {
+      ElementKey key = selectedProperty.getKey();
+      panel.selectProperty(key);
+   }
+
    private class DependenciesList<E> extends JList {
       public DependenciesList(ListModel<Object> dataModel) {
          super(dataModel);
@@ -226,7 +263,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
 
       @Override
       public Dimension getPreferredScrollableViewportSize() {
-         return new Dimension(400, 200);
+         return new Dimension(500, 200);
       }
    }
 }

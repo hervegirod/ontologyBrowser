@@ -74,6 +74,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showRelationsConstraints = false;
    public boolean showDataPropertiesTypes = false;
    public boolean addThingClass = true;
+   public boolean showIndirectRelations = false;
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
@@ -272,34 +273,41 @@ public class BrowserConfiguration implements Configuration {
 
    @Override
    public void putConfiguration(Preferences p, File dir) {
+      // general
       PreferencesHelper.putFile(p, "defaultDir", defaultDir);
-      p.putInt("padWidth", padWidth);
-      p.putInt("padHeight", padHeight);
       p.putBoolean("includeIndividuals", includeIndividuals);
       p.putBoolean("showRelationsConstraints", showRelationsConstraints);
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       p.putBoolean("addThingClass", addThingClass);
+      p.putBoolean("showIndirectRelations", showIndirectRelations);
+
+      // styles
+      p.putInt("padWidth", padWidth);
+      p.putInt("padHeight", padHeight);
+      p.putBoolean("hasCustomStyles", hasCustomStyles);
+      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
+
+      // packages
       p.putBoolean("showPackages", showPackages);
       p.putBoolean("showPackagesAsClosed", showPackagesAsClosed);
       p.putBoolean("showPackagesInPackageView", showPackagesInPackageView);
-      p.putBoolean("hasCustomStyles", hasCustomStyles);
-      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       p.putBoolean("hasPackagesConfiguration", hasPackagesConfiguration);
       PreferencesHelper.putFileRelativeTo(p, "packagesConfiguration", packagesConfigurationFile, dir);
    }
 
    @Override
    public void getConfiguration(Preferences p, File dir) {
+      // general
       defaultDir = PreferencesHelper.getFile(p, "defaultDir", defaultDir);
-      padWidth = p.getInt("padWidth", padWidth);
-      padHeight = p.getInt("padHeight", padHeight);
       includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
       showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       addThingClass = p.getBoolean("addThingClass", addThingClass);
-      showPackages = p.getBoolean("showPackages", showPackages);
-      showPackagesAsClosed = p.getBoolean("showPackagesAsClosed", showPackagesAsClosed);
-      showPackagesInPackageView = p.getBoolean("showPackagesInPackageView", showPackagesInPackageView);
+      showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
+
+      // styles
+      padWidth = p.getInt("padWidth", padWidth);
+      padHeight = p.getInt("padHeight", padHeight);
       customGraphStylesFile = PreferencesHelper.getFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       hasCustomStyles = p.getBoolean("hasCustomStyles", hasCustomStyles);
       if (customGraphStylesFile != null && customGraphStylesFile.exists()) {
@@ -307,6 +315,11 @@ public class BrowserConfiguration implements Configuration {
       } else {
          customGraphStyles.reset();
       }
+
+      // packages
+      showPackages = p.getBoolean("showPackages", showPackages);
+      showPackagesAsClosed = p.getBoolean("showPackagesAsClosed", showPackagesAsClosed);
+      showPackagesInPackageView = p.getBoolean("showPackagesInPackageView", showPackagesInPackageView);
       hasPackagesConfiguration = p.getBoolean("hasPackagesConfiguration", hasPackagesConfiguration);
       packagesConfigurationFile = PreferencesHelper.getFileRelativeTo(p, "packagesConfiguration", packagesConfigurationFile, dir);
       if (packagesConfigurationFile != null && packagesConfigurationFile.exists()) {

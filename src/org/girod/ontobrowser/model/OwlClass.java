@@ -56,6 +56,7 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> toProperties = new HashMap<>();
+   private final Map<ElementKey, OwlClass> equivalentClasses = new HashMap<>();
 
    public OwlClass(OntClass ontClass) {
       super(ontClass.getNameSpace(), ontClass.getLocalName());
@@ -276,14 +277,42 @@ public class OwlClass extends NamedOwlElement {
       }
    }
 
+   /**
+    * Return the map of equivalent (alias) classes.
+    *
+    * @return the equivalent classes
+    */
+   public Map<ElementKey, OwlClass> getEquivalentClasses() {
+      return equivalentClasses;
+   }
+
+   public boolean hasEquivalentClasses() {
+      return !equivalentClasses.isEmpty();
+   }
+
+   /**
+    * Return the Owl properties for which this class is the domain of the property.
+    *
+    * @return the Owl properties for which this class is the domain of the property
+    */
    public Map<ElementKey, OwlProperty> getOwlProperties() {
       return properties;
    }
 
+   /**
+    * Return the Owl properties for which this class is the domain of the property. Identical to calling {@link #getDomainOwlProperties()}.
+    *
+    * @return the Owl properties for which this class is the domain of the property
+    */
    public Map<ElementKey, OwlProperty> getDomainOwlProperties() {
       return getOwlProperties();
    }
 
+   /**
+    * Return the Owl properties for which this class is the range of the property.
+    *
+    * @return the Owl properties for which this class is the range of the property
+    */
    public Map<ElementKey, OwlProperty> getRangeOwlProperties() {
       return toProperties;
    }
