@@ -222,6 +222,7 @@ public class GraphExtractor {
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
       // list properties
+      Map<ElementKey, Set<ElementKey>> equivalentProperties = new HashMap<>();
       ExtendedIterator properties = model.listAllOntProperties();
       while (properties.hasNext()) {
          OntProperty thisProperty = (OntProperty) properties.next();
@@ -230,6 +231,7 @@ public class GraphExtractor {
          if (thisProperty.isObjectProperty()) {
             ObjectProperty objProperty = (ObjectProperty) thisProperty;
             OwlObjectProperty owlProperty = new OwlObjectProperty(objProperty, nameSpace, thisProperty.getLocalName());
+            addEquivalentProperties(equivalentProperties, objProperty, owlProperty.getKey());
             owlProp = owlProperty;
             graph.addOwlProperty(owlProperty);
             ExtendedIterator declDomain = objProperty.listDomain();
@@ -265,6 +267,7 @@ public class GraphExtractor {
          } else if (thisProperty.isDatatypeProperty()) {
             DatatypeProperty datatypeProperty = (DatatypeProperty) thisProperty;
             OwlDatatypeProperty owlProperty = new OwlDatatypeProperty(datatypeProperty, nameSpace, thisProperty.getLocalName());
+            addEquivalentProperties(equivalentProperties, datatypeProperty, owlProperty.getKey());
             ExtendedIterator declDomain = datatypeProperty.listDomain();
             if (!declDomain.hasNext()) {
                addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), thingKey);
@@ -327,6 +330,7 @@ public class GraphExtractor {
          graph.addOwlClass(owlThingClass);
       }
       fillEquivalentClasses(equivalentClasses);
+      fillEquivalentProperties(equivalentProperties);
 
       // list individuals
       if (BrowserConfiguration.getInstance().includeIndividuals) {
@@ -431,6 +435,44 @@ public class GraphExtractor {
                }
             }
          }
+      }
+   }
+
+   private void fillEquivalentProperties(Map<ElementKey, Set<ElementKey>> equivalentKeys) {
+      Iterator<Entry<ElementKey, Set<ElementKey>>> it = equivalentKeys.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, Set<ElementKey>> entry = it.next();
+         Set<ElementKey> set = entry.getValue();
+         if (!set.isEmpty()) {
+            OwlProperty thisProperty = graph.getOwlProperty(entry.getKey());
+            Iterator<ElementKey> it2 = set.iterator();
+            while (it2.hasNext()) {
+               ElementKey theKey = it2.next();
+               if (graph.hasOwlProperty(theKey)) {
+                  OwlProperty theOtherProperty = graph.getOwlProperty(theKey);
+                  thisProperty.addEquivalentProperty(theOtherProperty);
+               }
+            }
+         }
+      }
+   }
+
+   private void addEquivalentProperties(Map<ElementKey, Set<ElementKey>> equivalentProperties, OntProperty thisProperty, ElementKey key) {
+      Set<ElementKey> set;
+      if (equivalentProperties.containsKey(key)) {
+         set = equivalentProperties.get(key);
+      } else {
+         set = new HashSet<>();
+         equivalentProperties.put(key, set);
+      }
+      ExtendedIterator<? extends OntProperty> it = thisProperty.listEquivalentProperties();
+      while (it.hasNext()) {
+         OntProperty theProperty = it.next();
+         if (theProperty.getNameSpace() == null && theProperty.getLocalName() == null) {
+            continue;
+         }
+         ElementKey otherKey = new ElementKey(theProperty.getNameSpace(), theProperty.getLocalName());
+         set.add(otherKey);
       }
    }
 

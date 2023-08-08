@@ -41,13 +41,15 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.4
+ * @version 0.5
  */
 public abstract class OwlProperty<T> extends NamedOwlElement {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
    private int minCardinality = 0;
    private int maxCardinality = -1;
    private T ontProperty = null;
+   private final Map<ElementKey, OwlProperty> aliasProperties = new HashMap<>();
+   private final Map<ElementKey, OwlProperty> propertyFromAlias = new HashMap<>();
 
    public OwlProperty(T ontProperty, String namespace, String name) {
       super(namespace, name);
@@ -70,6 +72,42 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
 
    public Map<ElementKey, OwlRestriction> getDomain() {
       return domain;
+   }
+
+   /**
+    * Add an equivalent (alias) property.
+    *
+    * @param aliasProperty the equivalent property
+    */
+   public void addEquivalentProperty(OwlProperty aliasProperty) {
+      this.aliasProperties.put(aliasProperty.getKey(), aliasProperty);
+      aliasProperty.propertyFromAlias.put(getKey(), this);
+   }
+
+   /**
+    * Return the map of equivalent (alias) properties.
+    *
+    * @return the equivalent properties
+    */
+   public Map<ElementKey, OwlProperty> getEquivalentProperties() {
+      return aliasProperties;
+   }
+
+   public boolean hasEquivalentProperties() {
+      return !aliasProperties.isEmpty();
+   }
+
+   /**
+    * Return the map of equivalent (alias) properties.
+    *
+    * @return the equivalent properties
+    */
+   public Map<ElementKey, OwlProperty> getFromAliasProperties() {
+      return propertyFromAlias;
+   }
+
+   public boolean hasAliasedProperties() {
+      return !propertyFromAlias.isEmpty();
    }
 
    @Override

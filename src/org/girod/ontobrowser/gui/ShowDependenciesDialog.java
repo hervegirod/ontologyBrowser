@@ -227,6 +227,25 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
       } else if (element instanceof OwlProperty) {
          OwlProperty theProperty = (OwlProperty) element;
 
+         // equivalent properties
+         if (theProperty.hasEquivalentProperties()) {
+            model.addElement("Alias Properties");
+            SortedMap<ElementKey, OwlProperty> mapc = new TreeMap<>(theProperty.getEquivalentProperties());
+            Iterator<OwlProperty> iti = mapc.values().iterator();
+            while (iti.hasNext()) {
+               OwlProperty alias = iti.next();
+               model.addElement(alias);
+            }
+         }
+         if (theProperty.hasAliasedProperties()) {
+            model.addElement("Aliased Properties");
+            SortedMap<ElementKey, OwlProperty> mapc = new TreeMap<>(theProperty.getFromAliasProperties());
+            Iterator<OwlProperty> iti = mapc.values().iterator();
+            while (iti.hasNext()) {
+               OwlProperty aliased = iti.next();
+               model.addElement(aliased);
+            }
+         }
          // Classes of the domain
          model.addElement("Domain Classes");
          SortedMap<ElementKey, OwlRestriction> map = new TreeMap<>(theProperty.getDomain());
@@ -276,6 +295,18 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                gotoIndividual(selectedIndividual);
+            }
+         });
+         menu.add(item);
+         menu.show(list, x, y);
+      } else if (o instanceof OwlProperty) {
+         OwlProperty selectedProperty = (OwlProperty) o;
+         JPopupMenu menu = new JPopupMenu();
+         JMenuItem item = new JMenuItem("Goto Property");
+         item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               gotoProperty(selectedProperty);
             }
          });
          menu.add(item);

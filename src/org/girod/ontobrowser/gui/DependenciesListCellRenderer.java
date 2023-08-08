@@ -94,6 +94,15 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
          c.setFont(c.getFont().deriveFont(Font.PLAIN));
          String text = getPropertyText(bridge);
          setText(text);
+      } else if (value instanceof OwlProperty) {
+         Icon icon;
+         OwlProperty property = (OwlProperty) value;
+         if (property.isObjectProperty()) {
+            icon = OBJECTPROPERTY_ICON;
+         } else {
+            icon = DATAPROPERTY_ICON;
+         }
+         setIcon(icon);
       } else if (value instanceof OwlIndividual) {
          setIcon(INDIVIDUAL_ICON);
       } else if (value instanceof OwlClass) {
