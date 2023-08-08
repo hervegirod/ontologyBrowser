@@ -571,8 +571,9 @@ public class GraphPanel extends JSplitPane {
    }
 
    private void showDependencies(int x, int y) {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       NamedOwlElement element = (NamedOwlElement) selectedElement.getOwlElement();
-      ShowDependenciesDialog dialog = new ShowDependenciesDialog(element, this, browser.getApplicationWindow());
+      ShowDependenciesDialog dialog = new ShowDependenciesDialog(element, this, browser.getApplicationWindow(), conf.autoRefresh);
       dialog.setDialogLocation(new Point(x, y));
       browser.showDialog(dialog, MDIDialogType.UNLIMITED);
    }

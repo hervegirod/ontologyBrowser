@@ -86,6 +86,7 @@ public class BrowserConfiguration implements Configuration {
    private File packagesConfigurationFile = null;
    public final PackagesConfiguration packagesConfiguration = new PackagesConfiguration();
    // GUI
+   public boolean autoRefresh = false;
    private boolean hasCustomStyles = false;
    private File customGraphStylesFile = null;
    public final CustomGraphStyles customGraphStyles = new CustomGraphStyles();
@@ -284,6 +285,7 @@ public class BrowserConfiguration implements Configuration {
       // styles
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
+      p.putBoolean("autoRefresh", autoRefresh);
       p.putBoolean("hasCustomStyles", hasCustomStyles);
       PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
 
@@ -310,6 +312,7 @@ public class BrowserConfiguration implements Configuration {
       padHeight = p.getInt("padHeight", padHeight);
       customGraphStylesFile = PreferencesHelper.getFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       hasCustomStyles = p.getBoolean("hasCustomStyles", hasCustomStyles);
+      autoRefresh = p.getBoolean("autoRefresh", autoRefresh);
       if (customGraphStylesFile != null && customGraphStylesFile.exists()) {
          setCustomStylesConfiguration(customGraphStylesFile);
       } else {

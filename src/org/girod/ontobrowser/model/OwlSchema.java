@@ -55,8 +55,6 @@ public class OwlSchema implements Cloneable, Serializable {
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
    private final Map<ElementKey, OwlObjectProperty> objectProperties = new HashMap<>();
-   private final Map<ElementKey, Set<ElementKey>> aliasToClass = new HashMap<>();
-   private final Map<ElementKey, Set<ElementKey>> classFromAlias = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
    private final Set<String> namespaces = new HashSet<>();
    private Map<ElementKey, OwlClass> packages = null;

@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -43,9 +44,11 @@ import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -69,19 +72,32 @@ import org.mdiutil.swing.GenericDialog;
  * @since 0.5
  */
 public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
-   protected final NamedOwlElement element;
-   protected final GraphPanel panel;
-   protected JList<Object> list;
-   protected DefaultListModel<Object> model = new DefaultListModel<>();
+   private NamedOwlElement element;
+   private final GraphPanel panel;
+   private JList<Object> list;
+   private final boolean autoRefresh;
+   private final DefaultListModel<Object> model = new DefaultListModel<>();
 
-   public ShowDependenciesDialog(NamedOwlElement element, GraphPanel panel, Component parent) {
+   public ShowDependenciesDialog(NamedOwlElement element, GraphPanel panel, Component parent, boolean autoRefresh) {
       super("Dependencies of " + element.toString());
       this.element = element;
       this.panel = panel;
+      this.autoRefresh = autoRefresh;
       this.setResizable(true);
    }
 
-   protected void createList() {
+   /**
+    * Refresh the content of the dialog window.
+    *
+    * @param element the element
+    */
+   public void refresh(NamedOwlElement element) {
+      this.element = element;
+      model.clear();
+      initializeList(true);
+   }
+
+   private void createList() {
       list = new DependenciesList(model);
 
       list.addMouseListener(new MouseAdapter() {
@@ -98,7 +114,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
       Container pane = dialog.getContentPane();
       pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
       pane.add(Box.createVerticalStrut(5));
-      initializeList();
+      initializeList(false);
 
       // create the list panel
       JPanel listPanel = new JPanel();
@@ -106,11 +122,39 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
       listPanel.add(new JScrollPane(list), BorderLayout.CENTER);
       pane.add(listPanel);
 
-      JPanel okpanel = this.createOKPanel();
-      pane.add(okpanel);
+      JPanel actionspanel = this.createActionsPanel();
+      pane.add(actionspanel);
    }
 
-   protected void initializeList() {
+   /**
+    * Create the Yes Panel, which is part of the Yes / No panel.
+    *
+    * @return the Yes Panel
+    */
+   private JPanel createActionsPanel() {
+      JPanel actionsPanel = new JPanel();
+      actionsPanel.setLayout(new FlowLayout());
+      if (!autoRefresh) {
+         AbstractAction refreshAction = new AbstractAction("Refresh") {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+               refresh(element);
+            }
+         };
+         actionsPanel.add(new JButton(refreshAction));
+      }
+      yesAction = new AbstractAction(okLabel) {
+         @Override
+         public void actionPerformed(ActionEvent ae) {
+            doYes();
+         }
+      };
+      actionsPanel.add(new JButton(yesAction));
+
+      return actionsPanel;
+   }
+
+   private void initializeList(boolean refreshed) {
       if (element instanceof OwlIndividual) {
          // Classes of the Individual
          model.addElement("Parent Classes");
@@ -155,12 +199,21 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }
          // equivalent classes
          if (theClass.hasEquivalentClasses()) {
-            model.addElement("Equivalent Classes");
+            model.addElement("Alias Classes");
             SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getEquivalentClasses());
             Iterator<OwlClass> iti = mapc.values().iterator();
             while (iti.hasNext()) {
                OwlClass alias = iti.next();
                model.addElement(alias);
+            }
+         }
+         if (theClass.hasAliasedClasses()) {
+            model.addElement("Aliased Classes");
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getFromAliasClasses());
+            Iterator<OwlClass> iti = mapc.values().iterator();
+            while (iti.hasNext()) {
+               OwlClass aliased = iti.next();
+               model.addElement(aliased);
             }
          }
          // individuals of the Class
@@ -195,11 +248,13 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }
       }
 
-      this.createList();
-      list.setCellRenderer(new DependenciesListCellRenderer());
+      if (!refreshed) {
+         this.createList();
+         list.setCellRenderer(new DependenciesListCellRenderer());
+      }
    }
 
-   protected void rightClickOnList(int x, int y) {
+   private void rightClickOnList(int x, int y) {
       Object o = list.getSelectedValue();
       if (o instanceof OwlClass) {
          OwlClass selectedClass = (OwlClass) o;
@@ -244,16 +299,28 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private void gotoClass(OwlClass selectedClass) {
       ElementKey key = selectedClass.getKey();
       panel.selectClass(key);
+      this.element = selectedClass;
+      if (autoRefresh) {
+         this.refresh(selectedClass);
+      }
    }
 
    private void gotoIndividual(OwlIndividual selectedIndividual) {
       ElementKey key = selectedIndividual.getKey();
       panel.selectIndividual(key);
+      this.element = selectedIndividual;
+      if (autoRefresh) {
+         this.refresh(selectedIndividual);
+      }
    }
 
    private void gotoProperty(OwlProperty selectedProperty) {
       ElementKey key = selectedProperty.getKey();
       panel.selectProperty(key);
+      this.element = selectedProperty;
+      if (autoRefresh) {
+         this.refresh(selectedProperty);
+      }
    }
 
    private class DependenciesList<E> extends JList {

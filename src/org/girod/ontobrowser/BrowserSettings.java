@@ -67,6 +67,7 @@ public class BrowserSettings {
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
    private JSpinner padHeightSpinner;
+   private JCheckBox autoRefreshCb;
    private JCheckBox hasCustomStylesCb;
    private JFileSelector customStylesFs;
    private JCheckBox hasPackagesConfigurationCb;
@@ -134,6 +135,7 @@ public class BrowserSettings {
       showIndirectRelationsCb.setSelected(conf.showIndirectRelations);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
+      autoRefreshCb.setSelected(conf.autoRefresh);
       hasCustomStylesCb.setSelected(conf.hasCustomStyles());
       customStylesFs.setSelectedFile(conf.getCustomGraphStylesFile());
       customStylesFs.setEnabled(conf.hasCustomStyles());
@@ -221,6 +223,12 @@ public class BrowserSettings {
    private void initializeGeneralSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
 
+      autoRefreshCb = new JCheckBox("", conf.autoRefresh);
+      autoRefreshCb.setBackground(Color.WHITE);
+      autoRefreshCb.addActionListener((ActionEvent e) -> {
+         conf.autoRefresh = autoRefreshCb.isSelected();
+      });
+
       includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
       includeIndividualsCb.setBackground(Color.WHITE);
       includeIndividualsCb.addActionListener((ActionEvent e) -> {
@@ -306,6 +314,7 @@ public class BrowserSettings {
    private void configureSettings() {
       resetSettings();
 
+      generalSettings.addProperty(autoRefreshCb, "", "Auto Refresh");
       generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");

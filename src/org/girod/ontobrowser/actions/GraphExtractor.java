@@ -422,13 +422,12 @@ public class GraphExtractor {
          Set<ElementKey> set = entry.getValue();
          if (!set.isEmpty()) {
             OwlClass thisClass = graph.getOwlClass(entry.getKey());
-            Map<ElementKey, OwlClass> equivalentClasses = thisClass.getEquivalentClasses();
             Iterator<ElementKey> it2 = set.iterator();
             while (it2.hasNext()) {
                ElementKey theKey = it2.next();
                if (graph.hasOwlClass(theKey)) {
                   OwlClass theOtherClass = graph.getOwlClass(theKey);
-                  equivalentClasses.put(theOtherClass.getKey(), theOtherClass);
+                  thisClass.addEquivalentClass(theOtherClass);
                }
             }
          }
@@ -456,7 +455,6 @@ public class GraphExtractor {
 
    private void addDependencies(OwlSchema graph, List<OwlRestriction> restrictions, Map<ElementKey, Set<ElementKey>> domainClassToProperties,
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties) {
-      Map<ElementKey, OwlClass> modelClasses = graph.getOwlClasses();
       Map<ElementKey, OwlProperty> modelProps = graph.getOwlProperties();
       Map<ElementKey, OwlClass> classes = graph.getOwlClasses();
 

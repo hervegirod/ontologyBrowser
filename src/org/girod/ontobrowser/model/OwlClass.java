@@ -56,7 +56,8 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> toProperties = new HashMap<>();
-   private final Map<ElementKey, OwlClass> equivalentClasses = new HashMap<>();
+   private final Map<ElementKey, OwlClass> aliasClasses = new HashMap<>();
+   private final Map<ElementKey, OwlClass> classFromAlias = new HashMap<>();
 
    public OwlClass(OntClass ontClass) {
       super(ontClass.getNameSpace(), ontClass.getLocalName());
@@ -151,10 +152,22 @@ public class OwlClass extends NamedOwlElement {
       return individuals;
    }
 
+   /**
+    * Return true if this Owl class has individuals.
+    *
+    * @return true if this Owl class has individuals
+    */
    public boolean hasIndividuals() {
       return !individuals.isEmpty();
    }
 
+   /**
+    * Add a superClass.
+    *
+    * @param superClassKey the superClass key
+    * @param owlClass the superClass
+    * @param thingKey the Thing key
+    */
    public void addSuperClass(ElementKey superClassKey, OwlClass owlClass, ElementKey thingKey) {
       superClasses.put(superClassKey, owlClass);
       if (thingKey == null) {
@@ -201,6 +214,12 @@ public class OwlClass extends NamedOwlElement {
       }
    }
 
+   /**
+    * Add a subClass.
+    *
+    * @param key the subClass key
+    * @param owlClass the subClass
+    */
    public void addSubClass(ElementKey key, OwlClass owlClass) {
       subClasses.put(key, owlClass);
    }
@@ -278,16 +297,39 @@ public class OwlClass extends NamedOwlElement {
    }
 
    /**
+    * Add an equivalent (alias) class.
+    *
+    * @param aliasClass the equivalent class
+    */
+   public void addEquivalentClass(OwlClass aliasClass) {
+      this.aliasClasses.put(aliasClass.getKey(), aliasClass);
+      aliasClass.classFromAlias.put(getKey(), this);
+   }
+
+   /**
     * Return the map of equivalent (alias) classes.
     *
     * @return the equivalent classes
     */
    public Map<ElementKey, OwlClass> getEquivalentClasses() {
-      return equivalentClasses;
+      return aliasClasses;
    }
 
    public boolean hasEquivalentClasses() {
-      return !equivalentClasses.isEmpty();
+      return !aliasClasses.isEmpty();
+   }
+
+   /**
+    * Return the map of equivalent (alias) classes.
+    *
+    * @return the equivalent classes
+    */
+   public Map<ElementKey, OwlClass> getFromAliasClasses() {
+      return classFromAlias;
+   }
+
+   public boolean hasAliasedClasses() {
+      return !classFromAlias.isEmpty();
    }
 
    /**
