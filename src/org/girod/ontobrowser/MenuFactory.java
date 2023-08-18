@@ -78,9 +78,8 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu toolsmenu = new JMenu("Tools");
    private final JMenu optionsmenu = new JMenu("Options");
    private AbstractAction aboutAction;
-   private OntoBrowser browser = null;
    private final SearchDialog searchDialog = new SearchDialog();
-   private final SearchDialogListener searchDialogListener = new SearchDialogListener();   
+   private final SearchDialogListener searchDialogListener = new SearchDialogListener();
    private boolean startSearch = false;
    private final BrowserConfiguration bconf;
    private BrowserSettings settings = null;
@@ -94,9 +93,9 @@ public class MenuFactory extends AbstractMDIMenuFactory {
     *
     * @param browser the Framework Browser
     */
-   public MenuFactory(OntoBrowser browser) {
+   public MenuFactory(OntoBrowserGUI browser) {
       this.bconf = BrowserConfiguration.getInstance();
-      this.browser = browser;
+      this.appli = browser;
       searchDialog.addDialogListener(searchDialogListener);
    }
 
@@ -112,7 +111,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    }
 
    /**
-    * construct the application internal menus.
+    * Construct the application internal menus.
     */
    @Override
    protected void initMenus() {
@@ -129,7 +128,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
             exportModel();
          }
       };
-      
+
       AbstractAction searchAction = new AbstractAction("Search", searchIcon) {
          @Override
          public void actionPerformed(ActionEvent e) {
@@ -170,10 +169,10 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       centerButton.setText("");
       centerButton.setIcon(centerIcon);
       centerButton.setToolTipText("Center Graph");
-      
+
       JButton searchButton = new JButton(searchAction);
       searchButton.setText("");
-      searchButton.setToolTipText("Search");      
+      searchButton.setToolTipText("Search");
 
       JToolBar tbar = new JToolBar("File");
       getToolBarPanel().add(tbar);
@@ -237,7 +236,12 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       }
    }
 
-   private OwlDiagram getElement() {
+   /**
+    * Return the current Owl model.
+    *
+    * @return the current Owl model
+    */
+   public OwlDiagram getElement() {
       SwingFileProperties prop = ((AbstractMDIApplication) appli).getSelectedProperties();
       if (prop != null) {
          Object o = prop.getObject();
@@ -251,7 +255,12 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       }
    }
 
-   private mxGraph getGraph() {
+   /**
+    * Return the current graph.
+    *
+    * @return the current graph
+    */
+   public mxGraph getCurrentGraph() {
       OwlDiagram elt = getElement();
       if (elt != null) {
          mxGraph graph = elt.getGraph();
@@ -327,10 +336,18 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       }
    }
 
+   /**
+    * Start a Search.
+    *
+    * @param startSearch true to start the Search
+    */
    public void startSearch(boolean startSearch) {
       this.startSearch = startSearch;
    }
 
+   /**
+    * Perform a Search.
+    */
    public void doSearch() {
       GraphPanel graphpanel = (GraphPanel) ((AbstractMDIApplication) appli).getSelectedComponent();
       if (graphpanel != null) {
@@ -362,6 +379,11 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       exportModel(null);
    }
 
+   /**
+    * Export an Owl model.
+    *
+    * @param diagram the Owl model
+    */
    public void exportModel(OwlDiagram diagram) {
       OwlDiagram elt = getElement();
       if (elt != null) {
@@ -383,7 +405,6 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    }
 
    private class SearchDialogListener extends GenericDialog.DialogAdapter {
-
       @Override
       public void apply(GenericDialog gd) {
          SearchOptions options = new SearchOptions();
@@ -392,7 +413,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
          options.matchCase = searchDialog.matchCase();
          options.regex = searchDialog.isRegexSearch();
          options.searchString = searchDialog.getSearchString();
-         ((OntoBrowser) appli).search(options);
+         ((OntoBrowserGUI) appli).search(options);
       }
-   }   
+   }
 }

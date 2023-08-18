@@ -32,97 +32,22 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.girod.ontobrowser.actions.SearchAction;
-import org.girod.ontobrowser.gui.GraphPanel;
-import org.girod.ontobrowser.gui.search.SearchOptions;
-import org.mdi.app.LauncherConf;
-import org.mdi.app.swing.AbstractMDIApplication;
-import org.mdiutil.prefs.NetworkPreferencesFactory;
+import org.mdiutil.lang.swing.SwingMacOSXUISetter;
 
 /**
- * The main class of the application.
+ * The starter class of the application.
  *
  * @version 0.5
  */
-public class OntoBrowser extends AbstractMDIApplication {
-   private Preferences pref = null;
+public class OntoBrowser {
 
-   public OntoBrowser() {
-      this(true);
+   private OntoBrowser() {
    }
 
-   public OntoBrowser(boolean startGUI) {
-      super("Ontology Browser");
-      configureDerby();
-      configureLog4J();
-      this.hasClosableTab(true);
-      conf = BrowserConfiguration.getInstance();
-
-      if (startGUI) {
-         initPreferencesFile();
-         super.initConfiguration(pref);
-         this.setSize(((BrowserConfiguration) conf).sizeX, ((BrowserConfiguration) conf).sizeY);
-
-         mfactory = new MenuFactory(this);
-         super.preparePanels(8, true, true, mfactory);
-         this.message.manageClipBoard(true);
-      }
-   }
-
-   private void configureDerby() {
-      // this is to make sure that Apache Derby do not create a derby.log file.
-      // see http://davidvancouvering.blogspot.com/2007/10/quiet-time-and-how-to-suppress-derbylog.html
-      // or https://stackoverflow.com/questions/1004327/getting-rid-of-derby-log
-      System.setProperty("derby.stream.error.field", "org.girod.ontobrowser.DerbyUtil.DEV_NULL");
-   }
-
-   private void configureLog4J() {
-      BasicConfigurator.configure();
-
-      List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
-      loggers.add(LogManager.getRootLogger());
-      for (Logger logger : loggers) {
-         logger.setLevel(Level.OFF);
-      }
-   }
-
-   /*
-    * Main entry point of the Application.
-    */
    public static void main(String[] args) {
-      OntoBrowser browser = new OntoBrowser();
-      browser.setVisible(true);
+      SwingMacOSXUISetter.setNativePlatformUI("Ontology Browser", true);
+      OntoBrowserGUI gui = new OntoBrowserGUI();
+      gui.setVisible(true);
    }
 
-   private void initPreferencesFile() {
-      NetworkPreferencesFactory prefFactory;
-      try {
-         prefFactory = getPreferencesFactory();
-         pref = prefFactory.userRoot();
-      } catch (BackingStoreException e) {
-         e.printStackTrace();
-      }
-   }
-
-   private NetworkPreferencesFactory getPreferencesFactory() throws BackingStoreException {
-      LauncherConf lconf = LauncherConf.getInstance();
-      NetworkPreferencesFactory prefFactory = NetworkPreferencesFactory.getFactory();
-      if (prefFactory == null) {
-         prefFactory = NetworkPreferencesFactory.newFactory(lconf.getUserHome(), null, null, "ontoBrowser");
-      }
-      return prefFactory;
-   }
-   
-   public void search(SearchOptions options) {
-      SearchAction searchAction = new SearchAction(this, (GraphPanel) tab.getSelectedComponent(), options);
-      executeAction(searchAction);
-   }   
 }
