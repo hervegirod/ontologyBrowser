@@ -39,7 +39,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import org.girod.ontobrowser.BrowserConfiguration;
-import org.girod.ontobrowser.OntoBrowser;
+import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
@@ -56,11 +56,11 @@ import org.mdiutil.junit.OrderedRunner;
 /**
  * Test opening a model with packages.
  *
- * @since 0.4
+ * @version 0.5
  */
 @RunWith(OrderedRunner.class)
 public class OpenModelAction2Test {
-   private static OntoBrowser browser;
+   private static OntoBrowserGUI browser;
    private static OwlSchema schema;
 
    public OpenModelAction2Test() {
@@ -68,7 +68,7 @@ public class OpenModelAction2Test {
 
    @BeforeClass
    public static void setUpClass() {
-      browser = new OntoBrowser(false);
+      browser = new OntoBrowserGUI(false);
    }
 
    @AfterClass

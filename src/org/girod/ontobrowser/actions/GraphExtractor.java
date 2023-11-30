@@ -32,6 +32,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.ontology.AllValuesFromRestriction;
+import org.apache.jena.ontology.AnnotationProperty;
 import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.ConversionException;
 import org.apache.jena.ontology.DatatypeProperty;
@@ -57,15 +61,21 @@ import org.apache.jena.ontology.OntResource;
 import org.apache.jena.ontology.OntologyException;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.SomeValuesFromRestriction;
+import org.apache.jena.ontology.UnionClass;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
 import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.model.AnnotationValue;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
@@ -90,9 +100,10 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class GraphExtractor {
+   private final File file;
    private final OntModel model;
    private OwlSchema graph = null;
    private ElementKey thingKey = null;
@@ -102,13 +113,15 @@ public class GraphExtractor {
    /**
     * Constructor.
     *
+    * @param file the file
     * @param model the Owl model
     */
-   public GraphExtractor(OntModel model) {
-      this(model, true, false);
+   public GraphExtractor(File file, OntModel model) {
+      this(file, model, true, false);
    }
 
-   public GraphExtractor(OntModel model, boolean addThingClass, boolean showPackages) {
+   public GraphExtractor(File file, OntModel model, boolean addThingClass, boolean showPackages) {
+      this.file = file;
       this.model = model;
       this.showPackages = showPackages;
       if (showPackages) {
@@ -154,6 +167,160 @@ public class GraphExtractor {
 
       }
       return owlRestriction;
+   }
+
+   private void setIsDefinedBy(NamedOwlElement element, OntResource resource) {
+      Resource isDefinedBy = resource.getIsDefinedBy();
+      if (isDefinedBy != null) {
+         if (isDefinedBy.isLiteral()) {
+            String _definedBy = isDefinedBy.asLiteral().getString();
+            element.setIsDefinedBy(new AnnotationValue.LiteralAnnotationValue(_definedBy));
+         } else if (isDefinedBy.isURIResource()) {
+            String uriAsString = isDefinedBy.getURI();
+            try {
+               URI uri = new URI(uriAsString);
+               element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(uri));
+            } catch (URISyntaxException ex) {
+            }
+         }
+      }
+   }
+
+   private void setSeeAlso(NamedOwlElement element, OntResource resource) {
+      Resource seeAlso;
+      try {
+         seeAlso = resource.getSeeAlso();
+      } catch (OntologyException e) {
+         seeAlso = null;
+      }
+      if (seeAlso != null) {
+         if (seeAlso.isLiteral()) {
+            String _seeAlso = seeAlso.asLiteral().getString();
+            element.setSeeAlso(new AnnotationValue.LiteralAnnotationValue(_seeAlso));
+         } else if (seeAlso.isURIResource()) {
+            String uriAsString = seeAlso.getURI();
+            try {
+               URI uri = new URI(uriAsString);
+               element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(uri));
+            } catch (URISyntaxException ex) {
+            }
+         }
+      }
+   }
+
+   private AnnotationValue addAnnotationValue(OntClass theClass, OwlClass owlClass, ElementKey annotationKey, OntProperty property) {
+      RDFNode theNode = theClass.getPropertyValue(property);
+      if (theNode == null) {
+         return null;
+      }
+      AnnotationValue value = null;
+      if (theNode.isLiteral()) {
+         String literal = theNode.asLiteral().getString();
+         value = new AnnotationValue.LiteralAnnotationValue(literal);
+      } else if (theNode.isURIResource()) {
+         String uriAsString = theNode.asResource().getURI();
+         try {
+            URI uri = new URI(uriAsString);
+            value = new AnnotationValue.URIAnnotationValue(uri);
+         } catch (URISyntaxException ex) {
+         }
+      }
+      if (value != null) {
+         owlClass.addAnnotation(annotationKey, value);
+      }
+      return value;
+   }
+   
+   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlObjectProperty owlProperty, ElementKey annotationKey) {
+      AnnotationValue value = null;
+      if (theNode.isLiteral()) {
+         String literal = theNode.asLiteral().getString();
+         value = new AnnotationValue.LiteralAnnotationValue(literal);
+      } else if (theNode.isURIResource()) {
+         String uriAsString = theNode.asResource().getURI();
+         try {
+            URI uri = new URI(uriAsString);
+            value = new AnnotationValue.URIAnnotationValue(uri);
+         } catch (URISyntaxException ex) {
+         }
+      }
+      if (value != null) {
+         owlProperty.addAnnotation(annotationKey, value);
+      }
+      return value;
+   }        
+   
+   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlDatatypeProperty owlProperty, ElementKey annotationKey) {
+      AnnotationValue value = null;
+      if (theNode.isLiteral()) {
+         String literal = theNode.asLiteral().getString();
+         value = new AnnotationValue.LiteralAnnotationValue(literal);
+      } else if (theNode.isURIResource()) {
+         String uriAsString = theNode.asResource().getURI();
+         try {
+            URI uri = new URI(uriAsString);
+            value = new AnnotationValue.URIAnnotationValue(uri);
+         } catch (URISyntaxException ex) {
+         }
+      }
+      if (value != null) {
+         owlProperty.addAnnotation(annotationKey, value);
+      }
+      return value;
+   }    
+   
+   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlIndividual owlIndividual, ElementKey annotationKey) {
+      AnnotationValue value = null;
+      if (theNode.isLiteral()) {
+         String literal = theNode.asLiteral().getString();
+         value = new AnnotationValue.LiteralAnnotationValue(literal);
+      } else if (theNode.isURIResource()) {
+         String uriAsString = theNode.asResource().getURI();
+         try {
+            URI uri = new URI(uriAsString);
+            value = new AnnotationValue.URIAnnotationValue(uri);
+         } catch (URISyntaxException ex) {
+         }
+      }
+      if (value != null) {
+         owlIndividual.addAnnotation(annotationKey, value);
+      }
+      return value;
+   }       
+
+   private void setVersionInfo(NamedOwlElement element, OntResource resource) {
+      String versionInfo = resource.getVersionInfo();
+      if (versionInfo != null) {
+         element.setVersionInfo(versionInfo);
+      }
+   }
+
+   private void setDefaultAnnotations(NamedOwlElement element, OntResource resource) {
+      String comment = getComments(resource);
+      element.setComments(comment);
+      setIsDefinedBy(element, resource);
+      setVersionInfo(element, resource);
+      setSeeAlso(element, resource);
+   }
+
+   private String getComments(OntResource resource) {
+      StringBuilder buf = new StringBuilder();
+      boolean isEmpty = true;
+      ExtendedIterator<RDFNode> it = resource.listComments(null);
+      while (it.hasNext()) {
+         RDFNode node = it.next();
+         String s = node.asLiteral().getString();
+         buf.append(s);
+         if (it.hasNext()) {
+            buf.append("\n");
+         }
+         isEmpty = false;
+      }
+      if (isEmpty) {
+         return null;
+      } else {
+         return buf.toString();
+      }
    }
 
    private void addToPropertyToClassMap(Map<ElementKey, Set<ElementKey>> classToProperties, ElementKey propertyKey, ElementKey classKey) {
@@ -218,10 +385,23 @@ public class GraphExtractor {
       thingKey = owlThingClass.getKey();
       List<OwlRestriction> restrictions = new ArrayList<>();
 
+      // see https://stackoverflow.com/questions/17296209/jena-ontology-api-how-to-retrieve-axiom-that-attach-annotation-to-a-class-proper
+      // Find the axioms in the model.  For each axiom, iterate through the
+      // its properties, looking for those that are *not* used for encoding the
+      // annotated axiom.  Those that are left are the annotations.
       Map<ElementKey, Set<ElementKey>> rangeClassToProperties = new HashMap<>();
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
+      // list annotations
+      ExtendedIterator<AnnotationProperty> annotations = model.listAnnotationProperties();
+      while (annotations.hasNext()) {
+         AnnotationProperty annProperty = annotations.next();
+         OwlAnnotation owlAnnotation = new OwlAnnotation(annProperty);
+         graph.addAnnotation(owlAnnotation);
+      }
+
       // list properties
+      Set<ElementKey> annotationkeys = new HashSet<>();
       Map<ElementKey, Set<ElementKey>> equivalentProperties = new HashMap<>();
       ExtendedIterator properties = model.listAllOntProperties();
       while (properties.hasNext()) {
@@ -231,6 +411,7 @@ public class GraphExtractor {
          if (thisProperty.isObjectProperty()) {
             ObjectProperty objProperty = (ObjectProperty) thisProperty;
             OwlObjectProperty owlProperty = new OwlObjectProperty(objProperty, nameSpace, thisProperty.getLocalName());
+            setDefaultAnnotations(owlProperty, thisProperty);
             addEquivalentProperties(equivalentProperties, objProperty, owlProperty.getKey());
             owlProp = owlProperty;
             graph.addOwlProperty(owlProperty);
@@ -240,12 +421,27 @@ public class GraphExtractor {
             } else {
                while (declDomain.hasNext()) {
                   OntClass thisClass = (OntClass) declDomain.next();
-                  OwlRestriction restriction = getOwlRestriction(thisClass);
-                  if (restriction != null) {
-                     ElementKey domainKey = restriction.getKey();
-                     owlProperty.addDomain(restriction);
-                     restrictions.add(restriction);
-                     addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                  if (thisClass.isUnionClass()) {
+                     UnionClass unionClass = thisClass.asUnionClass();
+                     ExtendedIterator<? extends OntClass> it = unionClass.listOperands();
+                     while (it.hasNext()) {
+                        OntClass theClass = it.next();
+                        OwlRestriction restriction = getOwlRestriction(theClass);
+                        if (restriction != null) {
+                           ElementKey domainKey = restriction.getKey();
+                           owlProperty.addDomain(restriction);
+                           restrictions.add(restriction);
+                           addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                        }
+                     }
+                  } else {
+                     OwlRestriction restriction = getOwlRestriction(thisClass);
+                     if (restriction != null) {
+                        ElementKey domainKey = restriction.getKey();
+                        owlProperty.addDomain(restriction);
+                        restrictions.add(restriction);
+                        addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                     }
                   }
                }
             }
@@ -255,18 +451,34 @@ public class GraphExtractor {
             } else {
                while (declRange.hasNext()) {
                   OntClass thisClass = (OntClass) declRange.next();
-                  OwlRestriction restriction = getOwlRestriction(thisClass);
-                  if (restriction != null) {
-                     ElementKey rangeKey = restriction.getKey();
-                     owlProperty.addRange(restriction);
-                     restrictions.add(restriction);
-                     addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
+                  if (thisClass.isUnionClass()) {
+                     UnionClass unionClass = thisClass.asUnionClass();
+                     ExtendedIterator<? extends OntClass> it = unionClass.listOperands();
+                     while (it.hasNext()) {
+                        OntClass theClass = it.next();
+                        OwlRestriction restriction = getOwlRestriction(theClass);
+                        if (restriction != null) {
+                           ElementKey domainKey = restriction.getKey();
+                           owlProperty.addRange(restriction);
+                           restrictions.add(restriction);
+                           addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), domainKey);
+                        }
+                     }
+                  } else {
+                     OwlRestriction restriction = getOwlRestriction(thisClass);
+                     if (restriction != null) {
+                        ElementKey rangeKey = restriction.getKey();
+                        owlProperty.addRange(restriction);
+                        restrictions.add(restriction);
+                        addToPropertyToClassMap(rangeClassToProperties, owlProperty.getKey(), rangeKey);
+                     }
                   }
                }
             }
          } else if (thisProperty.isDatatypeProperty()) {
             DatatypeProperty datatypeProperty = (DatatypeProperty) thisProperty;
             OwlDatatypeProperty owlProperty = new OwlDatatypeProperty(datatypeProperty, nameSpace, thisProperty.getLocalName());
+            setDefaultAnnotations(owlProperty, thisProperty);
             addEquivalentProperties(equivalentProperties, datatypeProperty, owlProperty.getKey());
             ExtendedIterator declDomain = datatypeProperty.listDomain();
             if (!declDomain.hasNext()) {
@@ -274,12 +486,27 @@ public class GraphExtractor {
             } else {
                while (declDomain.hasNext()) {
                   OntClass thisClass = (OntClass) declDomain.next();
-                  OwlRestriction restriction = getOwlRestriction(thisClass);
-                  if (restriction != null) {
-                     ElementKey domainKey = restriction.getKey();
-                     owlProperty.addDomain(restriction);
-                     restrictions.add(restriction);
-                     addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                  if (thisClass.isUnionClass()) {
+                     UnionClass unionClass = thisClass.asUnionClass();
+                     ExtendedIterator<? extends OntClass> it = unionClass.listOperands();
+                     while (it.hasNext()) {
+                        OntClass theClass = it.next();
+                        OwlRestriction restriction = getOwlRestriction(theClass);
+                        if (restriction != null) {
+                           ElementKey domainKey = restriction.getKey();
+                           owlProperty.addDomain(restriction);
+                           restrictions.add(restriction);
+                           addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                        }
+                     }
+                  } else {
+                     OwlRestriction restriction = getOwlRestriction(thisClass);
+                     if (restriction != null) {
+                        ElementKey domainKey = restriction.getKey();
+                        owlProperty.addDomain(restriction);
+                        restrictions.add(restriction);
+                        addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), domainKey);
+                     }
                   }
                }
             }
@@ -294,6 +521,10 @@ public class GraphExtractor {
                }
             }
             graph.addOwlProperty(owlProperty);
+         } else if (thisProperty.isResource()) {
+            Resource resource = thisProperty.asResource();
+            annotationkeys.add(ElementKey.create(thisProperty.getNameSpace(), thisProperty.getLocalName()));
+            graph.addAnnotation(new OwlAnnotation(resource));
          }
          if (owlProp != null) {
             getRestrictions(thisProperty, owlProp);
@@ -320,6 +551,15 @@ public class GraphExtractor {
          } else {
             String nameSpace = thisClass.getNameSpace();
             owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
+            ExtendedIterator<OntProperty> declProp = thisClass.listDeclaredProperties();
+            while (declProp.hasNext()) {
+               OntProperty prop = declProp.next();
+               ElementKey theKey = ElementKey.create(prop.getNameSpace(), prop.getLocalName());
+               if (annotationkeys.contains(theKey)) {
+                  addAnnotationValue(thisClass, owlClass, theKey, prop);
+               }
+            }            
+            setDefaultAnnotations(owlClass, thisClass);
          }
          if (owlClass != null) {
             addEquivalentClasses(equivalentClasses, thisClass, owlClass.getKey());
@@ -331,6 +571,38 @@ public class GraphExtractor {
       }
       fillEquivalentClasses(equivalentClasses);
       fillEquivalentProperties(equivalentProperties);
+      
+      Iterator<OwlProperty> it2 = graph.getOwlProperties().values().iterator();
+      while (it2.hasNext()) {
+         OwlProperty owlProperty = it2.next();
+         if (owlProperty instanceof OwlObjectProperty) {
+            OwlObjectProperty _owlProperty = (OwlObjectProperty)owlProperty;
+            ObjectProperty objproperty = _owlProperty.getProperty();        
+            StmtIterator iterSmt = objproperty.listProperties();
+            while (iterSmt.hasNext()) {
+               Statement statement = iterSmt.next();
+               Property predicate = statement.getPredicate();
+               RDFNode node = statement.getObject();
+               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+               if (annotationkeys.contains(theKey)) {
+                  addAnnotationValue(node, _owlProperty, theKey);
+               }               
+            }
+         } else if (owlProperty instanceof OwlDatatypeProperty) {
+            OwlDatatypeProperty _owlProperty = (OwlDatatypeProperty)owlProperty;
+            DatatypeProperty datatypeProperty = _owlProperty.getProperty(); 
+            StmtIterator iterSmt = datatypeProperty.listProperties();
+            while (iterSmt.hasNext()) {
+               Statement statement = iterSmt.next();
+               RDFNode node = statement.getObject();
+               Property predicate = statement.getPredicate();
+               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+               if (annotationkeys.contains(theKey)) {
+                  addAnnotationValue(node, _owlProperty, theKey);
+               }               
+            }            
+         }          
+      }
 
       // list individuals
       if (BrowserConfiguration.getInstance().includeIndividuals) {
@@ -349,7 +621,18 @@ public class GraphExtractor {
                      parentClasses.put(theKey, theOwlClass);
                   }
                }
-               OwlIndividual owlIndividual = new OwlIndividual(parentClasses, thisIndividual);
+               OwlIndividual owlIndividual = new OwlIndividual(parentClasses, thisIndividual);  
+            StmtIterator iterSmt = thisIndividual.listProperties();
+            while (iterSmt.hasNext()) {
+               Statement statement = iterSmt.next();
+               RDFNode node = statement.getObject();
+               Property predicate = statement.getPredicate();
+               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+               if (annotationkeys.contains(theKey)) {
+                  addAnnotationValue(node, owlIndividual, theKey);
+               }               
+            }                
+               setDefaultAnnotations(owlIndividual, thisIndividual);
                graph.addIndividual(owlIndividual);
             }
          }

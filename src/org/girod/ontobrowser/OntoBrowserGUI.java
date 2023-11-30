@@ -50,7 +50,7 @@ import org.mdiutil.prefs.NetworkPreferencesFactory;
 /**
  * The main class of the application.
  *
- * @since 0.5
+ * @version 0.6
  */
 public class OntoBrowserGUI extends AbstractMDIApplication {
    private Preferences pref = null;
@@ -122,7 +122,8 @@ public class OntoBrowserGUI extends AbstractMDIApplication {
    }
 
    public void search(SearchOptions options) {
-      SearchAction searchAction = new SearchAction(this, (GraphPanel) tab.getSelectedComponent(), options);
+      boolean indirectRelations = ((BrowserConfiguration) conf).showIndirectRelations;
+      SearchAction searchAction = new SearchAction(this, (GraphPanel) tab.getSelectedComponent(), indirectRelations, options);
       executeAction(searchAction);
    }
 }

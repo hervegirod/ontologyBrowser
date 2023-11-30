@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.swing.AbstractAction;
@@ -62,6 +63,7 @@ import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
+import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.mdi.bootstrap.swing.MDIDialog;
 import org.mdiutil.swing.GenericDialog;
@@ -69,11 +71,12 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This Dialog shows the dependencies of an element.
  *
- * @since 0.5
+ * @version 0.6
  */
 public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private NamedOwlElement element;
    private final GraphPanel panel;
+   private final OwlSchema schema;
    private JList<Object> list;
    private final boolean autoRefresh;
    private final DefaultListModel<Object> model = new DefaultListModel<>();
@@ -82,6 +85,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
       super("Dependencies of " + element.toString());
       this.element = element;
       this.panel = panel;
+      this.schema = panel.getSchema();
       this.autoRefresh = autoRefresh;
       this.setResizable(true);
    }
@@ -157,7 +161,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private void initializeList(boolean refreshed) {
       if (element instanceof OwlIndividual) {
          // Classes of the Individual
-         model.addElement("Parent Classes");
+         model.addElement("Classes");
          OwlIndividual individual = (OwlIndividual) element;
          SortedMap<ElementKey, OwlClass> map = new TreeMap<>(individual.getParentClasses());
          Iterator<OwlClass> it = map.values().iterator();
@@ -207,7 +211,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                model.addElement(alias);
             }
          }
-         if (theClass.hasAliasedClasses()) {
+         if (theClass.hasFromAliasedClasses()) {
             model.addElement("Aliased Classes");
             SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getFromAliasClasses());
             Iterator<OwlClass> iti = mapc.values().iterator();
@@ -216,6 +220,17 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                model.addElement(aliased);
             }
          }
+         Map<ElementKey, OwlClass> mapd = schema.getDependentClasses(theClass);
+         if (!mapd.isEmpty()) {
+            model.addElement("Associated Classes");
+            SortedMap<ElementKey, OwlClass> mapd2 = new TreeMap<>(mapd);
+            Iterator<OwlClass> iti = mapd2.values().iterator();
+            while (iti.hasNext()) {
+               OwlClass class2 = iti.next();
+               model.addElement(class2);
+            }
+         }
+
          // individuals of the Class
          model.addElement("Individuals");
          SortedMap<ElementKey, OwlIndividual> mapi = new TreeMap<>(theClass.getIndividuals());
@@ -237,7 +252,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                model.addElement(alias);
             }
          }
-         if (theProperty.hasAliasedProperties()) {
+         if (theProperty.hasFromAliasedProperties()) {
             model.addElement("Aliased Properties");
             SortedMap<ElementKey, OwlProperty> mapc = new TreeMap<>(theProperty.getFromAliasProperties());
             Iterator<OwlProperty> iti = mapc.values().iterator();
@@ -264,12 +279,19 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                OwlRestriction restriction = it.next();
                model.addElement(restriction.getOwlClass());
             }
+            
+            // Inverse property
+            OwlObjectProperty theInverseProperty = theObjectProperty.getInverseProperty();
+            if (theInverseProperty != null) {
+               model.addElement("Inverse Property");
+               model.addElement(theInverseProperty);
+            }
          }
       }
 
       if (!refreshed) {
          this.createList();
-         list.setCellRenderer(new DependenciesListCellRenderer());
+         list.setCellRenderer(new DependenciesListCellRenderer(schema));
       }
    }
 

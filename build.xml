@@ -25,8 +25,14 @@
          <available file="${dist.javadoc.dir}" type="dir"/>
       </condition>
       <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />
-      <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%201.6.5/docGenerator-bin-1.6.5.zip" />
+      <property name="docGeneratorVersion" value="1.6.5.8" />
+      <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%20${docGeneratorVersion}/docGenerator-bin-${docGeneratorVersion}.zip" />
       <property name="docGeneratorDir" value="web/soft/"/>
+      <condition property="docgenerator-doc.notexists">
+         <not>
+            <available file="web/soft/doc" type="dir"/>
+         </not>
+      </condition>
       <condition property="docgenerator.notexists">
          <not>
             <available file="web/soft/docGenerator.jar" type="file"/>
@@ -75,10 +81,13 @@
          <fileset description="docs" dir=".">
             <include name="LICENSE"/>
             <include name="README.md"/>
-            <include name="CHANGES.txt"/>
+            <include name="HISTORY.md"/>
          </fileset>
          <fileset description="samples" dir=".">
             <include name="samples/**/*.*"/>
+         </fileset>
+         <fileset description="standards" dir=".">
+            <include name="standards/**/*.*"/>
          </fileset>
          <fileset description="lib" dir=".">
             <include name="lib/**/*.*"/>
@@ -112,7 +121,10 @@
             <include name="nbproject/**/*.*"/>
          </fileset>
          <fileset description="samples" dir=".">
-            <include name="samples/*"/>
+            <include name="samples/**/*.*"/>
+         </fileset>
+         <fileset description="standards" dir=".">
+            <include name="standards/**/*.*"/>
          </fileset>
          <fileset description="web" dir=".">
             <include name="web/**/*.*"/>
@@ -120,6 +132,7 @@
          <fileset description="misc" dir=".">
             <include name="LICENSE"/>
             <include name="README.md"/>
+            <include name="HISTORY.md"/>
             <include name="build.xml"/>
          </fileset>
       </zip>
@@ -200,14 +213,11 @@
    <!-- =================================================================== -->
    <!-- NB overwrite targets : wiki                                     -->
    <!-- =================================================================== -->
-   <target name="download docJGenerator"  description="download docJGenerator" depends="init, -post-init" if="docgenerator.notexists" >
+   <target name="download docJGenerator"  description="download docJGenerator" depends="init, -post-init, -create-wikisoft-doc" if="docgenerator.notexists" >
       <get src="${docGeneratorURL}" dest="${docGeneratorDir}/docGenerator.zip" verbose="false" usetimestamp="false"/>
       <unzip src="${docGeneratorDir}/docGenerator.zip" dest="${docGeneratorDir}"/>
       <delete includeEmptyDirs="true">
          <fileset dir="${docGeneratorDir}/doc"  >
-            <include name="**/*"/>
-         </fileset>
-         <fileset dir="${docGeneratorDir}/samples"  >
             <include name="**/*"/>
          </fileset>
          <fileset dir="${docGeneratorDir}"  >
@@ -217,6 +227,10 @@
       </delete>
       <delete dir="${docGeneratorDir}/doc" />
       <delete dir="${docGeneratorDir}/samples" />
+   </target>
+
+   <target depends="init, -post-init" name="-create-wikisoft-doc" if="docgenerator-doc.notexists">
+      <mkdir dir="${docGeneratorDir}/doc" />
    </target>
 
    <target name="delete docJGenerator"  description="delete docJGenerator" depends="init, -post-init" if="docgenerator.exists" >

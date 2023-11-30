@@ -35,7 +35,9 @@ package org.girod.ontobrowser.actions;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.girod.jgraphml.GraphMLFactory;
 import org.girod.jgraphml.model.Arrows;
 import org.girod.jgraphml.model.DiagramDefaults;
@@ -78,6 +80,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected boolean showDataPropertiesTypes = false;
    protected DiagramDefaults defaults = null;
    protected final CustomGraphStyles customStyles;
+   protected final Set<ElementKey> processedPackages = new HashSet<>();
 
    /**
     * Create the export File Action.
@@ -104,7 +107,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    public GraphMLDiagram getGraph() {
       return graph;
    }
-   
+
    /**
     * Perform the export.
     */

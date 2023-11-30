@@ -58,6 +58,7 @@ import org.apache.jena.ontology.OntologyException;
 import org.apache.jena.ontology.impl.OntModelImpl;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResourceRequiredException;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.util.FileManager;
@@ -84,7 +85,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -215,7 +216,7 @@ public class OpenModelAction extends AbstractMDIAction {
          BrowserConfiguration conf = BrowserConfiguration.getInstance();
          boolean addThingClass = conf.addThingClass;
          boolean showPackages = conf.showPackages;
-         GraphExtractor extractor = new GraphExtractor(model, addThingClass, showPackages);
+         GraphExtractor extractor = new GraphExtractor(file, model, addThingClass, showPackages);
          schema = extractor.getGraph();
          diagram = new OwlDiagram(file.getName());
          diagram.setFile(file);
@@ -226,10 +227,12 @@ public class OpenModelAction extends AbstractMDIAction {
 
          graphPanel = new GraphPanel((GUIApplication) app);
          graphPanel.setDiagram(diagram);
-      } catch (RiotException ex) {
-         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
       } catch (OntologyException ex) {
          JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);
+      } catch (RiotException ex) {
+         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "RiotException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+      } catch (ResourceRequiredException ex) {
+         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "ResourceRequiredException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
       }
    }
 

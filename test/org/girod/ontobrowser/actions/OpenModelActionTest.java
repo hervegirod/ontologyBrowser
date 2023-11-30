@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
-import org.girod.ontobrowser.OntoBrowser;
+import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
@@ -50,17 +50,17 @@ import org.junit.Test;
 
 /**
  *
- * @since 0.4
+ * @version 0.5
  */
 public class OpenModelActionTest {
-   private static OntoBrowser browser;
+   private static OntoBrowserGUI browser;
 
    public OpenModelActionTest() {
    }
 
    @BeforeClass
    public static void setUpClass() {
-      browser = new OntoBrowser(false);
+      browser = new OntoBrowserGUI(false);
    }
 
    @AfterClass

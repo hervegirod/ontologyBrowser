@@ -38,6 +38,8 @@ import java.util.PropertyResourceBundle;
 import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import org.apache.jena.riot.system.stream.JenaIOEnvironment;
+import org.apache.jena.riot.system.stream.LocationMapper;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.mdi.bootstrap.Configuration;
@@ -49,7 +51,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -75,6 +77,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showDataPropertiesTypes = false;
    public boolean addThingClass = true;
    public boolean showIndirectRelations = false;
+   private File[] alternateLocations = null;
    // padding and size
    public int padWidth = 15;
    public int padHeight = 10;
@@ -88,12 +91,16 @@ public class BrowserConfiguration implements Configuration {
    // GUI
    public boolean autoRefresh = false;
    private boolean hasCustomStyles = false;
+   public boolean showComments = false;
    private File customGraphStylesFile = null;
    public final CustomGraphStyles customGraphStyles = new CustomGraphStyles();
    // graph styles Schema
    private final URL graphStylesXSD;
    // packages configuration Schema
    private final URL packagesConfigurationXSD;
+   // yed
+   private boolean hasYedExeDirectory = false;
+   private File yedExeDirectory = null;
 
    /**
     * The owl/rdf file filter.
@@ -119,10 +126,10 @@ public class BrowserConfiguration implements Configuration {
       date = prb.getString("date");
 
       defaultDir = new File(System.getProperty("user.dir"));
-      String[] ext1 = { "owl", "rdf", "ttl" };
+      String[] ext1 = {"owl", "rdf", "ttl"};
       owlfilter = new ExtensionFileFilter(ext1, "OWL/RDF Files");
 
-      String[] ext2 = { "graphml" };
+      String[] ext2 = {"graphml"};
       graphmlfilter = new ExtensionFileFilter(ext2, "graphml Files");
    }
 
@@ -166,6 +173,69 @@ public class BrowserConfiguration implements Configuration {
    }
 
    /**
+    * Return alternate locations for schemas.
+    *
+    * @return the schemas alternate locations
+    */
+   public File[] getAlternateLocations() {
+      return alternateLocations;
+   }
+
+   /**
+    * Return true if there are alternate locations for schemas.
+    *
+    * @return true if there are schemas alternate locations
+    */
+   public boolean hasAlternateLocations() {
+      return alternateLocations != null;
+   }
+
+   /**
+    * Set the alternate locations for schemas.
+    *
+    * @param alternateLocations the schemas alternate locations
+    */
+   public void setAlternateLocations(File[] alternateLocations) {
+      this.alternateLocations = alternateLocations;
+      LocationMapper mapper = new LocationMapper();
+      JenaIOEnvironment.setGlobalLocationMapper(mapper);
+      if (alternateLocations != null && alternateLocations.length != 0) {
+         this.defaultDir = alternateLocations[0].getParentFile();
+         for (int i = 0; i < alternateLocations.length; i++) {
+            File schemaFile = alternateLocations[i];
+            mapper.altMapping(schemaFile.toURI().toString());
+         }
+      }
+   }
+
+   /**
+    * Return the yed executable directory.
+    *
+    * @return the yed executable directory
+    */
+   public File getYedExeDirectory() {
+      return yedExeDirectory;
+   }
+
+   /**
+    * Return true if there is a yed executable directory.
+    *
+    * @return true if there is a yed executable directory
+    */
+   public boolean hasYedExeDirectory() {
+      return hasYedExeDirectory;
+   }
+
+   public void setYedExeDirectory(File yedExeDirectory) {
+      this.yedExeDirectory = yedExeDirectory;
+      if (yedExeDirectory != null && yedExeDirectory.exists() && yedExeDirectory.isDirectory()) {
+         this.hasYedExeDirectory = true;
+      } else {
+         this.hasYedExeDirectory = false;
+      }
+   }
+
+   /**
     * Return the custom graph styles.
     *
     * @return the custom graph styles
@@ -192,25 +262,26 @@ public class BrowserConfiguration implements Configuration {
       return hasCustomStyles;
    }
 
-   public void setHasCustomStyles(boolean hasCustomStyles) {
-      this.hasCustomStyles = hasCustomStyles;
-      if (hasCustomStyles && customGraphStylesFile != null && customGraphStylesFile.exists()) {
-         setCustomStylesConfiguration(customGraphStylesFile);
-      }
-   }
-
    public void setCustomStylesConfiguration(File customGraphStylesFile) {
-      if (hasCustomStyles) {
-         this.customGraphStylesFile = customGraphStylesFile;
+      if (customGraphStylesFile != null && customGraphStylesFile.exists()) {
          CustomGraphStylesParser parser = new CustomGraphStylesParser();
          try {
             parser.parse(customGraphStylesFile);
+            this.defaultDir = customGraphStylesFile.getParentFile();
+            this.customGraphStylesFile = customGraphStylesFile;
+            this.hasCustomStyles = true;
          } catch (Exception e) {
+            this.hasCustomStyles = false;
+            this.customGraphStylesFile = null;
             JErrorPane pane = new JErrorPane(e, JOptionPane.ERROR_MESSAGE);
             JDialog dialog = pane.createDialog(null, "Exception");
             dialog.setModal(false);
             dialog.setVisible(true);
+
          }
+      } else {
+         this.hasCustomStyles = false;
+         this.customGraphStylesFile = null;
       }
    }
 
@@ -250,25 +321,25 @@ public class BrowserConfiguration implements Configuration {
       return packagesConfigurationFile;
    }
 
-   public void setHasPackagesConfiguration(boolean hasPackagesConfiguration) {
-      this.hasPackagesConfiguration = hasPackagesConfiguration;
-      if (hasPackagesConfiguration && packagesConfigurationFile != null && packagesConfigurationFile.exists()) {
-         setPackagesConfiguration(packagesConfigurationFile);
-      }
-   }
-
    public void setPackagesConfiguration(File packagesConfiguration) {
-      if (hasPackagesConfiguration) {
-         this.packagesConfigurationFile = packagesConfiguration;
+      if (packagesConfiguration != null && packagesConfiguration.exists()) {
          PackagesConfigurationParser parser = new PackagesConfigurationParser();
          try {
             parser.parse(packagesConfiguration);
+            this.hasPackagesConfiguration = true;
+            this.defaultDir = packagesConfiguration.getParentFile();
+            this.packagesConfigurationFile = packagesConfiguration;
          } catch (Exception e) {
+            this.hasPackagesConfiguration = false;
+            this.packagesConfigurationFile = null;
             JErrorPane pane = new JErrorPane(e, JOptionPane.ERROR_MESSAGE);
             JDialog dialog = pane.createDialog(null, "Exception");
             dialog.setModal(false);
             dialog.setVisible(true);
          }
+      } else {
+         this.hasPackagesConfiguration = false;
+         this.packagesConfigurationFile = null;
       }
    }
 
@@ -281,6 +352,8 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       p.putBoolean("addThingClass", addThingClass);
       p.putBoolean("showIndirectRelations", showIndirectRelations);
+      p.putBoolean("showComments", showComments);
+      PreferencesHelper.putFiles(p, "alternateLocations", alternateLocations);
 
       // styles
       p.putInt("padWidth", padWidth);
@@ -295,6 +368,13 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showPackagesInPackageView", showPackagesInPackageView);
       p.putBoolean("hasPackagesConfiguration", hasPackagesConfiguration);
       PreferencesHelper.putFileRelativeTo(p, "packagesConfiguration", packagesConfigurationFile, dir);
+
+      // yEd
+      p.putBoolean("hasYedExeDirectory", hasYedExeDirectory);
+      PreferencesHelper.putFile(p, "yedExeDirectory", yedExeDirectory);
+
+      p.putBoolean("hasCustomStyles", hasCustomStyles);
+      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
    }
 
    @Override
@@ -306,6 +386,9 @@ public class BrowserConfiguration implements Configuration {
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       addThingClass = p.getBoolean("addThingClass", addThingClass);
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
+      showComments = p.getBoolean("showComments", showComments);
+      alternateLocations = PreferencesHelper.getFiles(p, "alternateLocations", alternateLocations);
+      setAlternateLocations(alternateLocations);
 
       // styles
       padWidth = p.getInt("padWidth", padWidth);
@@ -318,6 +401,10 @@ public class BrowserConfiguration implements Configuration {
       } else {
          customGraphStyles.reset();
       }
+
+      // yEd
+      hasYedExeDirectory = p.getBoolean("hasYedExeDirectory", hasYedExeDirectory);
+      yedExeDirectory = PreferencesHelper.getFile(p, "yedExeDirectory", yedExeDirectory);
 
       // packages
       showPackages = p.getBoolean("showPackages", showPackages);

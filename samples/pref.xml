@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE preferences SYSTEM 'http://java.sun.com/dtd/preferences.dtd'>
+
+<preferences EXTERNAL_XML_VERSION="1.0">
+  <root type="user">
+    <map>
+      <entry key="addThingClass" value="true" />
+      <entry key="autoRefresh" value="false" />
+      <entry key="customGraphStyles" value="D:\Java\ontologyBrowser\samples\stylesExample.xml" />
+      <entry key="defaultDir" value="D:\Java\ontologyBrowser" />
+      <entry key="hasCustomStyles" value="true" />
+      <entry key="hasPackagesConfiguration" value="true" />
+      <entry key="includeIndividuals" value="true" />
+      <entry key="packagesConfiguration" value="D:\Java\ontologyBrowser\sitacpackages.xml" />
+      <entry key="padHeight" value="10" />
+      <entry key="padWidth" value="15" />
+      <entry key="showDataPropertiesTypes" value="true" />
+      <entry key="showIndirectRelations" value="false" />
+      <entry key="showPackages" value="true" />
+      <entry key="showPackagesAsClosed" value="true" />
+      <entry key="showPackagesInPackageView" value="false" />
+      <entry key="showRelationsConstraints" value="true" />
+    </map>
+  </root>
+</preferences>

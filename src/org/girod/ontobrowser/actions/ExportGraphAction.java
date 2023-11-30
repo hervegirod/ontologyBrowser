@@ -87,21 +87,27 @@ public class ExportGraphAction extends AbstractExportGraphAction {
             elementToNode.put(key, node);
             setGroupNodeStyle(node, theClass.getName());
             packagesNodes.put(key, node);
+            processedPackages.add(key);
             return node;
          } else {
             ElementKey superclassKey = superClass.getKey();
+            if (!processedPackages.contains(superclassKey)) {
+               getPackageNode(superClass, superclassKey);
+            }
             if (packagesNodes.containsKey(superclassKey)) {
                GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
                GraphMLGroupNode node = superclassNode.addGroupNode();
                elementToNode.put(key, node);
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
+               processedPackages.add(key);
                return node;
             } else {
                GraphMLGroupNode node = graph.addGroupNode();
                elementToNode.put(key, node);
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
+               processedPackages.add(key);
                return node;
             }
          }

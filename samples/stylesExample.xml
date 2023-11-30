@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customStyles>
+   <element type="class">
+      <background color="Yellow" />
+   </element>
+   <element type="property">
+      <background color="Red" />
+   </element>   
+   <element type="package">
+      <property key="showInnerGraphDisplay" value="true"/>
+   </element>      
+</customStyles>

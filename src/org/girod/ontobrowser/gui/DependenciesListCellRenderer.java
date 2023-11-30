@@ -48,12 +48,13 @@ import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
+import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
  * The renderer for the dependencies window.
  *
- * @since 0.5
+ * @version 0.6
  */
 public class DependenciesListCellRenderer extends DefaultListCellRenderer {
    private static final Icon CLASS_ICON;
@@ -67,9 +68,11 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
       OBJECTPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobject.png"));
       INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
    }
+   private final OwlSchema model;
 
-   public DependenciesListCellRenderer() {
+   public DependenciesListCellRenderer(OwlSchema model) {
       super();
+      this.model = model;
    }
 
    @Override
@@ -130,7 +133,7 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
          Iterator<ElementKey> it = restrictions.keySet().iterator();
          while (it.hasNext()) {
             ElementKey key = it.next();
-            buf.append(key.toString());
+            buf.append(key.getPrefixedName(model));
             if (it.hasNext()) {
                buf.append(", ");
             }

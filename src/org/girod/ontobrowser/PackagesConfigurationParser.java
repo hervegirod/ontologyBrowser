@@ -33,9 +33,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser;
 
 import java.io.File;
-import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.PackageConfigType;
+import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.mdiutil.xml.XMLSAXParser;
 import org.mdiutil.xml.swing.BasicSAXHandler;
 import org.xml.sax.Attributes;
@@ -66,10 +66,41 @@ public class PackagesConfigurationParser extends BasicSAXHandler {
     */
    @Override
    public void startElement(String uri, String localname, String qname, Attributes attr) {
-      if (qname.equals("forgetPackage")) {
-         addPackage(attr, true);
-      } else if (qname.equals("forcePackage")) {
-         addPackage(attr, false);
+      switch (qname) {
+         case "packagesConfiguration":
+            parseDefaults(attr);
+            break;
+         case "forgetPackage":
+            addPackage(attr, true);
+            break;
+         case "forgetNamespace":
+            parseNamespace(attr);
+            break;
+         case "forcePackage":
+            addPackage(attr, false);
+            break;
+         default:
+            break;
+      }
+   }
+
+   private void parseDefaults(Attributes attr) {
+      for (int i = 0; i < attr.getLength(); i++) {
+         String attrname = attr.getQName(i);
+         String attrvalue = attr.getValue(i);
+         if (attrname.equals("acceptDefaults")) {
+            packagesConfiguration.acceptDefaults(attrvalue.equals("true"));
+         }
+      }
+   }
+
+   private void parseNamespace(Attributes attr) {
+      for (int i = 0; i < attr.getLength(); i++) {
+         String attrname = attr.getQName(i);
+         String attrvalue = attr.getValue(i);
+         if (attrname.equals("namespace")) {
+            packagesConfiguration.forgetNamespace(attrvalue);
+         }
       }
    }
 

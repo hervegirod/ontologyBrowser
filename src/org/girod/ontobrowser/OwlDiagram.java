@@ -43,7 +43,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * An Owl diagram shown in the browser.
  *
- * @version 0.4
+ * @version 0.6
  */
 public class OwlDiagram {
    private mxGraph graph = null;

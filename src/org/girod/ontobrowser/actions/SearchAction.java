@@ -50,17 +50,19 @@ import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchOptions;
 import org.girod.ontobrowser.gui.search.SearchResultDialog;
 import org.girod.ontobrowser.gui.search.UneditableTableModel;
+import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.ElementTypes;
 import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
+import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
-import org.girod.ontobrowser.model.ElementKey;
 import org.mdi.bootstrap.swing.GUIApplication;
-import org.girod.ontobrowser.model.ElementTypes;
 
 /**
  * The Action that search for elements.
@@ -76,13 +78,15 @@ public class SearchAction extends AbstractMDIAction {
    private final boolean matchCase;
    private final GraphPanel graphPanel;
    private final OwlSchema schema;
-   private UneditableTableModel model;
+   private final boolean indirectRelations;
+   private final UneditableTableModel model;
 
-   public SearchAction(MDIApplication app, GraphPanel graphPanel, SearchOptions options) {
+   public SearchAction(MDIApplication app, GraphPanel graphPanel, boolean indirectRelations, SearchOptions options) {
       super(app, "Search");
       this.setDescription("Search", "Search");
       this.graphPanel = graphPanel;
       this.schema = graphPanel.getSchema();
+      this.indirectRelations = indirectRelations;
       this.categories = options.categories;
       this.category = options.category;
       this.searchText = options.searchString;
@@ -114,15 +118,15 @@ public class SearchAction extends AbstractMDIAction {
    private JTree getClassTree() {
       return graphPanel.getClassTree();
    }
-   
+
    private JTree getPropertiesTree() {
       return graphPanel.getPropertiesTree();
    }
-   
+
    private JTree getIndividualsTree() {
       return graphPanel.getIndividualsTree();
-   }   
-   
+   }
+
    @Override
    public void run() throws Exception {
       search();
@@ -191,6 +195,8 @@ public class SearchAction extends AbstractMDIAction {
          return ElementTypes.OBJECTPROPERTY;
       } else if (elt instanceof OwlDatatypeProperty) {
          return ElementTypes.DATAPROPERTY;
+      } else if (elt instanceof OwlAnnotation) {
+         return ElementTypes.ANNOTATION;         
       } else {
          return null;
       }
@@ -209,27 +215,75 @@ public class SearchAction extends AbstractMDIAction {
       while (it.hasNext()) {
          OwlClass owlClass = it.next();
          list.add(owlClass);
+         if (indirectRelations) {
+            if (owlClass.hasEquivalentClasses()) {
+               Iterator<OwlClass> it2 = owlClass.getEquivalentClasses().values().iterator();
+               while (it2.hasNext()) {
+                  OwlClass theClass = it2.next();
+                  list.add(theClass);
+               }
+            }
+            if (owlClass.hasFromAliasedClasses()) {
+               Iterator<OwlClass> it2 = owlClass.getFromAliasClasses().values().iterator();
+               while (it2.hasNext()) {
+                  OwlClass theClass = it2.next();
+                  list.add(theClass);
+               }
+            }
+         }
       }
    }
-   
+
    private void addObjectProperties(List<NamedOwlElement> list) {
       Map<ElementKey, OwlObjectProperty> map = schema.getOwlObjectProperties();
       Iterator<OwlObjectProperty> it = map.values().iterator();
       while (it.hasNext()) {
          OwlObjectProperty property = it.next();
          list.add(property);
+         if (indirectRelations) {
+            addAliasedProperties(list, property);
+         }
       }
-   }   
-   
+   }
+
+   private void addAliasedProperties(List<NamedOwlElement> list, OwlProperty property) {
+      if (property.hasEquivalentProperties()) {
+         Iterator<OwlProperty> it2 = property.getEquivalentProperties().values().iterator();
+         while (it2.hasNext()) {
+            OwlProperty theProperty = it2.next();
+            list.add(theProperty);
+         }
+      }
+      if (property.hasFromAliasedProperties()) {
+         Iterator<OwlProperty> it2 = property.getFromAliasProperties().values().iterator();
+         while (it2.hasNext()) {
+            OwlProperty theProperty = it2.next();
+            list.add(theProperty);
+         }
+      }
+   }
+
    private void addDatatypesProperties(List<NamedOwlElement> list) {
       Map<ElementKey, OwlDatatypeProperty> map = schema.getOwlDatatypeProperties();
       Iterator<OwlDatatypeProperty> it = map.values().iterator();
       while (it.hasNext()) {
          OwlDatatypeProperty property = it.next();
          list.add(property);
+         if (indirectRelations) {
+            addAliasedProperties(list, property);
+         }
       }
-   }    
-   
+   }
+
+   private void addAnnotations(List<NamedOwlElement> list) {
+      Map<ElementKey, OwlAnnotation> map = schema.getAnnotations();
+      Iterator<OwlAnnotation> it = map.values().iterator();
+      while (it.hasNext()) {
+         OwlAnnotation annotation = it.next();
+         list.add(annotation);
+      }
+   }   
+
    private void addIndividuals(List<NamedOwlElement> list) {
       Map<ElementKey, OwlIndividual> map = schema.getIndividuals();
       Iterator<OwlIndividual> it = map.values().iterator();
@@ -237,7 +291,7 @@ public class SearchAction extends AbstractMDIAction {
          OwlIndividual individual = it.next();
          list.add(individual);
       }
-   }       
+   }
 
    /**
     * Return the list of {@link inter.model.Element}s that fulfill the conditions.
@@ -260,6 +314,8 @@ public class SearchAction extends AbstractMDIAction {
          addObjectProperties(list);
       } else if (cat.equals(ElementTypes.DATAPROPERTY)) {
          addDatatypesProperties(list);
+      } else if (cat.equals(ElementTypes.ANNOTATION)) {
+         addAnnotations(list);         
       } else if (cat.equals(ElementTypes.INDIVIDUAL)) {
          addIndividuals(list);
       }
@@ -309,7 +365,6 @@ public class SearchAction extends AbstractMDIAction {
 
    @Override
    public void endAction() {
-      DefaultTableModel model = getModel();
       if (model != null) {
          MenuFactory fac = (MenuFactory) ((GUIApplication) app).getMenuFactory();
          String title = getSearchTitle();
@@ -344,10 +399,10 @@ public class SearchAction extends AbstractMDIAction {
       public ElementKey getKey() {
          return key;
       }
-      
+
       public String getElementType() {
          return elementType;
-      }      
+      }
 
       @Override
       public String toString() {

@@ -21,6 +21,16 @@
     
 
 
+    <!-- http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#AliasProperty -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#AliasProperty">
+        <owl:equivalentProperty rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#IsLinked2"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#Class2"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#Subclass2"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#IsLinked2 -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7#IsLinked2">

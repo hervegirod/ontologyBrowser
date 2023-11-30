@@ -113,7 +113,7 @@ public class OwlClass extends NamedOwlElement {
    }
 
    public ElementKey getPackage(boolean isStrict) {
-      if (isPackage) {
+      if (!isStrict && isPackage) {
          return getKey();
       } else {
          return packageKey;
@@ -125,7 +125,7 @@ public class OwlClass extends NamedOwlElement {
    }
 
    /**
-    * Return true if the Owl class has a defined superclass (excluing the Thing class).
+    * Return true if the Owl class has a defined superclass (excluxing the Thing class).
     *
     * @return true if the Owl class has a defined superclass
     */
@@ -328,7 +328,7 @@ public class OwlClass extends NamedOwlElement {
       return classFromAlias;
    }
 
-   public boolean hasAliasedClasses() {
+   public boolean hasFromAliasedClasses() {
       return !classFromAlias.isEmpty();
    }
 

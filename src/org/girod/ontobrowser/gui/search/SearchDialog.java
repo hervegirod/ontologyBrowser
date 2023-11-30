@@ -50,14 +50,14 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import org.girod.ontobrowser.model.ElementTypes;
 import org.mdi.bootstrap.swing.MDIDialog;
 import org.mdiutil.swing.GenericDialog;
-import org.girod.ontobrowser.model.ElementTypes;
 
 /**
  * This class is a Search Dialog.
  *
- * @since 0.5
+ * @version 0.6
  */
 public class SearchDialog extends GenericDialog implements MDIDialog {
    private JPanel listPanel = new JPanel();
@@ -71,12 +71,13 @@ public class SearchDialog extends GenericDialog implements MDIDialog {
    private final Vector<String> categories = new Vector<>();
 
    public SearchDialog() {
-      super();
+      super("Search");
       categories.add(ElementTypes.ALL);
       categories.add(ElementTypes.CLASS);
       categories.add(ElementTypes.PROPERTY);
       categories.add(ElementTypes.DATAPROPERTY);
       categories.add(ElementTypes.OBJECTPROPERTY);
+      categories.add(ElementTypes.ANNOTATION);
       categories.add(ElementTypes.INDIVIDUAL);
    }
 

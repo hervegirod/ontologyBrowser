@@ -33,7 +33,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The set of packages to process specifically.
@@ -42,12 +44,28 @@ import java.util.Map;
  */
 public class PackagesConfiguration {
    private final Map<ElementKey, Short> classes = new HashMap<>();
+   private final Set<String> forgetNameSpaces = new HashSet<>();
+   private boolean acceptDefaults = true;
 
    public PackagesConfiguration() {
    }
 
+   public void acceptDefaults(boolean acceptDefaults) {
+      this.acceptDefaults = acceptDefaults;
+   }
+
+   public boolean isAcceptingDefaults() {
+      return acceptDefaults;
+   }
+
    public final void reset() {
       classes.clear();
+      forgetNameSpaces.clear();
+      acceptDefaults = true;
+   }
+
+   public void forgetNamespace(String namespace) {
+      forgetNameSpaces.add(namespace);
    }
 
    public void addClass(ElementKey key, short type) {
@@ -71,14 +89,20 @@ public class PackagesConfiguration {
     */
    public short acceptAsPackage(ElementKey key) {
       if (!classes.containsKey(key)) {
-         return PackageConfigType.DEFAULT;
+         String namespace = key.getNamespace();
+         if (namespace != null && forgetNameSpaces.contains(namespace)) {
+            return PackageConfigType.FORGET_PACKAGE;
+         } else {
+            return PackageConfigType.DEFAULT;
+         }
       } else {
          return classes.get(key);
       }
    }
-   
+
    /**
-    * Return true if a Owl class must be forced as a package. 
+    * Return true if a Owl class must be forced as a package.
+    *
     * @param key Owl the class key
     * @return true if the Owl class must be forced as a package
     */
@@ -87,11 +111,12 @@ public class PackagesConfiguration {
          return false;
       } else {
          return classes.get(key).equals(PackageConfigType.FORCE_PACKAGE);
-      }      
+      }
    }
-   
+
    /**
-    * Return true if a Owl class must be forced as not a package. 
+    * Return true if a Owl class must be forced as not a package.
+    *
     * @param key Owl the class key
     * @return true if the Owl class must be forced as not a package
     */
@@ -100,6 +125,6 @@ public class PackagesConfiguration {
          return false;
       } else {
          return classes.get(key).equals(PackageConfigType.FORGET_PACKAGE);
-      }      
-   }   
+      }
+   }
 }

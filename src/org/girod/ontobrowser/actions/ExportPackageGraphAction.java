@@ -98,6 +98,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
             GraphMLGroupNode node = graph.addGroupNode();
             setGroupNodeStyle(node, theClass.getName());
             packagesNodes.put(key, node);
+            processedPackages.add(key);
             return node;
          } else {
             ElementKey superclassKey = superClass.getKey();
@@ -105,18 +106,26 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                GraphMLGroupNode node = graph.addGroupNode();
                setGroupNodeStyle(node, theClass.getName());
                packagesNodes.put(key, node);
-               return node;
-            } else if (packagesNodes.containsKey(superclassKey)) {
-               GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
-               GraphMLGroupNode node = superclassNode.addGroupNode();
-               setGroupNodeStyle(node, theClass.getName());
-               packagesNodes.put(key, node);
+               processedPackages.add(key);
                return node;
             } else {
-               GraphMLGroupNode node = graph.addGroupNode();
-               setGroupNodeStyle(node, theClass.getName());
-               packagesNodes.put(key, node);
-               return node;
+               if (!processedPackages.contains(superclassKey)) {
+                  getPackageNode(superClass, superclassKey);
+               }
+               if (packagesNodes.containsKey(superclassKey)) {
+                  GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
+                  GraphMLGroupNode node = superclassNode.addGroupNode();
+                  setGroupNodeStyle(node, theClass.getName());
+                  packagesNodes.put(key, node);
+                  processedPackages.add(key);
+                  return node;
+               } else {
+                  GraphMLGroupNode node = graph.addGroupNode();
+                  setGroupNodeStyle(node, theClass.getName());
+                  packagesNodes.put(key, node);
+                  processedPackages.add(key);
+                  return node;
+               }
             }
          }
       }
@@ -152,7 +161,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
          } else if (!theClass.isInPackage()) {
             return false;
          } else {
-            ElementKey packageKey = theClass.getPackage();
+            ElementKey packageKey = theClass.getPackage(true);
             if (packageKey.equals(thePackageKey)) {
                return true;
             } else {

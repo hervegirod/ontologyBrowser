@@ -44,6 +44,9 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -53,6 +56,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import org.girod.ontobrowser.actions.ExportGraphAction;
+import org.girod.ontobrowser.actions.OpenInYedAction;
 import org.girod.ontobrowser.actions.OpenModelAction;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchDialog;
@@ -78,6 +82,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu toolsmenu = new JMenu("Tools");
    private final JMenu optionsmenu = new JMenu("Options");
    private AbstractAction aboutAction;
+   private AbstractAction openInYedAction = null;
    private final SearchDialog searchDialog = new SearchDialog();
    private final SearchDialogListener searchDialogListener = new SearchDialogListener();
    private boolean startSearch = false;
@@ -116,6 +121,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    @Override
    protected void initMenus() {
       loadResources();
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
 
       AbstractAction openAction = new AbstractAction("Open Model") {
          public void actionPerformed(ActionEvent ae) {
@@ -126,6 +132,12 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       AbstractAction exportAction = new AbstractAction("Export as graphml") {
          public void actionPerformed(ActionEvent ae) {
             exportModel();
+         }
+      };
+
+      openInYedAction = new AbstractAction("Open in yEd") {
+         public void actionPerformed(ActionEvent ae) {
+            openInYed();
          }
       };
 
@@ -187,6 +199,8 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
       JMenuItem openItem = new JMenuItem(openAction);
       JMenuItem exportItem = new JMenuItem(exportAction);
+      JMenuItem openInYedItem = new JMenuItem(openInYedAction);
+
       JMenuItem exitItem = new JMenuItem(this.getDefaultExitAction("Exit"));
 
       settings = BrowserSettings.getInstance();
@@ -196,7 +210,6 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
       registerMenus();
 
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       aboutAction = new AbstractAction("About") {
          public void actionPerformed(ActionEvent e) {
             JOptionPane.showMessageDialog(null, "OwlToGraph version " + conf.version + "\n"
@@ -209,11 +222,13 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       settingsAction.addNode(null, "General", settings.getGeneralSettings(), null);
       settingsAction.addNode(null, "Style", settings.getStyleSettings(), null);
       settingsAction.addNode(null, "Packages", settings.getPackageSettings(), null);
+      settingsAction.addNode(null, "yEd", settings.getYedSettings(), null);
       optionsmenu.add(new JMenuItem((AbstractSettingsAction) settingsAction));
 
       // create main menus
       filemenu.add(openItem);
       filemenu.add(exportItem);
+      filemenu.add(openInYedItem);
       filemenu.add(exitItem);
 
       // create help menu
@@ -226,6 +241,12 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       Mbar.add(toolsmenu);
       Mbar.add(helpmenu);
    }
+   
+   @Override
+   public void updateMenus() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      openInYedAction.setEnabled(conf.hasYedExeDirectory() && conf.getYedExeDirectory() != null);
+   }   
 
    private void centerGraph() {
       OwlDiagram elt = getElement();
@@ -377,6 +398,19 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
    private void exportModel() {
       exportModel(null);
+   }
+
+   private void openInYed() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      OwlDiagram elt = getElement();
+      if (elt != null && conf.hasYedExeDirectory() && conf.getYedExeDirectory() != null) {
+         try {
+            File tempFile = File.createTempFile("yEd", ".graphml");
+            OpenInYedAction action = new OpenInYedAction(appli, "Open Graph in yEd", "Open Graph in yEd", elt, tempFile);
+            appli.executeAction(action);
+         } catch (IOException ex) {
+         }
+      }
    }
 
    /**

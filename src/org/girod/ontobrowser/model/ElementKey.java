@@ -36,11 +36,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The element key, witha name and namespace.
+ * The element key, with a name and namespace.
  *
- * @version 0.5
+ * @version 0.6
  */
-public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializable  {
+public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializable {
    public static final String XML_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
    private final String namespace;
    private final String name;
@@ -53,6 +53,25 @@ public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializab
    public ElementKey(String namespace, String name) {
       this.namespace = namespace;
       this.name = name;
+   }
+
+   /**
+    * Return the prefixed name for the key.
+    *
+    * @param schema the schema
+    * @return the prefixed name
+    */
+   public String getPrefixedName(OwlSchema schema) {
+      if (namespace == null) {
+         return name;
+      } else {
+         String prefix = schema.getPrefix(namespace);
+         if (prefix == null) {
+            return name;
+         } else {
+            return prefix + ":" + name;
+         }
+      }
    }
 
    public static ElementKey create(String name) {
@@ -112,24 +131,24 @@ public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializab
       }
       return true;
    }
-   
+
    @Override
    public int compareTo(ElementKey o) {
       if (o.namespace == null && namespace == null) {
-         return o.name.compareTo(name);
+         return name.compareTo(o.name);
       } else if (o.namespace == null) {
          return 1;
-      } else if (namespace == null) {         
-         return -1;         
+      } else if (namespace == null) {
+         return -1;
       } else {
-         int compared = o.namespace.compareTo(namespace);
+         int compared = namespace.compareTo(o.namespace);
          if (compared == 0) {
-            return o.name.compareTo(name);
+            return name.compareTo(o.name);
          } else {
             return compared;
          }
       }
-   }   
+   }
 
    public String getName() {
       return name;

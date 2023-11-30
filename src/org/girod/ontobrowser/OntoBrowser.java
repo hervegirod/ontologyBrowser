@@ -37,7 +37,7 @@ import org.mdiutil.lang.swing.SwingMacOSXUISetter;
 /**
  * The starter class of the application.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class OntoBrowser {
 

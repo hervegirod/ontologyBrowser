@@ -32,7 +32,6 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import org.girod.ontobrowser.model.PackagesConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +47,7 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.PackageConfigType;
+import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
@@ -249,6 +249,14 @@ public class PackagesExtractor {
             processedPackages.put(theKey, false);
             return false;
       }
+      if (!packagesConfiguration.isAcceptingDefaults()) {
+         if (processedPackages.containsKey(theKey)) {
+            return processedPackages.get(theKey);
+         } else {
+            processedPackages.put(theKey, false);
+            return false;
+         }
+      }
       if (propertiesRanges.contains(theKey)) {
          processedPackages.put(theKey, false);
          return false;
@@ -338,7 +346,7 @@ public class PackagesExtractor {
       private boolean hasUniquePackage() {
          return packages.size() == 1 && !hasUndefinedPackage;
       }
-      
+
       private void setUndefinedPackage(boolean hasUndefinedPackage) {
          this.hasUndefinedPackage = hasUndefinedPackage;
       }

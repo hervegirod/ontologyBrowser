@@ -41,11 +41,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
+import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class OwlSchema implements Cloneable, Serializable {
    private final OntModel ontModel;
@@ -56,6 +57,7 @@ public class OwlSchema implements Cloneable, Serializable {
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
    private final Map<ElementKey, OwlObjectProperty> objectProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
+   private final Map<ElementKey, OwlAnnotation> annotations = new HashMap<>();
    private final Set<String> namespaces = new HashSet<>();
    private Map<ElementKey, OwlClass> packages = null;
 
@@ -149,6 +151,11 @@ public class OwlSchema implements Cloneable, Serializable {
       }
    }
 
+   /**
+    * Add an individual.
+    *
+    * @param individual the individual
+    */
    public void addIndividual(OwlIndividual individual) {
       addNamespace(individual);
       individuals.put(individual.getKey(), individual);
@@ -168,14 +175,70 @@ public class OwlSchema implements Cloneable, Serializable {
       return individuals;
    }
 
+   /**
+    * Return true if there is ajn individual for a specified key.
+    *
+    * @param key the key
+    * @return true if there is ajn individual for the specified key
+    */
    public boolean hasIndividual(ElementKey key) {
       return individuals.containsKey(key);
    }
 
+   /**
+    * Return the individual of a specified key.
+    *
+    * @param key the key
+    * @return the individual
+    */
    public OwlIndividual getIndividual(ElementKey key) {
       return individuals.get(key);
    }
+   
+   /**
+    * Add an annotation.
+    *
+    * @param annotation the annotation
+    */
+   public void addAnnotation(OwlAnnotation annotation) {
+      addNamespace(annotation);
+      annotations.put(annotation.getKey(), annotation);
+   }   
+   
+   /**
+    * Return true if there is an annotation for a specified key.
+    *
+    * @param key the key
+    * @return true if there is an annotation for the specified key
+    */
+   public boolean hasAnnotation(ElementKey key) {
+      return annotations.containsKey(key);
+   }
+   
+   /**
+    * Return the annotation for a specified key.
+    *
+    * @param key the key
+    * @return the annotation
+    */
+   public OwlAnnotation getAnnotation(ElementKey key) {
+      return annotations.get(key);
+   }      
 
+   /**
+    * Return the annotations.
+    *
+    * @return the annotations
+    */
+   public Map<ElementKey, OwlAnnotation> getAnnotations() {
+      return annotations;
+   }   
+
+   /**
+    * Add an Owl class.
+    *
+    * @param owlClass the owl class
+    */
    public void addOwlClass(OwlClass owlClass) {
       addNamespace(owlClass);
       classes.put(owlClass.getKey(), owlClass);
@@ -197,14 +260,31 @@ public class OwlSchema implements Cloneable, Serializable {
       return classes;
    }
 
+   /**
+    * Return true if there is a Owl class for a specified key.
+    *
+    * @param key the key
+    * @return true if there is a Owl class for the specified key
+    */
    public boolean hasOwlClass(ElementKey key) {
       return classes.containsKey(key);
    }
 
+   /**
+    * Return the Owl class of a specified key.
+    *
+    * @param key the key
+    * @return the Owl class
+    */
    public OwlClass getOwlClass(ElementKey key) {
       return classes.get(key);
    }
 
+   /**
+    * Add an Owl property.
+    *
+    * @param owlProperty the Owl property
+    */
    public void addOwlProperty(OwlProperty owlProperty) {
       addNamespace(owlProperty);
       properties.put(owlProperty.getKey(), owlProperty);
@@ -215,6 +295,12 @@ public class OwlSchema implements Cloneable, Serializable {
       }
    }
 
+   /**
+    * Return true if there is an Owl property for a specified key.
+    *
+    * @param key the key
+    * @return true if there is an Owl property for the specified key
+    */
    public boolean hasOwlProperty(ElementKey key) {
       return properties.containsKey(key);
    }
@@ -246,8 +332,72 @@ public class OwlSchema implements Cloneable, Serializable {
       return objectProperties;
    }
 
+   /**
+    * Return the Owl property of a specified key.
+    *
+    * @param key the key
+    * @return the Owl property
+    */
    public OwlProperty getOwlProperty(ElementKey key) {
       return properties.get(key);
+   }
+
+   /**
+    * Return the classes dependant from a class.
+    *
+    * @param key the class key
+    * @return the dependant classes
+    */
+   public Map<ElementKey, OwlClass> getDependentClasses(ElementKey key) {
+      if (!hasOwlClass(key)) {
+         return null;
+      } else {
+         OwlClass theClass = getOwlClass(key);
+         return getDependentClasses(theClass);
+      }
+   }
+
+   /**
+    * Return the classes dependant from a class.
+    *
+    * @param theClass the class
+    * @return the dependant classes
+    */
+   public Map<ElementKey, OwlClass> getDependentClasses(OwlClass theClass) {
+      Map<ElementKey, OwlClass> map = new HashMap<>();
+      Iterator<OwlProperty> it = theClass.getDomainOwlProperties().values().iterator();
+      while (it.hasNext()) {
+         OwlProperty property = it.next();
+         if (property instanceof OwlObjectProperty) {
+            OwlObjectProperty objectProperty = (OwlObjectProperty) property;
+            Map<ElementKey, OwlRestriction> restrictions = objectProperty.getRange();
+            Iterator<OwlRestriction> it2 = restrictions.values().iterator();
+            while (it2.hasNext()) {
+               OwlRestriction restriction = it2.next();
+               OwlClass class2 = restriction.getOwlClass();
+               if (class2 != theClass) {
+                  map.put(class2.getKey(), class2);
+               }
+            }
+         }
+      }
+      it = theClass.getRangeOwlProperties().values().iterator();
+      while (it.hasNext()) {
+         OwlProperty property = it.next();
+         if (property instanceof OwlObjectProperty) {
+            OwlObjectProperty objectProperty = (OwlObjectProperty) property;
+            Map<ElementKey, OwlRestriction> restrictions = objectProperty.getDomain();
+            Iterator<OwlRestriction> it2 = restrictions.values().iterator();
+            while (it2.hasNext()) {
+               OwlRestriction restriction = it2.next();
+               OwlClass class2 = restriction.getOwlClass();
+               if (class2 != theClass) {
+                  map.put(class2.getKey(), class2);
+               }
+            }
+         }
+      }
+      return map;
    }
 
    @Override

@@ -34,12 +34,15 @@ package org.girod.ontobrowser.gui.tree;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.util.StringTokenizer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
@@ -48,7 +51,7 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 /**
  * A tree cell renderer.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class ModelTreeRenderer extends DefaultTreeCellRenderer {
    private static final Icon PACKAGE_ICON;
@@ -57,6 +60,13 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
    private static final Icon OBJECTPROPERTY_ICON;
    private static final Icon INDIVIDUAL_ICON;
    private static final Icon UNDEF_ICON;
+   private static final Icon PACKAGE_COMMENTS_ICON;
+   private static final Icon CLASS_COMMENTS_ICON;
+   private static final Icon DATAPROPERTY_COMMENTS_ICON;
+   private static final Icon OBJECTPROPERTY_COMMENTS_ICON;
+   private static final Icon INDIVIDUAL_COMMENTS_ICON;
+   private static final Icon ANNOTATION_ICON;
+   private boolean showCommentedElements = false;
 
    static {
       PACKAGE_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("package.gif"));
@@ -64,11 +74,18 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
       DATAPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydata.png"));
       OBJECTPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobject.png"));
       INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
+      PACKAGE_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("packagedoc.png"));
+      CLASS_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classdoc.png"));
+      DATAPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydatadoc.png"));
+      OBJECTPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobjectdoc.png"));
+      INDIVIDUAL_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individualdoc.png"));
+      ANNOTATION_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("annotation.png"));
       UNDEF_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("undef.png"));
    }
 
    public ModelTreeRenderer() {
       super();
+      this.showCommentedElements = BrowserConfiguration.getInstance().showComments;
    }
 
    @Override
@@ -76,8 +93,42 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
       DefaultTreeCellRenderer c = (DefaultTreeCellRenderer) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
       Object o = ((DefaultMutableTreeNode) value).getUserObject();
       c.setIcon(getValueIcon(o, expanded));
+      setToolTipText(c, o);
       setFont(c, o);
       return c;
+   }
+
+   private void setToolTipText(DefaultTreeCellRenderer c, Object value) {
+      if (value instanceof OwlElementRep) {
+         OwlElementRep rep = (OwlElementRep) value;
+         String comment = rep.getOwlElement().getDescriptionOrComments();
+         if (comment != null) {
+            c.setToolTipText(getHTMLComment(comment));
+         } else {
+            c.setToolTipText(null);
+         }
+      } else {
+         c.setToolTipText(null);
+      }
+   }
+
+   private String getHTMLComment(String comment) {
+      StringTokenizer tok = new StringTokenizer(comment, "\n");
+      if (tok.countTokens() == 1) {
+         return comment;
+      } else {
+         StringBuilder buf = new StringBuilder();
+         buf.append("<html>");
+         while (tok.hasMoreTokens()) {
+            String tk = tok.nextToken();
+            buf.append(tk);
+            if (tok.hasMoreTokens()) {
+               buf.append("\n<br>");
+            }
+         }
+         buf.append("</html>");
+         return buf.toString();
+      }
    }
 
    private void setFont(DefaultTreeCellRenderer c, Object value) {
@@ -92,17 +143,42 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
       if (value instanceof OwlElementRep) {
          OwlElementRep rep = (OwlElementRep) value;
          if (rep.isPackage()) {
-            return PACKAGE_ICON;
+            NamedOwlElement elt = rep.getOwlElement();
+            boolean showComments = showCommentedElements && elt.hasDescriptionOrComments();
+               if (showComments) {
+                  return PACKAGE_COMMENTS_ICON;
+               } else {
+                  return PACKAGE_ICON;
+               }                
          } else {
             NamedOwlElement elt = rep.getOwlElement();
+            boolean showComments = showCommentedElements && elt.hasDescriptionOrComments();
             if (elt instanceof OwlClass) {
-               return CLASS_ICON;
+               if (showComments) {
+                  return CLASS_COMMENTS_ICON;
+               } else {
+                  return CLASS_ICON;
+               }
             } else if (elt instanceof OwlIndividual) {
-               return INDIVIDUAL_ICON;
+               if (showComments) {
+                  return INDIVIDUAL_COMMENTS_ICON;
+               } else {
+                  return INDIVIDUAL_ICON;
+               }               
             } else if (elt instanceof OwlDatatypeProperty) {
-               return DATAPROPERTY_ICON;
+               if (showComments) {
+                  return DATAPROPERTY_COMMENTS_ICON;
+               } else {
+                  return DATAPROPERTY_ICON;
+               }                 
             } else if (elt instanceof OwlObjectProperty) {
-               return OBJECTPROPERTY_ICON;
+               if (showComments) {
+                  return  OBJECTPROPERTY_COMMENTS_ICON;
+               } else {
+                  return OBJECTPROPERTY_ICON;
+               }    
+            } else if (elt instanceof OwlAnnotation) {
+                  return ANNOTATION_ICON;                   
             } else {
                return UNDEF_ICON;
             }

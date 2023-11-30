@@ -33,7 +33,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.actions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
@@ -41,15 +43,13 @@ import org.girod.jgraphml.model.GraphMLDiagram;
 import org.girod.jgraphml.model.IGraphMLNode;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.GraphMLUtils;
-import org.girod.ontobrowser.OntoBrowser;
+import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,11 +59,11 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @since 0.4
+ * @version 0.5
  */
 @RunWith(OrderedRunner.class)
 public class ExportGraphActionTest {
-   private static OntoBrowser browser;
+   private static OntoBrowserGUI browser;
    private static OwlSchema schema;
    private static OwlDiagram diagram;
 
@@ -72,7 +72,7 @@ public class ExportGraphActionTest {
 
    @BeforeClass
    public static void setUpClass() {
-      browser = new OntoBrowser(false);
+      browser = new OntoBrowserGUI(false);
    }
 
    @AfterClass
@@ -144,6 +144,6 @@ public class ExportGraphActionTest {
       assertTrue("Must have Class5 root level node", nodes.containsKey("Class5"));
       assertTrue("Must have Class6 root level node", nodes.containsKey("Class6"));
       assertTrue("Must have Class7 root level node", nodes.containsKey("Class7"));
-      assertTrue("Must have Name root level node", nodes.containsKey("Name"));      
+      assertTrue("Must have Name root level node", nodes.containsKey("Name"));
    }
 }

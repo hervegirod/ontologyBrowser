@@ -48,7 +48,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -60,7 +59,6 @@ import javax.swing.table.TableColumnModel;
 import org.girod.ontobrowser.MenuFactory;
 import org.girod.ontobrowser.actions.SearchAction;
 import org.girod.ontobrowser.gui.GraphPanel;
-import org.girod.ontobrowser.model.ElementTypes;
 import org.mdi.bootstrap.swing.MDIDialog;
 import org.mdiutil.swing.GenericDialog;
 
@@ -219,7 +217,7 @@ public class SearchResultDialog extends GenericDialog implements MDIDialog {
       pane.add(Box.createVerticalGlue());
    }
 
-   protected void highlight(int index) {
+   private void highlight(int index) {
       if (index >= 0) {
          SearchAction.Result result = (SearchAction.Result) table.getModel().getValueAt(index, 0);
          graphPanel.highlightElement(result.getElementType(), result.path);

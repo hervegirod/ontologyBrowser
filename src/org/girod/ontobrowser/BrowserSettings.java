@@ -42,19 +42,22 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import org.mdiutil.swing.JFileSelector;
+import org.mdiutil.swing.JMultipleFileSelector;
 import org.mdiutil.swing.PropertyEditor;
 
 /**
  * This class encapsulates the settings.
  *
- * @version 0.5
+ * @version 0.6
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
+   private File dir = new File(System.getProperty("user.dir"));
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
    private final PropertyEditor styleSettings = new PropertyEditor();
    private final PropertyEditor packageSettings = new PropertyEditor();
+   private final PropertyEditor yEdSettings = new PropertyEditor();
    private JCheckBox includeIndividualsCb;
    private JCheckBox showRelationsConstraintsCb;
    private JCheckBox showDataPropertiesTypesCb;
@@ -68,10 +71,11 @@ public class BrowserSettings {
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
    private JSpinner padHeightSpinner;
    private JCheckBox autoRefreshCb;
-   private JCheckBox hasCustomStylesCb;
+   private JCheckBox showCommentsCb;
    private JFileSelector customStylesFs;
-   private JCheckBox hasPackagesConfigurationCb;
+   private JFileSelector yedExeDirectoryFs;
    private JFileSelector packagesConfigurationFs;
+   private JMultipleFileSelector schemasLocationsFs;
 
    private BrowserSettings() {
       super();
@@ -121,13 +125,26 @@ public class BrowserSettings {
    }
 
    /**
+    * Return the yEd Settings.
+    *
+    * @return the yEd Settings
+    */
+   public PropertyEditor getYedSettings() {
+      return yEdSettings;
+   }
+
+   /**
     * Reset the settings to the configuration values.
     */
    public void resetSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      if (conf.getDefaultDirectory() != null) {
+         this.dir = conf.getDefaultDirectory();
+      }
       includeIndividualsCb.setSelected(conf.includeIndividuals);
       showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
       showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
+      showCommentsCb.setSelected(conf.showComments);
       showPackagesCb.setSelected(conf.showPackages);
       showPackagesAsClosedCb.setSelected(conf.showPackagesAsClosed);
       showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
@@ -136,12 +153,25 @@ public class BrowserSettings {
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
       autoRefreshCb.setSelected(conf.autoRefresh);
-      hasCustomStylesCb.setSelected(conf.hasCustomStyles());
-      customStylesFs.setSelectedFile(conf.getCustomGraphStylesFile());
-      customStylesFs.setEnabled(conf.hasCustomStyles());
-      hasPackagesConfigurationCb.setSelected(conf.hasPackagesConfiguration());
-      packagesConfigurationFs.setSelectedFile(conf.getPackagesToForgetFile());
-      packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());
+      if (conf.getCustomGraphStylesFile() != null) {
+         customStylesFs.setSelectedFile(conf.getCustomGraphStylesFile());
+      } else {
+         customStylesFs.setSelectedFile(null);
+         customStylesFs.setCurrentDirectory(dir);
+      }
+      if (conf.getPackagesToForgetFile() != null) {
+         packagesConfigurationFs.setSelectedFile(conf.getPackagesToForgetFile());
+      } else {
+         packagesConfigurationFs.setSelectedFile(null);
+         packagesConfigurationFs.setCurrentDirectory(dir);
+      }
+      yedExeDirectoryFs.setSelectedFile(conf.getYedExeDirectory());
+      if (conf.getAlternateLocations() != null) {
+         schemasLocationsFs.setSelectedFiles(conf.getAlternateLocations());
+      } else {
+         schemasLocationsFs.setSelectedFiles(null);
+         schemasLocationsFs.setCurrentDirectory(dir);
+      }
    }
 
    /**
@@ -149,6 +179,7 @@ public class BrowserSettings {
     */
    public void initialize() {
       initializeGeneralSettings();
+      initializeYedSettings();
       initializeStyleSettings();
       initializePackageSettings();
 
@@ -156,31 +187,48 @@ public class BrowserSettings {
    }
 
    /**
+    * Initialize the yed Settings.
+    */
+   private void initializeYedSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      yedExeDirectoryFs = new JFileSelector("yEd Exe Directory");
+      yedExeDirectoryFs.setHasOptionalFiles(true);
+      yedExeDirectoryFs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+      yedExeDirectoryFs.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            File file = ((JFileChooser) e.getSource()).getSelectedFile();
+            if (file != null) {
+               conf.setYedExeDirectory(file);
+            } else {
+               conf.setYedExeDirectory(null);
+            }
+         }
+      });
+   }
+
+   /**
     * Initialize the style Settings.
     */
    private void initializeStyleSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
-
-      hasCustomStylesCb = new JCheckBox("", conf.hasCustomStyles());
-      hasCustomStylesCb.setBackground(Color.WHITE);
-      hasCustomStylesCb.addActionListener((ActionEvent e) -> {
-         conf.setHasCustomStyles(hasCustomStylesCb.isSelected());
-         customStylesFs.setEnabled(conf.hasCustomStyles());
-         if (!conf.hasCustomStyles()) {
-            conf.customGraphStyles.reset();
-         }
-      });
-
-      File dir = conf.getDefaultDirectory();
+      File _dir = conf.getDefaultDirectory();
 
       customStylesFs = new JFileSelector("Graph Style");
-      customStylesFs.setCurrentDirectory(dir);
+      customStylesFs.setHasOptionalFiles(true);
+      customStylesFs.setCurrentDirectory(_dir);
       customStylesFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
       customStylesFs.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
             File file = ((JFileChooser) e.getSource()).getSelectedFile();
-            conf.setCustomStylesConfiguration(file);
+            if (file != null) {
+               conf.setCustomStylesConfiguration(file);
+               dir = file.getParentFile();
+            } else {
+               conf.setCustomStylesConfiguration(null);
+            }
          }
       });
 
@@ -222,11 +270,18 @@ public class BrowserSettings {
     */
    private void initializeGeneralSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      File _dir = conf.getDefaultDirectory();
 
       autoRefreshCb = new JCheckBox("", conf.autoRefresh);
       autoRefreshCb.setBackground(Color.WHITE);
       autoRefreshCb.addActionListener((ActionEvent e) -> {
          conf.autoRefresh = autoRefreshCb.isSelected();
+      });
+
+      showCommentsCb = new JCheckBox("", conf.showComments);
+      showCommentsCb.setBackground(Color.WHITE);
+      showCommentsCb.addActionListener((ActionEvent e) -> {
+         conf.showComments = showCommentsCb.isSelected();
       });
 
       includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
@@ -258,6 +313,23 @@ public class BrowserSettings {
       showIndirectRelationsCb.addActionListener((ActionEvent e) -> {
          conf.showIndirectRelations = showIndirectRelationsCb.isSelected();
       });
+
+      schemasLocationsFs = new JMultipleFileSelector("Schemas Alternate Locations");
+      schemasLocationsFs.setHasOptionalFiles(true);
+      schemasLocationsFs.setCurrentDirectory(_dir);
+      schemasLocationsFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      schemasLocationsFs.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            File[] files = ((JMultipleFileSelector) e.getSource()).getSelectedFiles();
+            if (files != null) {
+               conf.setAlternateLocations(files);
+               dir = files[0].getParentFile();
+            } else {
+               conf.setAlternateLocations(null);
+            }
+         }
+      });
    }
 
    /**
@@ -265,6 +337,7 @@ public class BrowserSettings {
     */
    private void initializePackageSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      File _dir = conf.getDefaultDirectory();
 
       showPackagesCb = new JCheckBox("", conf.showPackages);
       showPackagesCb.setBackground(Color.WHITE);
@@ -283,27 +356,22 @@ public class BrowserSettings {
       showPackagesAsClosedCb.addActionListener((ActionEvent e) -> {
          conf.showPackagesAsClosed = showPackagesAsClosedCb.isSelected();
       });
-
-      hasPackagesConfigurationCb = new JCheckBox("", conf.hasCustomStyles());
-      hasPackagesConfigurationCb.setBackground(Color.WHITE);
-      hasPackagesConfigurationCb.addActionListener((ActionEvent e) -> {
-         conf.setHasPackagesConfiguration(hasPackagesConfigurationCb.isSelected());
-         packagesConfigurationFs.setEnabled(conf.hasPackagesConfiguration());
-         if (!conf.hasPackagesConfiguration()) {
-            conf.packagesConfiguration.reset();
-         }
-      });
-
-      File dir = conf.getDefaultDirectory();
+      
 
       packagesConfigurationFs = new JFileSelector("Packages Configuration");
-      packagesConfigurationFs.setCurrentDirectory(dir);
+      packagesConfigurationFs.setHasOptionalFiles(true);
+      packagesConfigurationFs.setCurrentDirectory(_dir);
       packagesConfigurationFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
       packagesConfigurationFs.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
             File file = ((JFileChooser) e.getSource()).getSelectedFile();
-            conf.setPackagesConfiguration(file);
+            if (file != null) {
+               conf.setPackagesConfiguration(file);
+               dir = file.getParentFile();
+            } else {
+               conf.setPackagesConfiguration(null);
+            }
          }
       });
    }
@@ -319,20 +387,23 @@ public class BrowserSettings {
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
       generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations");
+      generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
       generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
+      generalSettings.addProperty(schemasLocationsFs, "", "Schemas Alternate Locations");
       generalSettings.setVisible(true);
 
       styleSettings.addProperty(padWidthSpinner, "", "Width Padding");
       styleSettings.addProperty(padHeightSpinner, "", "Height Padding");
-      styleSettings.addProperty(hasCustomStylesCb, "", "Has Custom Styles");
       styleSettings.addProperty(customStylesFs, "", "Custom Styles");
       styleSettings.setVisible(true);
 
       packageSettings.addProperty(showPackagesCb, "", "Show Packages");
       packageSettings.addProperty(showPackagesAsClosedCb, "", "Show Packages as Closed");
       packageSettings.addProperty(showPackagesInPackageViewCb, "", "Show Packages in Package View");
-      packageSettings.addProperty(hasPackagesConfigurationCb, "", "Has Packages Configuration");
       packageSettings.addProperty(packagesConfigurationFs, "", "Packages Configuration");
       packageSettings.setVisible(true);
+
+      yEdSettings.addProperty(yedExeDirectoryFs, "", "yEd Exe Directory");
+      yEdSettings.setVisible(true);
    }
 }

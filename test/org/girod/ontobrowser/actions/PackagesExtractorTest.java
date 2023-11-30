@@ -32,10 +32,11 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import static org.junit.Assert.*;
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
-import org.girod.ontobrowser.OntoBrowser;
+import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
@@ -45,38 +46,39 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.mdiutil.junit.Order;
 import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @since 0.4
+ * @version 0.5
  */
 @RunWith(OrderedRunner.class)
 public class PackagesExtractorTest {
-   private static OntoBrowser browser;
+   private static OntoBrowserGUI browser;
    private static OwlSchema schema;
+   private static Map<ElementKey, OwlClass> packages = null;
 
    public PackagesExtractorTest() {
    }
-   
+
    @BeforeClass
    public static void setUpClass() {
-      browser = new OntoBrowser(false);
+      browser = new OntoBrowserGUI(false);
    }
-   
+
    @AfterClass
    public static void tearDownClass() {
       browser = null;
       schema = null;
+      packages = null;
    }
-   
+
    @Before
    public void setUp() {
    }
-   
+
    @After
    public void tearDown() {
    }
@@ -85,11 +87,11 @@ public class PackagesExtractorTest {
     * Test of opening the model.
     */
    @Test
-   @Order(order = 1)   
+   @Order(order = 1)
    public void testOpenModel() throws Exception {
       System.out.println("PackagesExtractorTest : testOpenModel");
       URL url = this.getClass().getResource("testExtractPackageOwl.owl");
-      
+
       File file = new File(url.getFile());
       OpenModelAction action = new OpenModelAction(browser, null, null, file);
       action.run();
@@ -97,45 +99,54 @@ public class PackagesExtractorTest {
       OwlDiagram diagram = action.getDiagram();
       assertNotNull("Diagram must not be null", diagram);
       schema = diagram.getSchema();
-      assertNotNull("OwlSchema must not be null", schema);      
+      assertNotNull("OwlSchema must not be null", schema);
    }
-   
+
    /**
     * Test of extracting the packages.
     */
    @Test
-   @Order(order = 2)   
+   @Order(order = 2)
    public void testExtractPackages() throws Exception {
       System.out.println("PackagesExtractorTest : testExtractPackages");
-      assertNotNull("OwlSchema must not be null", schema);  
-      
+      assertNotNull("OwlSchema must not be null", schema);
+
       PackagesExtractor extractor = new PackagesExtractor(schema);
-      Map<ElementKey, OwlClass> packages = extractor.extractPackages();
-      assertNotNull("packages must not be null", packages);  
-      
+      packages = extractor.extractPackages();
+      assertNotNull("packages must not be null", packages);
+   }
+
+   /**
+    * Test of extracting the packages.
+    */
+   @Test
+   @Order(order = 3)
+   public void testExtractPackagesCheckContent() throws Exception {
+      System.out.println("PackagesExtractorTest : testExtractPackagesCheckContent");
+      assertNotNull("packages must not be null", packages);
+
       String namespace = "http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#";
       assertEquals("Must have 2 packages", 2, packages.size());
       ElementKey pack1 = new ElementKey(namespace, "Package1");
-      assertTrue("Must have Package1 package", packages.containsKey(pack1)); 
+      assertTrue("Must have Package1 package", packages.containsKey(pack1));
       OwlClass pack1Class = packages.get(pack1);
       Map<ElementKey, OwlClass> subclasses = pack1Class.getSubClasses();
       assertEquals("Must have 3 subclasses", 3, subclasses.size());
       ElementKey theClass = new ElementKey(namespace, "Class6");
-      assertTrue("Must have Class6 class", subclasses.containsKey(theClass)); 
+      assertTrue("Must have Class6 class", subclasses.containsKey(theClass));
       theClass = new ElementKey(namespace, "Class1");
-      assertTrue("Must have Class1 class", subclasses.containsKey(theClass));     
+      assertTrue("Must have Class1 class", subclasses.containsKey(theClass));
       theClass = new ElementKey(namespace, "Class2");
-      assertTrue("Must have Class2 class", subclasses.containsKey(theClass));         
-      
+      assertTrue("Must have Class2 class", subclasses.containsKey(theClass));
+
       ElementKey pack2 = new ElementKey(namespace, "Package2");
-      assertTrue("Must have Package2 package", packages.containsKey(pack2)); 
+      assertTrue("Must have Package2 package", packages.containsKey(pack2));
       OwlClass pack2Class = packages.get(pack2);
       subclasses = pack2Class.getSubClasses();
       assertEquals("Must have 2 subclasses", 2, subclasses.size());
       theClass = new ElementKey(namespace, "Class4");
-      assertTrue("Must have Class4 class", subclasses.containsKey(theClass));  
+      assertTrue("Must have Class4 class", subclasses.containsKey(theClass));
       theClass = new ElementKey(namespace, "Class5");
-      assertTrue("Must have Class5 class", subclasses.containsKey(theClass));          
-   }   
-   
+      assertTrue("Must have Class5 class", subclasses.containsKey(theClass));
+   }
 }

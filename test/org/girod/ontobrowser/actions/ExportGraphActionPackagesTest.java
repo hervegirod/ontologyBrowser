@@ -34,6 +34,7 @@ package org.girod.ontobrowser.actions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
@@ -45,15 +46,13 @@ import org.girod.jgraphml.model.GraphMLNode;
 import org.girod.jgraphml.model.IGraphMLNode;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.GraphMLUtils;
-import org.girod.ontobrowser.OntoBrowser;
+import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,11 +62,11 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @since 0.4
+ * @version 0.5
  */
 @RunWith(OrderedRunner.class)
 public class ExportGraphActionPackagesTest {
-   private static OntoBrowser browser;
+   private static OntoBrowserGUI browser;
    private static OwlSchema schema;
    private static OwlDiagram diagram;
    private static OwlClass package1 = null;
@@ -78,7 +77,7 @@ public class ExportGraphActionPackagesTest {
 
    @BeforeClass
    public static void setUpClass() {
-      browser = new OntoBrowser(false);
+      browser = new OntoBrowserGUI(false);
    }
 
    @AfterClass
@@ -221,6 +220,6 @@ public class ExportGraphActionPackagesTest {
       Map<String, List<GraphMLEdge>> edges = theNode.getFromEdges();
       assertTrue("Must have 0 edge", edges.isEmpty());
       edges = theNode.getToEdges();
-      assertTrue("Must have 0 edge", edges.isEmpty());   
+      assertTrue("Must have 0 edge", edges.isEmpty());
    }
 }

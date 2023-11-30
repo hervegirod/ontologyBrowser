@@ -106,7 +106,7 @@ public abstract class OwlProperty<T> extends NamedOwlElement {
       return propertyFromAlias;
    }
 
-   public boolean hasAliasedProperties() {
+   public boolean hasFromAliasedProperties() {
       return !propertyFromAlias.isEmpty();
    }
 
