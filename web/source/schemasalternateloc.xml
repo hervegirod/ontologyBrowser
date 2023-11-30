@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Schemas alternate locations">
+   <meta desc="This article explains how to set alternate locations for the schemas" />
+   By default when you import Ontologies the browser will look for the URI of the ontology present in you Ontology which import it, which can be local on
+   your driver but also available on the Web.
+
+   But in some cases the URI might not be found, or you might no have access to the Web. For these cases you can provide a list of alternate
+   locations which will be local on your disk to resolve these URIs.
+
+   <title title="usage" />
+   The "Schemas Alternate Locations" setting in the <ref id="configuration" /> allow to specify these Ontologies alternate locations.
+
+   <title title="example" />
+   For example suppose the folllwing Ontology, which uses the <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a>
+   <code>terms</code> schema:
+   <pre syntax="xml">
+      &lt;rdf:RDF xmlns="http://www.my.uri.com/myOntology#"
+      xml:base="http://www.my.uri.com/myOntology"
+      xmlns:owl="http://www.w3.org/2002/07/owl#"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:xml="http://www.w3.org/XML/1998/namespace"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+      xmlns:terms="http://purl.org/dc/terms/"&gt;
+         &lt;owl:Ontology rdf:about="http://www.my.uri.com/myOntology"&gt;
+            &lt;terms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date"&gt;2012-06-14&lt;/terms:modified&gt;
+            &lt;terms:publisher&gt;This is me&lt;/terms:publisher&gt;
+            &lt;terms:title&gt;My Ontology title&lt;/terms:title&gt;
+            &lt;rdfs:comment&gt;This is an example ontology&lt;/rdfs:comment&gt;
+         &lt;/owl:Ontology&gt;
+      ...
+      &lt;/rdf:RDF&gt;
+   </pre>
+
+   As you can see, the <code>terms</code> namespace, which is provided in <code>http://purl.org/dc/terms/</code>, is used in this Ontology.
+
+   You can provide the <resource href="dublin_core_elements.rdf">https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.rdf</resource>,
+   in this case the browser will use the local file rather that resolving it from the Web.
+
+   <cat id="configuration" />
+</article>
