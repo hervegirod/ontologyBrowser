@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Browser">
+   <meta desc="This article presents the content of the application Browser" />
+   The Browser present the class hierarchy, and also the relations between classes and Data properties. 
+
+   <title title="browser" />
+   <img id="browser" width="60%"/>
+   The browser has the following elements:
+   <ul>
+      <li>The left part of the GUI presents a tree which shows the graph of Owl classes. It can also present the list of <ref id="packages" /> found by the tool
+         if the corresponding option is selected</li>
+      <li>The right part of the GUI presents the graph of the Owl diagram, and a window presenting the annotations on the selected 
+         element on the tree</li>
+      <li>The bottom part of the GUI presents messages about the tool</li>
+   </ul>
+   Clicking on a Class on the left tree will center the diagram on the selected Class.
+
+   <title title="options" />
+   <img id="options" />
+   There are several menus in the browser:
+   <ul>
+      <li>"File": To open an Owl/RDF graph or save the selected graph as a graphML diagram (compatible with the <ref id="yEd" /> free editor)</li>
+      <li>"Options": to set the <ref id="#configuration" desc="configuration" /></li>
+      <li>"Tools": to change the layout of the selected graph</li>
+      <li>"Help": shows the version of the tool</li>
+   </ul>
+   The toolbar has the following buttons:
+   <ul>
+      <li>
+         <ref id="Search" /> elements in the selected model</li>
+      <li>Zoom or Dezoom the selected graph</li>
+      <li>Center the selected graph</li>
+   </ul>
+
+   <title title="menus" />
+   <title level="2" title="File menu" />
+   <img id="filemenu" />
+   The File menu has the following elements:
+   <ul>
+      <li>Open Model: opening a Owl/RDF model</li>
+      <li>Export as GraphML: export the current Owl/RDF model as a GraphML diagram<note>Which can be opened in yEd</note></li>      
+      <li>Open in yEd: open the current Owl/RDF model in <ref id="yEd"/></li>            
+   </ul>
+   
+   <title level="3" title="Owl support" />
+   The tool does not handle Owl2 representations for the moment. If you try to open a Owl2 model, you will have the following error window:
+   <img id="owl2" />
+   
+   <title level="2" title="Options menu" />
+   <moreInfo id="configuration" />
+   The Options =&gt; Settings action allows to edit the configuration of the tool.   
+   
+   <title level="2" title="Tools menu" />
+   The Tools =&gt; Layout actions allows to change the layout of the current diagram.      
+      
+   <title title="model window" />
+   <img id="modelwindow" width="40%" />
+   After opening a diagram, a tab opens in the browser showing:
+   <ul>
+      <li>At the left the structure of the Owl model</li>
+      <li>At the right the diagram showing the model, and a window presenting the annotations on the selected 
+         element on the tree (see <ref id="#content window" /> for more information)</li>
+   </ul>
+   
+   The structure of the Owl model is separated in four tabs:
+   <title level="2" title="Class structure tab" />
+   The Class structure tab shows the structure of the Class hierarchy:
+   <img id="tabclasses" width="20%"/>
+   
+   <title level="3" title="Class Menu" />
+   If you right click on a Class on this tab, you will have the following popup menu:
+   <img id="classMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Class</li>
+      <li>Copy to Clipboard: copy the Class IRI to the system Clipboard</li>      
+      <li>Export Class: export the Class and its associated Classes / Individuals and Properties as a GraphML diagram</li>            
+      <li>Show Class in yEd: open the Class and its associated Classes / Individuals and Properties in <ref id="yEd"/></li>                  
+   </ul>
+   
+   <title level="3" title="Package Menu" />
+   If you right click on a Package on this tab, you will have the following popup menu:
+   <img id="packageMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Class</li>
+      <li>Copy to Clipboard: copy the Class IRI to the system Clipboard</li>      
+      <li>Export Package: export the Package and its associated Classes / Individuals and Properties as a GraphML diagram</li>            
+      <li>Show Package in yEd: open the Package and its associated Classes / Individuals and Properties in <ref id="yEd"/></li>                  
+   </ul>   
+
+   <title level="2" title="Properties tab" />
+   The Properties structure tab shows the Properties, separated in data properties and object properties:
+   <img id="tabproperties" width="20%"/>
+   
+   <title level="3" title="Property Menu" />
+   If you right click on a Property on this tab, you will have the following popup menu:
+   <img id="propertyMenu" /> 
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Property</li>
+      <li>Copy to Clipboard: copy the Property IRI to the system Clipboard</li>                       
+   </ul>        
+   
+   <title level="2" title="Annotations tab" />
+   The Class structure tab shows the annotations tags in the model:
+   <img id="tabannotations" width="20%"/>   
+
+   <title level="2" title="Individuals tab" />
+   The Properties structure tab shows the Individuals:
+   <img id="tabindividuals" width="20%"/>
+   
+   <title level="3" title="Individual Menu" />
+   If you right click on an Individual on this tab, you will have the following popup menu:
+   <img id="individualMenu" />    
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Individual</li>
+      <li>Copy to Clipboard: copy the Individual IRI to the system Clipboard</li>                       
+   </ul>    
+   
+   <title level="2" title="element comments" />
+   If an element (a Class, a property, or an Individual) has comments or a description in the 
+   <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> 
+   <code>terms</code> schema, then these comments will be shown as a 
+   tooltip on the element. For example:
+   <img id="tooltips" /> 
+   
+   <messageBox type="info">
+      By default the description will be shown in the tooltip, but if there is no description and comments, there comments will be shown instead.
+   </messageBox>
+   
+   <title title="content window" />
+   <img id="contentwindow"/>
+   The content window presents diagram showing the model, and a window presenting the annotations on the selected 
+   element on the tree.
+
+   <title title="configuration" />
+   <moreInfo id="configuration" />
+   The Options =&gt; Settings action allows to edit the configuration of the tool.
+
+   <title title="Elements colors" />
+   <moreInfo id="custom styles "/>
+   <ul>
+      <li>Classes are presented with a Grey background</li>
+      <li>Individuals are presented with a Magenta background</li>
+      <li>Data properties are presented with a Cyan background</li>
+      <li>Classes from other <ref id="packages" /> are presented with an Orange background</li>
+   </ul>
+   It is possible to configure the colors for these elements in the <ref id="configuration#Styles settings" desc="configuration" />
+
+   <see id="Usage" />
+   <cat id="general" />
+</article>

@@ -3,46 +3,9 @@
    <meta desc="Troubleshooting" />
    This article present possible problems and their solution.
 
-   <title title="I have strange errors about relative URIs when trying to open an OWL/RDF graph"/>
-   For example:
-   <pre>
-      <font color="red">Warning in line 8: {W136} Relative URIs are not permitted in RDF: specifically
-         Warning in line 8: {W102} Unqualified property attributes are not allowed. Property treated as a relative URI.</font>
-   </pre>
-   Apache Jena does not support relative URIs, you should design them as absolute. For example, rather than:
-   <pre syntax="xml">
-      &lt;Ontology xmlns="http://www.w3.org/2002/07/owl#"
-                xml:base="http://www.semanticweb.org/scdsahv/ontologies/2022/5/untitled-ontology-5"
-                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                xmlns:xml="http://www.w3.org/XML/1998/namespace"
-                xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-                xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-                ontologyIRI="http://www.semanticweb.org/scdsahv/ontologies/2022/5/untitled-ontology-5"&gt;
-         &lt;Prefix name="" IRI="http://www.semanticweb.org/scdsahv/ontologies/2022/5/untitled-ontology-5"/&gt;
-         ...
-         &lt;Declaration&gt;
-            &lt;Class IRI="#DescriptedElement"/&gt;
-         &lt;/Declaration&gt;
-         ...
-      &lt;/Ontology&gt;
-   </pre>
-   You should have:
-   <pre syntax="xml">
-      &lt;Ontology xmlns="http://www.w3.org/2002/07/owl#"
-                xml:base="http://www.semanticweb.org/ontologies/untitled-ontology-5"
-                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                xmlns:xml="http://www.w3.org/XML/1998/namespace"
-                xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-                xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-                ontologyIRI="http://www.semanticweb.org/ontologies/untitled-ontology-5"&gt;
-         &lt;Prefix name="" IRI="http://www.semanticweb.org/ontologies/untitled-ontology-5"/&gt;
-         ...
-         &lt;Declaration&gt;
-            &lt;Class IRI="http://www.semanticweb.org/ontologies/untitled-ontology-5#DescriptedElement"/&gt;
-         &lt;/Declaration&gt;
-         ...
-      &lt;/Ontology&gt;
-   </pre>
+   <title title="I have a Owl2 representation unsupported message"/>
+   <img id="owl2" />
+   Owl2 representation is not supported for the moment, because Jena does not support Owl2 now.
 
    <cat id="support" />
 </article>

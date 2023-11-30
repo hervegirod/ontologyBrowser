@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="packages">
+   <meta desc="This article presents the notion of Packages in the application" />
+   This article presents the notion of Packages in the application.
+
+   <title title="overview" />
+   There is no notion of packages in Owl/RDF schemas. However it can be useful to group classes in Owl/RDF schemas as classes are grouped in packages in object-oriented
+   languages.
+
+   If the "Show Packages" property is selected in the <ref id="configuration#Packages settings" desc="configuration" />, the tool will by default show classes as packages providing that:
+   <ul>
+      <li>The Class has no properties (no Data properties nor object properties)</li>
+      <li>The Class has at most one parent class (which is also a Package)</li>
+      <li>The Class has at least one subclass</li>
+   </ul>
+   It is possible to override this behavior to disallow some classes to be seen as packages, or on the contrary to force one class to be seen as
+   a package. See <ref id="Packages Configuration" /> for more information.
+
+   <title title="browser" />
+   <moreInfo id="Browser" />
+   If the "Show Packages" property is selected, the left part of the GUI will present two trees:
+   <ul>
+      <li>The graph of Owl classes</li>
+      <li>The list of packages</li>
+   </ul>
+   For example:
+   <img id="browserPackages" width="60%"/>
+
+   <title title="Packages Configuration" />
+   <moreInfo id="Packages Configuration" />
+   The tool will by default show classes as packages providing that:
+   <ul>
+      <li>The Class has no properties (no Data properties nor object properties)</li>
+      <li>The Class has at most one parent class (which is also a Package)</li>
+      <li>The Class has at least one subclass</li>
+   </ul>
+   It is possible to override this behavior to disallow some classes to be seen as packages, or on the contrary to force one class to be seen as
+   a package. See <ref id="Packages Configuration" /> for more information.
+
+   <title title="example" />
+   Suppose the following Owl/RDF class diagram:
+   <img id="openWithoutPackages"/>
+
+   If the "Show Packages" property is selected, it will produce the following yEd diagram:
+   <img id="openWithPackages"/>
+
+   <see id="Packages Configuration" />
+   <cat id="packages" />
+</article>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<article desc="Using the yed tool">
+<article desc="Using the yEd tool">
    <altTitle desc="yEd" keepCase="true" />
    <meta desc="This article explains how to use the yed tool on exported Owl/RDL schemas" />
    The diagrams exported by the tool use the GraphML format, compatible with the <a href="https://www.yworks.com/products/yed">yEd</a> free editor.
@@ -7,7 +7,7 @@
    <title title="overview" />
    The yEd tool is a free diagram editor allowing to show, export and manipulate diagrams in the <a href="http://graphml.graphdrawing.org/">GraphML</a> format.
    
-   The <ref id="Usage#exporting diagrams" desc="export" /> feature of the tool produce graphML files wich are compatibnle with the yEd tool.   
+   The export feature of the tool produce graphML files wich are compatible with the yEd tool.   
    
    <messageBox type="warning">
       Note that the exported diagrams have to layout, you will need to use the layout features of yEd to obtain a readable diagram.
@@ -27,7 +27,8 @@
    The result will be:
    <img id="exportResult" width="60%" />
    
-   
+   <title title="GraphML format"/>
+   The yEd tool is compatible with the standardized GraphML format which is the graph output format of the Ontology browser tool.
 
    <cat id="general" />
 </article>

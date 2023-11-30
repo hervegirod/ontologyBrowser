@@ -29,6 +29,33 @@
       <li>Add a tree showing the packages and the classes on the left of the UI</li>
       <li>Center the diagram when selecting a class</li>
    </ul>
+   
+   <title title="Version 0.5" />
+   <ul>
+      <li>Use MDIUtilities 1.2.58</li>
+      <li>Use MDIFramework 1.4</li>
+      <li>Use jGraphml 1.2.5</li>      
+      <li>Use docJGenerator 1.6.5.5</li>
+      <li>Use Netbeans 12.5 for the development</li>
+      <li>Reorganize the libraries to put jena libraries in a specific folder</li>
+      <li>Add trees showing the properties and individuals on the left of the UI</li>
+      <li>Show the linked elements in a popup panel when right-clicking on the element in a tree</li>
+      <li>Show equivalent classes and equivalent properties</li>
+      <li>Add a search function</li>
+      <li>Allow parsing Turtle files</li>
+      <li>Handle correctly union classes for domains and range when parsing</li>
+      <li>Protect the parser against unsupported Owl2 files</li>
+      <li>Better integrate the app on Mac OS X</li>
+   </ul>   
+   
+   <title title="Version 0.6" />
+   <ul>
+      <li>Use MDIUtilities 1.2.60</li>
+      <li>Use MDIFramework 1.4.1</li>  
+      <li>Use docJGenerator 1.6.5.6</li>
+      <li>Add tooltips showing the comments of elements in the ontology</li>
+      <li>Show the classes associated with the selected Class in the dependencies window</li>
+   </ul>    
 
    <cat id="general" />
 </article>

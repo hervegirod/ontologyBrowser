@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Class dependencies">
+   <meta desc="This article presents the Class dependencies window" />
+   The <ref id="dependencies Window" /> of a Class shows all the elements which are associated with this Class.
+   
+   The dependencies for a Class show a list with:
+   <ul>
+      <li>The Alias Classes</li>        
+      <li>Associated Classes: The Classes which are at the other end of an object property relation of this Class</li>              
+      <li>The data properties associated with the Class</li>
+      <li>The object properties associated with the Class, for the domain or the range of the property</li>      
+      <li>The individuals associated with the Class</li>            
+   </ul>
+   <img id="classDependencies" />
+   
+   <title title="Alias Classes" />
+   The Alias Classes are the Classes which are Aliases of the selected Class.
+   
+   <title title="Associated Classes" />
+   The Associated Classes are the Classes which are at the other end of an object property relation of this Class. For example, suppose the following 
+   diagram:
+   <img id="classDependenciesDiagram" />
+   The the dependencies for the <code>Class2</code> Class will show:
+   <img id="classDependenciesClass2" />
+   
+   <see id="Dependencies window" />
+   <cat id="browser" />
+</article>

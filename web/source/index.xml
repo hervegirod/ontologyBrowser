@@ -6,7 +6,10 @@
    <a href="https://github.com/hervegirod/ontologyBrowser">github.com/hervegirod/ontologyBrowser</a>.
 
    <title title="Usage"/>
-   <moreInfo id="Usage" />
+   <moreInfo>
+      <info id="Usage" />
+      <info id="Browser" />
+   </moreInfo>
    This application allows to open a OWL/RDF model, and generate a graphML diagram compatible with the popular yEd editor.
 
    <title title="License"/>

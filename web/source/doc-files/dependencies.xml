@@ -3,7 +3,7 @@
    <meta desc="This article is about the libraries dependencies of ontologyBrowser" />
 
    <title title="Dependencies list" />
-   protoFramework is provided and has been tested with the specified releases of the libraries.
+   Ontology Browser is provided and has been tested with these specified releases of the libraries:
    <table caption="Libraries dependencies">
       <tableHeader>
          <column>Library</column>
@@ -18,7 +18,7 @@
             <a href="https://sourceforge.net/projects/mdiutilities/">sourceforge.net/projects/mdiutilities</a>
          </cell>
          <cell>LGPL version 2</cell>
-         <cell>1.2.61</cell>
+         <cell>1.2.60</cell>
          <cell>-</cell>
       </row>
       <row>
@@ -28,7 +28,7 @@
          </cell>
          <cell>LGPL version 2</cell>
          <cell>1.4.2</cell>
-         <cell>Only used for the browser</cell>
+         <cell>-</cell>
       </row>
       <row>
          <cell>jGraphml</cell>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="elements default annotations">
+   <meta desc="This article presents how the elemetns default annotations are shown in the browser" />
+   Some default Owl annotations are parsed by the browser. These annotations on elements (Class, Property, or Individual) are:
+   <ul>
+      <li>
+         <code>owl:versionInfo</code> allows to add some information about the current version of the element</li>
+      <li>
+         <code>rdfs:comment</code> allows to add comments on the element to document it</li>  
+      <li>
+         <code>rdfs:seeAlso</code> point to additional resources to explain the element</li>         
+      <li>
+         <code>rdfs:isDefinedBy</code>  point to additional resources to define the element</li>             
+   </ul>
+   
+   The comments are shown as tooltips on elements (Class, Property, or Individual).
+
+   The "Show Commented Elements" property in the <ref id="configuration#General settings" desc="configuration" /> allow to show in the <ref id="Browser" /> tree
+   the elements which have comments:
+   <img id="treecomments" />
+   
+   <cat id="general" />
+</article>

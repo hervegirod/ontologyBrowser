@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Packages Configuration">
+   <meta desc="This article presents the Packages Configuration" />
+   The tool will by default show classes as <ref id="Packages" /> providing that:
+   <ul>
+      <li>The Class has no properties (no Data properties nor object properties)</li>
+      <li>The Class has at most one parent class (which is also a Package)</li>
+      <li>The Class has at least one subclass</li>
+   </ul>
+   It is possible to override this behavior to disallow some classes to be seen as packages, or on the contrary to force one class to be seen as
+   a package.
+
+   The <ref id="configuration#Packages settings" desc="Packages settings" /> allows to configure which classes would not be consered as Packages
+   regardless of the default rules, or on the contrary to force one class to be seen as a package.
+
+   <title title="overriding the default behavior" />
+   The Packages settings allows to configure which classes would not be consered as Packages regardless of the default rules, or on the contrary to force one
+   class to be seen as a package.
+
+   <ul>
+      <li>The <code>acceptDefaults</code> attribute at the root of the file allows to completely disallow the default rules (by default these rules are
+         applied for classes and namespaces which are not specified explicitly)</li>
+      <li>The <code>forgetNamespace</code> allows to not consider as a Package any class which is in a specified namespace, regardless of the result of the default
+         rules</li>
+      <li>The <code>forgetPackage</code> allows to not consider as a Package a specified class, regardless of the result of the default
+         rules<note id="override">Note that it will also override a possible <code>forgetNamespace</code> specification for the class namespace</note>
+      </li>
+      <li>The <code>forcePackage</code> allows to consider as a Package a specified class, regardless of the result of the default rules<note id="override"/></li>
+   </ul>
+
+   <title level="2" title="file grammar" />
+   The <resource href="packagesConfiguration.xsd">packagesConfiguration.xsd</resource> specifies the grammar of the xml file specifying the custom
+   packages settings.
+
+   <title title="examples" />
+   <title level="2" title="first example" />
+   In this example:
+   <ul>
+      <li>The classes in the <code>http://www.w3.org/2006/time</code> will never be considered as a Package</li>
+      <li>The <code>http://www.opengis.net/ont/geosparql#Feature</code> class will not be consided as a Package, even if it fullfill the default rules</li>
+      <li>The <code>http://localhost/myNameSpace#Event</code> class will be considered as a Package, even if it does not fullfill the default rules</li>
+      <li>All other classes will be considered as a Package depending on the default rules</li>
+   </ul>
+   <pre syntax="xml">
+      &lt;packagesConfiguration&gt;
+         &lt;forgetNamespace namespace="http://www.w3.org/2006/time"/&gt;
+         &lt;forgetPackage path="http://www.opengis.net/ont/geosparql#Feature"/&gt;
+         &lt;forcePackage path="http://localhost/myNameSpace#Event" /&gt;
+      &lt;/packagesConfiguration&gt;
+   </pre>
+
+   <title level="2" title="second example" />
+   In this example:
+   <ul>
+      <li>The classes in the <code>http://www.w3.org/2006/time</code> will never be considered as a Package</li>
+      <li>The <code>http://www.opengis.net/ont/geosparql#Feature</code> class will not be consided as a Package, even if it fullfill the default rules</li>
+      <li>The <code>http://localhost/myNameSpace#Event</code> class will be considered as a Package, even if it does not fullfill the default rules</li>
+      <li>All other classes will not be considered as a Package, even if they fullfill the default rules</li>
+   </ul>
+   <pre syntax="xml">
+      &lt;packagesConfiguration acceptDefaults="false"&gt;
+         &lt;forgetNamespace namespace="http://www.w3.org/2006/time"/&gt;
+         &lt;forgetPackage path="http://www.opengis.net/ont/geosparql#Feature"/&gt;
+         &lt;forcePackage path="http://localhost/myNameSpace#Event" /&gt;
+      &lt;/packagesConfiguration&gt;
+   </pre>
+
+   <see id="Packages" />
+   <cat id="packages" />
+</article>

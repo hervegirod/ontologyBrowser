@@ -2,17 +2,46 @@
 <images>
    <image id="browser" url="browser.png" />
    <image id="browserPackages" url="browserPackages.png" />
-   <image id="options" url="options.png" /> 
-   <image id="graphml" url="graphml.png" />  
-   <image id="openWithPackages" url="openWithPackages.png" /> 
-   <image id="openWithoutPackages" url="openWithoutPackages.png" /> 
-   <image id="exportClass" url="exportClass.png" /> 
-   <image id="exportPackage" url="exportPackage.png" /> 
-   <image id="configGeneral" url="configGeneral.png" /> 
+   <image id="filemenu" url="filemenu.png" />
+   <image id="options" url="options.png" />
+   <image id="graphml" url="graphml.png" />
+   <image id="openWithPackages" url="openWithPackages.png" />
+   <image id="openWithoutPackages" url="openWithoutPackages.png" />
+   <image id="classMenu" url="classMenu.png" />
+   <image id="packageMenu" url="packageMenu.png" />
+   <image id="propertyMenu" url="propertyMenu.png" />
+   <image id="individualMenu" url="individualMenu.png" />
+   <image id="configGeneral" url="configGeneral.png" />
    <image id="configStyles" url="configStyles.png" />
-   <image id="configPackages" url="configPackages.png" /> 
-   <image id="export1" url="export1.png" /> 
+   <image id="configPackages" url="configPackages.png" />
+   <image id="configYed" url="configYed.png" />
+   <image id="export1" url="export1.png" />
    <image id="export2" url="export2.png" />
-   <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />  
-   <image id="exportResult" url="exportResult.png" />  
+   <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />
+   <image id="exportResult" url="exportResult.png" />
+   <image id="owl2" url="owl2.png" />
+   <category desc="search">
+      <image id="search" url="search.png" />
+      <image id="search2" url="search2.png" />
+      <image id="searchresults" url="searchresults.png" />    
+   </category>
+   <category desc="tabs">
+      <image id="tabclasses" url="tabclasses.png" />
+      <image id="tabproperties" url="tabproperties.png" />
+      <image id="tabindividuals" url="tabindividuals.png" />   
+      <image id="tabannotations" url="tabannotations.png" /> 
+   </category>
+   <image id="modelwindow" url="modelwindow.png" />
+   <image id="contentwindow" url="contentwindow.png" />
+   <image id="annotationswindow" url="annotationswindow.png" />
+   <image id="tooltips" url="tooltips.png" /> 
+   <category desc="dependencies">
+      <image id="classDependencies" url="classDependencies.png" />
+      <image id="objectpropDependencies" url="objectpropDependencies.png" />
+      <image id="datapropDependencies" url="datapropDependencies.png" />
+      <image id="individualDependencies" url="individualDependencies.png" />
+      <image id="classDependenciesClass2" url="classDependenciesClass2.png" />
+      <image id="classDependenciesDiagram" url="classDependenciesDiagram.png" />          
+   </category> 
+   <image id="treecomments" url="treecomments.png" />
 </images>

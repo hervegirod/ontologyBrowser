@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Search">
+   <meta desc="This article presents the Search function" />
+   The search function allows to search element in the currently seelected model. The options for th Search are:
+   <ul>
+      <li>Selecting the type of elements to search (by default the Search looks for all types of elements)</li>
+      <li>Specifying the name of element to search</li>
+   </ul>
+   <img id="search" />
+
+   <title title="Types of elements" />
+   The types of elements which can be selected are:
+   <ul>
+      <li>All elements (the default)</li>
+      <li>Classes</li>
+      <li>Properties (including data properties or object properties)</li>
+      <li>Data properties</li>
+      <li>Object properties</li>
+      <li>Individuals</li>
+   </ul>
+
+   <title title="Search string" />
+   The search String allows to define the string to search for. The "*" character in the string is used fort any
+   sequence of characters. For exemple:
+   <ul>
+      <li>"tutu" search to exactly the string "tutu"</li>
+      <li>"*tutu" could work for "tutu", "aaBtutu", etc...</li>
+   </ul>
+   <messageBox type="info">
+      <ul>
+         <li>By default the Search is case sensitive but you can uncheck the option to make it case-insensitive</li>
+         <li>It is also possible to use the String as a regular expression</li>
+      </ul>
+   </messageBox>
+
+   <title title="Search results" />
+   After clicking on the "Yes" button, the Search is perfoemed, and a Search results wind appear. For example with:
+   <img id="search2" />
+   You might have the following window:
+   <img id="searchresults" />
+
+   Selecting any element in the result window will highlight the selected element in the model.
+
+   <cat id="browser" />
+</article>
