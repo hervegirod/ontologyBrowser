@@ -39,3 +39,14 @@
  - Show the classes associated with the selected Class in the dependencies window
  - Parse the default annotations for elements in the model and show documented elements in the tree
  - Parse and show all annotations in the model
+
+# 0.7
+ - Add a log level for the browser
+ - Show correctly the individuals which are parts of equivalent classes
+ - Fix some cases where the dependencies window would not show the dependencies on the correct element
+ - Support seeAlso and isDefinedBy annotations on elements in the Ontology
+ - Allow to specify alternate locations for imported URIs
+ - Use labels to name the elements when they are present
+ - Add a configuration option to show aliased classes in the diagram
+ - Add a Datatypes tree
+ - Allow to execute SPARQL queries
