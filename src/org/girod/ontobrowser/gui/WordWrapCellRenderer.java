@@ -32,35 +32,100 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.gui;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.table.TableCellRenderer;
+import org.girod.ontobrowser.model.AnnotationValue;
+import org.girod.ontobrowser.model.NamedOwlElement;
 
 /**
  * Used to wrap the text inside a table cell.
  *
- * @since 0.6
+ * @version 0.7
  */
-class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
+public class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
    // see https://stackoverflow.com/questions/37768335/how-to-word-wrap-inside-a-jtable-row
-   WordWrapCellRenderer() {
+   public WordWrapCellRenderer() {
       setLineWrap(true);
       setWrapStyleWord(true);
    }
 
+   @Override
    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      setText(value.toString());
-      if (value instanceof URICellElement) {
-         this.setForeground(Color.BLUE);
+      JComponent comp;
+      if (value instanceof AnnotationValue) {
+         JEditorPane editor = new JEditorPane();
+         editor.setEditable(false);
+         editor.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
+         editor.setContentType("text/html");
+         if (value instanceof AnnotationValue.URIAnnotationValue) {
+            AnnotationValue.URIAnnotationValue uriAnnotation = (AnnotationValue.URIAnnotationValue) value;
+            StringBuilder buf = new StringBuilder();
+            buf.append("<html><a href=\"");
+            final URI uri = uriAnnotation.getURI();
+            buf.append(uri.toString()).append("\">").append(uri.toString());
+            buf.append("</a></html>");
+            Font font = editor.getFont();
+            font = font.deriveFont(Font.PLAIN);
+            editor.setFont(font);
+            editor.setText(buf.toString());
+            editor.addHyperlinkListener(new HyperlinkListener() {
+               @Override
+               public void hyperlinkUpdate(HyperlinkEvent e) {
+                  try {
+                     Desktop.getDesktop().browse(e.getURL().toURI());
+                  } catch (IOException | URISyntaxException ex) {
+                  }
+               }
+            });
+         } else if (value instanceof AnnotationValue.ElementAnnotationValue) {
+            AnnotationValue.ElementAnnotationValue eltAnnotation = (AnnotationValue.ElementAnnotationValue) value;
+            StringBuilder buf = new StringBuilder();
+            buf.append("<html><a href=\"");
+            NamedOwlElement element = eltAnnotation.getElement();
+            URI uri = element.toURI();
+            if (uri != null) {
+               buf.append(uri.toString()).append("\">").append(element.getDisplayedName());
+               buf.append("</a></html>");
+               Font font = editor.getFont();
+               font = font.deriveFont(Font.PLAIN);
+               editor.setFont(font);
+               editor.setText(buf.toString());
+               editor.addHyperlinkListener(new HyperlinkListener() {
+                  @Override
+                  public void hyperlinkUpdate(HyperlinkEvent e) {
+                     try {
+                        Desktop.getDesktop().browse(e.getURL().toURI());
+                     } catch (IOException | URISyntaxException ex) {
+                     }
+                  }
+               });
+            }
+         }
+         comp = editor;
       } else {
-         this.setForeground(Color.BLACK);
+         JLabel label = new JLabel();
+         label.setText(value.toString());
+         Font font = label.getFont();
+         font = font.deriveFont(Font.PLAIN);
+         label.setFont(font);
+         comp = label;
       }
       setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
-      if (table.getRowHeight(row) != getPreferredSize().height) {
-         table.setRowHeight(row, getPreferredSize().height);
+      if (table.getRowHeight(row) != comp.getPreferredSize().height) {
+         table.setRowHeight(row, comp.getPreferredSize().height);
       }
-      return this;
+      return comp;
    }
 }

@@ -32,34 +32,33 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents a named Owl element.
  *
- * @version 0.6
+ * @version 0.7
  */
-public abstract class NamedOwlElement implements Cloneable {
-   private static final ElementKey DUBLINCORE_DESCRIPTION = ElementKey.create("http://purl.org/dc/terms/", "description");
-   private static final ElementKey COMMENT = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "comment");
-   private static final ElementKey SEE_ALSO = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "seeAlso");
-   private static final ElementKey DEFINED_BY = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "isDefinedBy");
-   private static final ElementKey VERSION_INFO = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "versionInfo");
-   protected final String namespace;
+public abstract class NamedOwlElement extends AnnotatedElement implements Cloneable {
+
+   protected String namespace;
    protected final String name;
+
    protected final String prefix;
    private ElementKey key = null;
-   private final Map<ElementKey, AnnotationValue> annotations = new HashMap<>();
-   private ElementDocumentation elementDoc = null;
+   private final Map<ElementKey, OwlClass> inEquivalentExpressions = new HashMap<>();
 
    public NamedOwlElement(String namespace, String name, String prefix) {
+      super();
       this.namespace = namespace;
       this.name = name;
       this.prefix = prefix;
    }
 
    public NamedOwlElement(String namespace, String name) {
+      super();
       this.namespace = namespace;
       this.name = name;
       this.prefix = null;
@@ -67,6 +66,10 @@ public abstract class NamedOwlElement implements Cloneable {
 
    public String getPrefix() {
       return prefix;
+   }
+
+   public URI toURI() {
+      return getKey().toURI();
    }
 
    @Override
@@ -78,155 +81,26 @@ public abstract class NamedOwlElement implements Cloneable {
       }
    }
 
-   /**
-    * Return the element dopcumentation.
-    *
-    * @return the element dopcumentation
-    */
-   public ElementDocumentation getDocumentation() {
-      return elementDoc;
-   }
-
-   private ElementDocumentation createDocumentation() {
-      if (elementDoc == null) {
-         elementDoc = new ElementDocumentation();
-      }
-      return elementDoc;
-   }
-
-   public void addAnnotation(ElementKey key, AnnotationValue value) {
-      annotations.put(key, value);
-      if (key.equals(DUBLINCORE_DESCRIPTION)) {
-         createDocumentation().setDescription(value.toString());
-      }
-   }
-
-   public Map<ElementKey, AnnotationValue> getAnnotations() {
-      return annotations;
+   void addInEquivalentExpression(OwlClass owlClass) {
+      inEquivalentExpressions.put(owlClass.getKey(), owlClass);
    }
 
    /**
-    * Set the element description.
+    * Return the owl classes in which this element is used in equivalent expressions.
     *
-    * @param desc the description
+    * @return the owl classes
     */
-   public void setDescription(String desc) {
-      if (desc != null) {
-         createDocumentation().setDescription(desc);
-      }
+   public Map<ElementKey, OwlClass> getInEquivalentExpressions() {
+      return inEquivalentExpressions;
    }
 
    /**
-    * Set the element comments.
+    * Return true if this element is used in equivalent expressions.
     *
-    * @param comments comments the comments
+    * @return true if this element is used in equivalent expressions
     */
-   public void setComments(String comments) {
-      if (comments != null) {
-         annotations.put(COMMENT, new AnnotationValue.LiteralAnnotationValue(comments));
-         createDocumentation().setComments(comments);
-      }
-   }
-
-   /**
-    * Set the element isDefinedBy.
-    *
-    * @param isDefinedBy the isDefinedBy
-    */
-   public void setIsDefinedBy(AnnotationValue isDefinedBy) {
-      if (isDefinedBy != null) {
-         annotations.put(DEFINED_BY, isDefinedBy);
-         createDocumentation().setIsDefinedBy(isDefinedBy);
-      }
-   }
-
-   /**
-    * Set the element versionInfo.
-    *
-    * @param versionInfo the versionInfo
-    */
-   public void setVersionInfo(String versionInfo) {
-      if (versionInfo != null) {
-         annotations.put(VERSION_INFO, new AnnotationValue.LiteralAnnotationValue(versionInfo));
-         createDocumentation().setVersionInfo(versionInfo);
-      }
-   }
-
-   /**
-    * Set the element seeAlso.
-    *
-    * @param seeAlso the seeAlso
-    */
-   public void setSeeAlso(AnnotationValue seeAlso) {
-      if (seeAlso != null) {
-         annotations.put(SEE_ALSO, seeAlso);
-         createDocumentation().setSeeAlso(seeAlso);
-      }
-   }
-
-   /**
-    * Return the element description.
-    *
-    * @return the description
-    */
-   public String getDescription() {
-      if (elementDoc == null) {
-         return null;
-      } else {
-         return elementDoc.getDescription();
-      }
-   }
-
-   /**
-    * Return the element description or comments.
-    *
-    * @return the description or comments
-    */
-   public String getDescriptionOrComments() {
-      if (elementDoc == null) {
-         return null;
-      } else {
-         return elementDoc.getDescriptionOrComments();
-      }
-   }
-
-   /**
-    * Return the element comments.
-    *
-    * @return the comments
-    */
-   public String getComments() {
-      if (elementDoc == null) {
-         return null;
-      } else {
-         return elementDoc.getComments();
-      }
-   }
-   
-   /**
-    * Return true if the element has comments.
-    *
-    * @return true if the element has comments
-    */
-   public boolean hasDescriptionOrComments() {
-      if (elementDoc == null) {
-         return false;
-      } else {
-         return elementDoc.hasDescriptionOrComments();
-      }
-   }   
-
-   /**
-    * Return true if the element has comments.
-    *
-    * @return true if the element has comments
-    */
-   public boolean hasComments() {
-      if (elementDoc == null) {
-         return false;
-      } else {
-         return elementDoc.hasComments();
-      }
+   public boolean isInEquivalentExpressions() {
+      return !inEquivalentExpressions.isEmpty();
    }
 
    /**
@@ -265,6 +139,19 @@ public abstract class NamedOwlElement implements Cloneable {
     */
    public String getName() {
       return name;
+   }
+
+   /**
+    * Return the element displayed name.
+    *
+    * @return the element displayed name.
+    */
+   public String getDisplayedName() {
+      if (label != null) {
+         return label;
+      } else {
+         return name;
+      }
    }
 
    /**

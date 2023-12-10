@@ -257,7 +257,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
          OwlDatatype dataType = types.values().iterator().next();
          String ns = dataType.getNamespace();
          if (ns != null && ns.equals(DEFAULT_NS)) {
-            String name = "xs: " + dataType.getName();
+            String name = "xs: " + dataType.getDisplayedName();
             return name;
          }
          return null;

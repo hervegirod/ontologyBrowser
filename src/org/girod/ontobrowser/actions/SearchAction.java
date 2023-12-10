@@ -67,7 +67,7 @@ import org.mdi.bootstrap.swing.GUIApplication;
 /**
  * The Action that search for elements.
  *
- * @since 0.5
+ * @version 0.7
  */
 public class SearchAction extends AbstractMDIAction {
    private final String category;
@@ -100,7 +100,7 @@ public class SearchAction extends AbstractMDIAction {
    }
 
    private String getName(NamedOwlElement elt) {
-      return elt.getName();
+      return elt.getDisplayedName();
    }
 
    public List<String> getCategories() {
@@ -196,7 +196,7 @@ public class SearchAction extends AbstractMDIAction {
       } else if (elt instanceof OwlDatatypeProperty) {
          return ElementTypes.DATAPROPERTY;
       } else if (elt instanceof OwlAnnotation) {
-         return ElementTypes.ANNOTATION;         
+         return ElementTypes.ANNOTATION;
       } else {
          return null;
       }
@@ -216,8 +216,8 @@ public class SearchAction extends AbstractMDIAction {
          OwlClass owlClass = it.next();
          list.add(owlClass);
          if (indirectRelations) {
-            if (owlClass.hasEquivalentClasses()) {
-               Iterator<OwlClass> it2 = owlClass.getEquivalentClasses().values().iterator();
+            if (owlClass.hasAliasClasses()) {
+               Iterator<OwlClass> it2 = owlClass.getAliasClasses().values().iterator();
                while (it2.hasNext()) {
                   OwlClass theClass = it2.next();
                   list.add(theClass);
@@ -276,13 +276,13 @@ public class SearchAction extends AbstractMDIAction {
    }
 
    private void addAnnotations(List<NamedOwlElement> list) {
-      Map<ElementKey, OwlAnnotation> map = schema.getAnnotations();
+      Map<ElementKey, OwlAnnotation> map = schema.getElementAnnotations();
       Iterator<OwlAnnotation> it = map.values().iterator();
       while (it.hasNext()) {
          OwlAnnotation annotation = it.next();
          list.add(annotation);
       }
-   }   
+   }
 
    private void addIndividuals(List<NamedOwlElement> list) {
       Map<ElementKey, OwlIndividual> map = schema.getIndividuals();
@@ -315,7 +315,7 @@ public class SearchAction extends AbstractMDIAction {
       } else if (cat.equals(ElementTypes.DATAPROPERTY)) {
          addDatatypesProperties(list);
       } else if (cat.equals(ElementTypes.ANNOTATION)) {
-         addAnnotations(list);         
+         addAnnotations(list);
       } else if (cat.equals(ElementTypes.INDIVIDUAL)) {
          addIndividuals(list);
       }

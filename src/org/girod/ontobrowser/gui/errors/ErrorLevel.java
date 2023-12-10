@@ -30,29 +30,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.gui;
-
-import java.net.URI;
-import org.girod.ontobrowser.model.AnnotationValue;
+package org.girod.ontobrowser.gui.errors;
 
 /**
- * A cell element in the annoations table containing an URI.
+ * The error and information levels.
  *
- * @since 0.6
+ * @since 0.7
  */
-public class URICellElement {
-   private AnnotationValue.URIAnnotationValue uriValue = null;
-
-   public URICellElement(AnnotationValue.URIAnnotationValue uriValue) {
-      this.uriValue = uriValue;
-   }
-
-   public URI getURI() {
-      return uriValue.getURI();
-   }
-
-   @Override
-   public String toString() {
-      return uriValue.toString();
-   }
+public interface ErrorLevel {
+   public static final short NO_LOGGING = -1;
+   public static final short INFO = 0;
+   public static final short WARNING = 1;
+   public static final short ERROR = 2;
 }

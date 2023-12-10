@@ -52,22 +52,20 @@ import org.girod.ontobrowser.gui.tree.OwlElementRep;
 import org.girod.ontobrowser.model.AnnotationValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
-import org.girod.ontobrowser.model.OwlAnnotation;
-import org.girod.ontobrowser.model.OwlClass;
-import org.girod.ontobrowser.model.OwlDatatypeProperty;
-import org.girod.ontobrowser.model.OwlIndividual;
-import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 
 /**
+ * The Compoent panel factory.
  *
- * @since 0.6
+ * @version 0.7
  */
 public class ComponentPanelFactory {
+   private final GraphPanel panel;
    private final OwlSchema schema;
 
-   public ComponentPanelFactory(OwlSchema schema) {
+   public ComponentPanelFactory(GraphPanel panel, OwlSchema schema) {
       this.schema = schema;
+      this.panel = panel;
    }
 
    public JComponent getComponentPanel(OwlElementRep selectedElement) {
@@ -79,19 +77,19 @@ public class ComponentPanelFactory {
    }
 
    private JComponent getOwlClassPanel(NamedOwlElement theElement) {
-      JPanel panel = new JPanel();
-      panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+      JPanel thePanel = new JPanel();
+      thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
       StringBuilder html = new StringBuilder();
       html.append("<html>");
       String title = theElement.getKey().getPrefixedName(schema);
       html.append(title);
       html.append(" <i style=\"font-weight: normal;\">- ");
-      html.append(theElement.getNamespace()).append(theElement.getName());
+      html.append(theElement.getNamespace()).append(theElement.getDisplayedName());
       html.append("</i>");
       html.append("</html>");
       JLabel label = new JLabel(html.toString());
-      panel.add(label);
-      panel.add(Box.createVerticalStrut(5));
+      thePanel.add(label);
+      thePanel.add(Box.createVerticalStrut(5));
 
       final DefaultTableModel tablemodel = new UneditableTableModel();
       final JTable table = new JTable();
@@ -104,37 +102,43 @@ public class ComponentPanelFactory {
          v.add(entry.getKey().toString());
          AnnotationValue value = entry.getValue();
          if (value instanceof AnnotationValue.URIAnnotationValue) {
-
-            v.add(new URICellElement((AnnotationValue.URIAnnotationValue) value));
+            v.add(value);
+         } else if (value instanceof AnnotationValue.ElementAnnotationValue) {
+            v.add(value);
          } else {
             v.add(value.toString());
          }
          tablemodel.addRow(v);
       }
-      
+
       table.setModel(tablemodel);
       table.getColumnModel().getColumn(1).setCellRenderer(new WordWrapCellRenderer());
       table.addMouseListener(new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
             // see https://stackoverflow.com/questions/7350893/click-event-on-jtable-java
+            // see https://stackoverflow.com/questions/4256680/click-hyperlink-in-jtable
             int row = table.rowAtPoint(e.getPoint());
             int col = table.columnAtPoint(e.getPoint());
             if (col == 1) {
                Object o = tablemodel.getValueAt(row, 1);
-               if (o instanceof URICellElement) {
+               if (o instanceof AnnotationValue.URIAnnotationValue) {
                   try {
-                     URICellElement celElt = (URICellElement)o;
-                     URI uri = celElt.getURI();
+                     AnnotationValue.URIAnnotationValue cellElt = (AnnotationValue.URIAnnotationValue) o;
+                     URI uri = cellElt.getURI();
                      Desktop.getDesktop().browse(uri);
                   } catch (IOException ex) {
                   }
+               } else if (o instanceof AnnotationValue.ElementAnnotationValue) {
+                  AnnotationValue.ElementAnnotationValue celElt = (AnnotationValue.ElementAnnotationValue) o;
+                  NamedOwlElement element = celElt.getElement();
+                  panel.selectElement(element);
                }
             }
          }
       });
-      panel.add(new JScrollPane(table));
-      panel.add(Box.createVerticalGlue());
-      return new JScrollPane(panel);
+      thePanel.add(new JScrollPane(table));
+      thePanel.add(Box.createVerticalGlue());
+      return new JScrollPane(thePanel);
    }
 }

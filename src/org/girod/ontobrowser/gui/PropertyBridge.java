@@ -64,7 +64,7 @@ public class PropertyBridge {
       if (isObjectProperty()) {
          OwlObjectProperty objectProperty =(OwlObjectProperty)property;
          StringBuilder buf = new StringBuilder();
-         buf.append(property.getName());
+         buf.append(property.getDisplayedName());
          Map<ElementKey, OwlRestriction> restrictions;
          if (fromDomain) {
             buf.append(": to ");
@@ -85,7 +85,7 @@ public class PropertyBridge {
       } else {
          OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty)property;
          StringBuilder buf = new StringBuilder();
-         buf.append(property.getName());
+         buf.append(property.getDisplayedName());
          buf.append(": ");
          Iterator<OwlDatatype> it = datatypeproperty.getTypes().values().iterator();
          while (it.hasNext()) {

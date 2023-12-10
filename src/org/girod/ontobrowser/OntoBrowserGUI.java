@@ -50,7 +50,7 @@ import org.mdiutil.prefs.NetworkPreferencesFactory;
 /**
  * The main class of the application.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class OntoBrowserGUI extends AbstractMDIApplication {
    private Preferences pref = null;

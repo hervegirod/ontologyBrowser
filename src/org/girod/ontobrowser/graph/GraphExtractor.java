@@ -30,22 +30,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions;
+package org.girod.ontobrowser.graph;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.ontology.AllValuesFromRestriction;
-import org.apache.jena.ontology.AnnotationProperty;
 import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.ConversionException;
 import org.apache.jena.ontology.DatatypeProperty;
@@ -72,13 +68,13 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.OWL2;
 import org.girod.ontobrowser.BrowserConfiguration;
-import org.girod.ontobrowser.model.AnnotationValue;
+import org.girod.ontobrowser.actions.AbstractWarningAction;
 import org.girod.ontobrowser.model.ElementKey;
-import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlDeclaredIndividual;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
@@ -100,15 +96,18 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.6
+ * @version 0.7
  */
-public class GraphExtractor {
+public class GraphExtractor extends AbstractWarningAction {
    private final File file;
    private final OntModel model;
    private OwlSchema graph = null;
    private ElementKey thingKey = null;
    private final boolean addThingClass;
    private final boolean showPackages;
+   private ExpressionsHelper exprHelper = null;
+   private IndividualsHelper individualsHelper = null;
+   private AnnotationsHelper annotationsHelper = null;
 
    /**
     * Constructor.
@@ -169,160 +168,6 @@ public class GraphExtractor {
       return owlRestriction;
    }
 
-   private void setIsDefinedBy(NamedOwlElement element, OntResource resource) {
-      Resource isDefinedBy = resource.getIsDefinedBy();
-      if (isDefinedBy != null) {
-         if (isDefinedBy.isLiteral()) {
-            String _definedBy = isDefinedBy.asLiteral().getString();
-            element.setIsDefinedBy(new AnnotationValue.LiteralAnnotationValue(_definedBy));
-         } else if (isDefinedBy.isURIResource()) {
-            String uriAsString = isDefinedBy.getURI();
-            try {
-               URI uri = new URI(uriAsString);
-               element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(uri));
-            } catch (URISyntaxException ex) {
-            }
-         }
-      }
-   }
-
-   private void setSeeAlso(NamedOwlElement element, OntResource resource) {
-      Resource seeAlso;
-      try {
-         seeAlso = resource.getSeeAlso();
-      } catch (OntologyException e) {
-         seeAlso = null;
-      }
-      if (seeAlso != null) {
-         if (seeAlso.isLiteral()) {
-            String _seeAlso = seeAlso.asLiteral().getString();
-            element.setSeeAlso(new AnnotationValue.LiteralAnnotationValue(_seeAlso));
-         } else if (seeAlso.isURIResource()) {
-            String uriAsString = seeAlso.getURI();
-            try {
-               URI uri = new URI(uriAsString);
-               element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(uri));
-            } catch (URISyntaxException ex) {
-            }
-         }
-      }
-   }
-
-   private AnnotationValue addAnnotationValue(OntClass theClass, OwlClass owlClass, ElementKey annotationKey, OntProperty property) {
-      RDFNode theNode = theClass.getPropertyValue(property);
-      if (theNode == null) {
-         return null;
-      }
-      AnnotationValue value = null;
-      if (theNode.isLiteral()) {
-         String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
-      } else if (theNode.isURIResource()) {
-         String uriAsString = theNode.asResource().getURI();
-         try {
-            URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
-         } catch (URISyntaxException ex) {
-         }
-      }
-      if (value != null) {
-         owlClass.addAnnotation(annotationKey, value);
-      }
-      return value;
-   }
-   
-   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlObjectProperty owlProperty, ElementKey annotationKey) {
-      AnnotationValue value = null;
-      if (theNode.isLiteral()) {
-         String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
-      } else if (theNode.isURIResource()) {
-         String uriAsString = theNode.asResource().getURI();
-         try {
-            URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
-         } catch (URISyntaxException ex) {
-         }
-      }
-      if (value != null) {
-         owlProperty.addAnnotation(annotationKey, value);
-      }
-      return value;
-   }        
-   
-   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlDatatypeProperty owlProperty, ElementKey annotationKey) {
-      AnnotationValue value = null;
-      if (theNode.isLiteral()) {
-         String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
-      } else if (theNode.isURIResource()) {
-         String uriAsString = theNode.asResource().getURI();
-         try {
-            URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
-         } catch (URISyntaxException ex) {
-         }
-      }
-      if (value != null) {
-         owlProperty.addAnnotation(annotationKey, value);
-      }
-      return value;
-   }    
-   
-   private AnnotationValue addAnnotationValue(RDFNode theNode, OwlIndividual owlIndividual, ElementKey annotationKey) {
-      AnnotationValue value = null;
-      if (theNode.isLiteral()) {
-         String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
-      } else if (theNode.isURIResource()) {
-         String uriAsString = theNode.asResource().getURI();
-         try {
-            URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
-         } catch (URISyntaxException ex) {
-         }
-      }
-      if (value != null) {
-         owlIndividual.addAnnotation(annotationKey, value);
-      }
-      return value;
-   }       
-
-   private void setVersionInfo(NamedOwlElement element, OntResource resource) {
-      String versionInfo = resource.getVersionInfo();
-      if (versionInfo != null) {
-         element.setVersionInfo(versionInfo);
-      }
-   }
-
-   private void setDefaultAnnotations(NamedOwlElement element, OntResource resource) {
-      String comment = getComments(resource);
-      element.setComments(comment);
-      setIsDefinedBy(element, resource);
-      setVersionInfo(element, resource);
-      setSeeAlso(element, resource);
-   }
-
-   private String getComments(OntResource resource) {
-      StringBuilder buf = new StringBuilder();
-      boolean isEmpty = true;
-      ExtendedIterator<RDFNode> it = resource.listComments(null);
-      while (it.hasNext()) {
-         RDFNode node = it.next();
-         String s = node.asLiteral().getString();
-         buf.append(s);
-         if (it.hasNext()) {
-            buf.append("\n");
-         }
-         isEmpty = false;
-      }
-      if (isEmpty) {
-         return null;
-      } else {
-         return buf.toString();
-      }
-   }
-
    private void addToPropertyToClassMap(Map<ElementKey, Set<ElementKey>> classToProperties, ElementKey propertyKey, ElementKey classKey) {
       Set<ElementKey> set;
       if (classToProperties.containsKey(classKey)) {
@@ -373,13 +218,23 @@ public class GraphExtractor {
       return list;
    }
 
+   public AnnotationsHelper getAnnotationsHelper() {
+      return annotationsHelper;
+   }
+
    /**
     * Return the graph.
     *
     * @return the graph
     */
    public OwlSchema getGraph() throws OntologyException {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       graph = new OwlSchema(model);
+      graph.setIncludeIndividuals(conf.includeIndividuals);
+      graph.setFile(file);
+      annotationsHelper = new AnnotationsHelper(graph);
+      exprHelper = new ExpressionsHelper(this, graph);
+      individualsHelper = new IndividualsHelper(this, graph);
       OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
       OwlClass owlThingClass = graph.getThingClass();
       thingKey = owlThingClass.getKey();
@@ -393,15 +248,9 @@ public class GraphExtractor {
       Map<ElementKey, Set<ElementKey>> domainClassToProperties = new HashMap<>();
 
       // list annotations
-      ExtendedIterator<AnnotationProperty> annotations = model.listAnnotationProperties();
-      while (annotations.hasNext()) {
-         AnnotationProperty annProperty = annotations.next();
-         OwlAnnotation owlAnnotation = new OwlAnnotation(annProperty);
-         graph.addAnnotation(owlAnnotation);
-      }
+      annotationsHelper.addSchemaAnnotations();
 
       // list properties
-      Set<ElementKey> annotationkeys = new HashSet<>();
       Map<ElementKey, Set<ElementKey>> equivalentProperties = new HashMap<>();
       ExtendedIterator properties = model.listAllOntProperties();
       while (properties.hasNext()) {
@@ -411,8 +260,7 @@ public class GraphExtractor {
          if (thisProperty.isObjectProperty()) {
             ObjectProperty objProperty = (ObjectProperty) thisProperty;
             OwlObjectProperty owlProperty = new OwlObjectProperty(objProperty, nameSpace, thisProperty.getLocalName());
-            setDefaultAnnotations(owlProperty, thisProperty);
-            addEquivalentProperties(equivalentProperties, objProperty, owlProperty.getKey());
+            exprHelper.addEquivalentProperties(equivalentProperties, objProperty, owlProperty.getKey());
             owlProp = owlProperty;
             graph.addOwlProperty(owlProperty);
             ExtendedIterator declDomain = objProperty.listDomain();
@@ -478,8 +326,7 @@ public class GraphExtractor {
          } else if (thisProperty.isDatatypeProperty()) {
             DatatypeProperty datatypeProperty = (DatatypeProperty) thisProperty;
             OwlDatatypeProperty owlProperty = new OwlDatatypeProperty(datatypeProperty, nameSpace, thisProperty.getLocalName());
-            setDefaultAnnotations(owlProperty, thisProperty);
-            addEquivalentProperties(equivalentProperties, datatypeProperty, owlProperty.getKey());
+            exprHelper.addEquivalentProperties(equivalentProperties, datatypeProperty, owlProperty.getKey());
             ExtendedIterator declDomain = datatypeProperty.listDomain();
             if (!declDomain.hasNext()) {
                addToPropertyToClassMap(domainClassToProperties, owlProperty.getKey(), thingKey);
@@ -516,15 +363,20 @@ public class GraphExtractor {
                OntResource resource = resources.next();
                if (resource.isURIResource()) {
                   ElementKey tkey = new ElementKey(resource.getNameSpace(), resource.getLocalName());
-                  OwlDatatype dtype = new OwlDatatype(tkey);
+                  OwlDatatype dtype;
+                  if (graph.hasDatatype(tkey)) {
+                     dtype = graph.getDatatype(tkey);
+                  } else {
+                     dtype = new OwlDatatype(tkey);
+                     graph.addDatatype(dtype);
+                  }
                   owlProperty.addType(dtype);
                }
             }
             graph.addOwlProperty(owlProperty);
          } else if (thisProperty.isResource()) {
             Resource resource = thisProperty.asResource();
-            annotationkeys.add(ElementKey.create(thisProperty.getNameSpace(), thisProperty.getLocalName()));
-            graph.addAnnotation(new OwlAnnotation(resource));
+            graph.addElementAnnotation(new OwlAnnotation(resource));
          }
          if (owlProp != null) {
             getRestrictions(thisProperty, owlProp);
@@ -549,91 +401,68 @@ public class GraphExtractor {
             }
             hasThingClass = true;
          } else {
-            String nameSpace = thisClass.getNameSpace();
-            owlClass = new OwlClass(nameSpace, thisClass.getLocalName());
-            ExtendedIterator<OntProperty> declProp = thisClass.listDeclaredProperties();
-            while (declProp.hasNext()) {
-               OntProperty prop = declProp.next();
+            owlClass = new OwlClass(thisClass);
+            StmtIterator stmt = thisClass.listProperties();
+            while (stmt.hasNext()) {
+               Statement statement = stmt.next();
+               Property prop = statement.getPredicate();
                ElementKey theKey = ElementKey.create(prop.getNameSpace(), prop.getLocalName());
-               if (annotationkeys.contains(theKey)) {
-                  addAnnotationValue(thisClass, owlClass, theKey, prop);
-               }
-            }            
-            setDefaultAnnotations(owlClass, thisClass);
+               annotationsHelper.addAnnotationValue(thisClass, owlClass, theKey, prop);
+            }
          }
          if (owlClass != null) {
-            addEquivalentClasses(equivalentClasses, thisClass, owlClass.getKey());
             graph.addOwlClass(owlClass);
          }
       }
       if (!hasThingClass && addThingClass) {
          graph.addOwlClass(owlThingClass);
       }
-      fillEquivalentClasses(equivalentClasses);
-      fillEquivalentProperties(equivalentProperties);
-      
+
       Iterator<OwlProperty> it2 = graph.getOwlProperties().values().iterator();
       while (it2.hasNext()) {
          OwlProperty owlProperty = it2.next();
          if (owlProperty instanceof OwlObjectProperty) {
-            OwlObjectProperty _owlProperty = (OwlObjectProperty)owlProperty;
-            ObjectProperty objproperty = _owlProperty.getProperty();        
+            OwlObjectProperty _owlProperty = (OwlObjectProperty) owlProperty;
+            ObjectProperty objproperty = _owlProperty.getProperty();
             StmtIterator iterSmt = objproperty.listProperties();
             while (iterSmt.hasNext()) {
                Statement statement = iterSmt.next();
                Property predicate = statement.getPredicate();
                RDFNode node = statement.getObject();
                ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               if (annotationkeys.contains(theKey)) {
-                  addAnnotationValue(node, _owlProperty, theKey);
-               }               
+               annotationsHelper.addAnnotationValue(node, _owlProperty, theKey);
             }
          } else if (owlProperty instanceof OwlDatatypeProperty) {
-            OwlDatatypeProperty _owlProperty = (OwlDatatypeProperty)owlProperty;
-            DatatypeProperty datatypeProperty = _owlProperty.getProperty(); 
+            OwlDatatypeProperty _owlProperty = (OwlDatatypeProperty) owlProperty;
+            DatatypeProperty datatypeProperty = _owlProperty.getProperty();
             StmtIterator iterSmt = datatypeProperty.listProperties();
             while (iterSmt.hasNext()) {
                Statement statement = iterSmt.next();
                RDFNode node = statement.getObject();
                Property predicate = statement.getPredicate();
                ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               if (annotationkeys.contains(theKey)) {
-                  addAnnotationValue(node, _owlProperty, theKey);
-               }               
-            }            
-         }          
+               annotationsHelper.addAnnotationValue(node, _owlProperty, theKey);
+            }
+         }
       }
 
       // list individuals
-      if (BrowserConfiguration.getInstance().includeIndividuals) {
+      if (conf.includeIndividuals) {
          ExtendedIterator individuals = model.listIndividuals();
          while (individuals.hasNext()) {
             Individual thisIndividual = (Individual) individuals.next();
-            List<OntClass> theClasses = getOwlClasses(thisIndividual);
-            if (!theClasses.isEmpty()) {
-               Iterator<OntClass> it = theClasses.iterator();
-               Map<ElementKey, OwlClass> parentClasses = new HashMap<>();
-               while (it.hasNext()) {
-                  OntClass theClass = it.next();
-                  ElementKey theKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
-                  if (graph.hasOwlClass(theKey)) {
-                     OwlClass theOwlClass = graph.getOwlClass(theKey);
-                     parentClasses.put(theKey, theOwlClass);
-                  }
+            addIndividual(thisIndividual);
+         }
+         Iterator<OwlClass> itc = graph.getOwlClasses().values().iterator();
+         while (itc.hasNext()) {
+            OwlClass owlClass = itc.next();
+            OntClass theClass = owlClass.getOntClass();
+            if (theClass != null) {
+               individuals = model.listIndividuals(theClass);
+               while (individuals.hasNext()) {
+                  Individual thisIndividual = (Individual) individuals.next();
+                  addIndividual(thisIndividual);
                }
-               OwlIndividual owlIndividual = new OwlIndividual(parentClasses, thisIndividual);  
-            StmtIterator iterSmt = thisIndividual.listProperties();
-            while (iterSmt.hasNext()) {
-               Statement statement = iterSmt.next();
-               RDFNode node = statement.getObject();
-               Property predicate = statement.getPredicate();
-               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               if (annotationkeys.contains(theKey)) {
-                  addAnnotationValue(node, owlIndividual, theKey);
-               }               
-            }                
-               setDefaultAnnotations(owlIndividual, thisIndividual);
-               graph.addIndividual(owlIndividual);
             }
          }
       }
@@ -693,6 +522,29 @@ public class GraphExtractor {
          restriction.setup(graph);
       }
 
+      // equivalent classes
+      Iterator<OwlClass> ite = graph.getOwlClasses().values().iterator();
+      while (ite.hasNext()) {
+         OwlClass owlClass = ite.next();
+         OntClass thisClass = owlClass.getOntClass();
+         if (thisClass != null) {
+            exprHelper.addEquivalentClasses(equivalentClasses, thisClass, owlClass);
+         }
+      }
+
+      // add individuals property values
+      if (conf.includeIndividuals) {
+         Iterator<OwlIndividual> it = graph.getIndividuals().values().iterator();
+         while (it.hasNext()) {
+            OwlIndividual owlIndividual = it.next();
+            individualsHelper.addIndividualProperties(owlIndividual);
+         }
+      }
+
+      exprHelper.fillEquivalentClasses(equivalentClasses);
+      exprHelper.fillEquivalentProperties(equivalentProperties);
+      annotationsHelper.addDefaultAnnotations();
+
       if (showPackages) {
          PackagesExtractor pExtractor = new PackagesExtractor(graph);
          Map<ElementKey, OwlClass> packages = pExtractor.extractPackages();
@@ -702,79 +554,41 @@ public class GraphExtractor {
       return graph;
    }
 
-   private void fillEquivalentClasses(Map<ElementKey, Set<ElementKey>> equivalentKeys) {
-      Iterator<Entry<ElementKey, Set<ElementKey>>> it = equivalentKeys.entrySet().iterator();
-      while (it.hasNext()) {
-         Entry<ElementKey, Set<ElementKey>> entry = it.next();
-         Set<ElementKey> set = entry.getValue();
-         if (!set.isEmpty()) {
-            OwlClass thisClass = graph.getOwlClass(entry.getKey());
-            Iterator<ElementKey> it2 = set.iterator();
-            while (it2.hasNext()) {
-               ElementKey theKey = it2.next();
-               if (graph.hasOwlClass(theKey)) {
-                  OwlClass theOtherClass = graph.getOwlClass(theKey);
-                  thisClass.addEquivalentClass(theOtherClass);
-               }
+   private void addIndividual(Individual individual) {
+      if (individual.getLocalName() == null) {
+         List<OntClass> theClasses = getOwlClasses(individual);
+         if (!theClasses.isEmpty()) {
+            OntClass ontClass = theClasses.get(0);
+            addError("individual.class.noname", ontClass.getLocalName());
+         } else {
+            addError("individual.noname");
+         }
+         return;
+      }
+      List<OntClass> theClasses = getOwlClasses(individual);
+      if (!theClasses.isEmpty()) {
+         Iterator<OntClass> it = theClasses.iterator();
+         Map<ElementKey, OwlClass> parentClasses = new HashMap<>();
+         while (it.hasNext()) {
+            OntClass theClass = it.next();
+            ElementKey theKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
+            if (graph.hasOwlClass(theKey)) {
+               OwlClass theOwlClass = graph.getOwlClass(theKey);
+               parentClasses.put(theKey, theOwlClass);
             }
          }
-      }
-   }
-
-   private void fillEquivalentProperties(Map<ElementKey, Set<ElementKey>> equivalentKeys) {
-      Iterator<Entry<ElementKey, Set<ElementKey>>> it = equivalentKeys.entrySet().iterator();
-      while (it.hasNext()) {
-         Entry<ElementKey, Set<ElementKey>> entry = it.next();
-         Set<ElementKey> set = entry.getValue();
-         if (!set.isEmpty()) {
-            OwlProperty thisProperty = graph.getOwlProperty(entry.getKey());
-            Iterator<ElementKey> it2 = set.iterator();
-            while (it2.hasNext()) {
-               ElementKey theKey = it2.next();
-               if (graph.hasOwlProperty(theKey)) {
-                  OwlProperty theOtherProperty = graph.getOwlProperty(theKey);
-                  thisProperty.addEquivalentProperty(theOtherProperty);
-               }
+         OwlIndividual owlIndividual = new OwlDeclaredIndividual(parentClasses, individual);
+         if (!graph.hasIndividual(owlIndividual.getKey())) {
+            StmtIterator iterSmt = individual.listProperties();
+            while (iterSmt.hasNext()) {
+               Statement statement = iterSmt.next();
+               RDFNode node = statement.getObject();
+               Property predicate = statement.getPredicate();
+               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+               annotationsHelper.addAnnotationValue(node, owlIndividual, theKey);
             }
+            graph.addIndividual(owlIndividual);
          }
-      }
-   }
-
-   private void addEquivalentProperties(Map<ElementKey, Set<ElementKey>> equivalentProperties, OntProperty thisProperty, ElementKey key) {
-      Set<ElementKey> set;
-      if (equivalentProperties.containsKey(key)) {
-         set = equivalentProperties.get(key);
-      } else {
-         set = new HashSet<>();
-         equivalentProperties.put(key, set);
-      }
-      ExtendedIterator<? extends OntProperty> it = thisProperty.listEquivalentProperties();
-      while (it.hasNext()) {
-         OntProperty theProperty = it.next();
-         if (theProperty.getNameSpace() == null && theProperty.getLocalName() == null) {
-            continue;
-         }
-         ElementKey otherKey = new ElementKey(theProperty.getNameSpace(), theProperty.getLocalName());
-         set.add(otherKey);
-      }
-   }
-
-   private void addEquivalentClasses(Map<ElementKey, Set<ElementKey>> equivalentClasses, OntClass thisClass, ElementKey key) {
-      Set<ElementKey> set;
-      if (equivalentClasses.containsKey(key)) {
-         set = equivalentClasses.get(key);
-      } else {
-         set = new HashSet<>();
-         equivalentClasses.put(key, set);
-      }
-      ExtendedIterator<OntClass> it = thisClass.listEquivalentClasses();
-      while (it.hasNext()) {
-         OntClass theClass = it.next();
-         if (thisClass.getNameSpace() == null && thisClass.getLocalName() == null) {
-            continue;
-         }
-         ElementKey otherKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
-         set.add(otherKey);
       }
    }
 

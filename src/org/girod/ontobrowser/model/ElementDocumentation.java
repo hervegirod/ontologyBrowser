@@ -33,13 +33,14 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 /**
- * Represents any element documenttation.
+ * Represents any element documentation.
  *
- * @since 0.6
+ * @version 0.7
  */
 public class ElementDocumentation {
    private String desc = null;
    private String comments = null;
+   private String label = null;
    private String versionInfo = null;
    private AnnotationValue isDefinedBy = null;
    private AnnotationValue seeAlso = null;
@@ -144,6 +145,33 @@ public class ElementDocumentation {
    public String getVersionInfo() {
       return versionInfo;
    }
+   
+   /**
+    * Set the label information.
+    *
+    * @param label the label information
+    */
+   public void setLabel(String label) {
+      this.label = label;
+   }
+   
+   /**
+    * Return true if the element has a label.
+    *
+    * @return true if the element has a label
+    */
+   public boolean hasLabel() {
+      return label != null;
+   }    
+
+   /**
+    * Return the label information.
+    *
+    * @return the label information
+    */
+   public String getLabel() {
+      return label;
+   }   
    
    /**
     * Set the isDefinedBy literal.

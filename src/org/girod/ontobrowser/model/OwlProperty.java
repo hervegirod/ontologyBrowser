@@ -34,6 +34,7 @@ package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.jena.ontology.OntProperty;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 
@@ -41,9 +42,9 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.5
+ * @version 0.7
  */
-public abstract class OwlProperty<T> extends NamedOwlElement {
+public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
    private int minCardinality = 0;
    private int maxCardinality = -1;

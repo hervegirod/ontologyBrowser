@@ -44,6 +44,7 @@ import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
+import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
@@ -51,35 +52,41 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 /**
  * A tree cell renderer.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class ModelTreeRenderer extends DefaultTreeCellRenderer {
    private static final Icon PACKAGE_ICON;
    private static final Icon CLASS_ICON;
+   private static final Icon CLASS_EQUIV_ICON;
    private static final Icon DATAPROPERTY_ICON;
    private static final Icon OBJECTPROPERTY_ICON;
    private static final Icon INDIVIDUAL_ICON;
    private static final Icon UNDEF_ICON;
    private static final Icon PACKAGE_COMMENTS_ICON;
    private static final Icon CLASS_COMMENTS_ICON;
+   private static final Icon CLASS_EQUIV_COMMENTS_ICON;
    private static final Icon DATAPROPERTY_COMMENTS_ICON;
    private static final Icon OBJECTPROPERTY_COMMENTS_ICON;
    private static final Icon INDIVIDUAL_COMMENTS_ICON;
    private static final Icon ANNOTATION_ICON;
+   private static final Icon DATATYPE_ICON;
    private boolean showCommentedElements = false;
 
    static {
       PACKAGE_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("package.gif"));
       CLASS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("class.gif"));
+      CLASS_EQUIV_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classequiv.png"));
       DATAPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydata.png"));
       OBJECTPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobject.png"));
       INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
       PACKAGE_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("packagedoc.png"));
       CLASS_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classdoc.png"));
+      CLASS_EQUIV_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classequivdoc.png"));
       DATAPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydatadoc.png"));
       OBJECTPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobjectdoc.png"));
       INDIVIDUAL_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individualdoc.png"));
       ANNOTATION_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("annotation.png"));
+      DATATYPE_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("datatype.png"));
       UNDEF_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("undef.png"));
    }
 
@@ -145,40 +152,51 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
          if (rep.isPackage()) {
             NamedOwlElement elt = rep.getOwlElement();
             boolean showComments = showCommentedElements && elt.hasDescriptionOrComments();
-               if (showComments) {
-                  return PACKAGE_COMMENTS_ICON;
-               } else {
-                  return PACKAGE_ICON;
-               }                
+            if (showComments) {
+               return PACKAGE_COMMENTS_ICON;
+            } else {
+               return PACKAGE_ICON;
+            }
          } else {
             NamedOwlElement elt = rep.getOwlElement();
             boolean showComments = showCommentedElements && elt.hasDescriptionOrComments();
             if (elt instanceof OwlClass) {
-               if (showComments) {
-                  return CLASS_COMMENTS_ICON;
+               OwlClass theClass = (OwlClass) elt;
+               if (theClass.isEquivalentClass()) {
+                  if (showComments) {
+                     return CLASS_EQUIV_COMMENTS_ICON;
+                  } else {
+                     return CLASS_EQUIV_ICON;
+                  }
                } else {
-                  return CLASS_ICON;
+                  if (showComments) {
+                     return CLASS_COMMENTS_ICON;
+                  } else {
+                     return CLASS_ICON;
+                  }
                }
             } else if (elt instanceof OwlIndividual) {
                if (showComments) {
                   return INDIVIDUAL_COMMENTS_ICON;
                } else {
                   return INDIVIDUAL_ICON;
-               }               
+               }
             } else if (elt instanceof OwlDatatypeProperty) {
                if (showComments) {
                   return DATAPROPERTY_COMMENTS_ICON;
                } else {
                   return DATAPROPERTY_ICON;
-               }                 
+               }
             } else if (elt instanceof OwlObjectProperty) {
                if (showComments) {
-                  return  OBJECTPROPERTY_COMMENTS_ICON;
+                  return OBJECTPROPERTY_COMMENTS_ICON;
                } else {
                   return OBJECTPROPERTY_ICON;
-               }    
+               }
             } else if (elt instanceof OwlAnnotation) {
-                  return ANNOTATION_ICON;                   
+               return ANNOTATION_ICON;
+            } else if (elt instanceof OwlDatatype) {
+               return DATATYPE_ICON;
             } else {
                return UNDEF_ICON;
             }

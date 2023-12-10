@@ -45,8 +45,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -54,16 +52,25 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import org.apache.jena.ontology.OntModel;
+import org.girod.ontobrowser.actions.ExecuteSPARQLAction;
 import org.girod.ontobrowser.actions.ExportGraphAction;
+import org.girod.ontobrowser.actions.OntologyMetadataViewer;
 import org.girod.ontobrowser.actions.OpenInYedAction;
 import org.girod.ontobrowser.actions.OpenModelAction;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchDialog;
 import org.girod.ontobrowser.gui.search.SearchOptions;
+import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdi.app.swing.AbstractMDIMenuFactory;
+import org.mdi.app.swing.DefaultMDIDialogBuilder;
+import org.mdi.app.swing.DefaultMDIDialogBuilder.DialogListener;
 import org.mdi.bootstrap.MDIDialogType;
+import org.mdi.bootstrap.swing.MDIDialogBuilder;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdi.gui.swing.AbstractSettingsAction;
 import org.mdi.gui.swing.DefaultSettingsAction;
@@ -74,12 +81,13 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This class creates the Menus for the application.
  *
- * @version 0.5
+ * @version 0.7
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
    private final JMenu helpmenu = new JMenu("Help");
    private final JMenu toolsmenu = new JMenu("Tools");
+   private final JMenu viewmenu = new JMenu("View");
    private final JMenu optionsmenu = new JMenu("Options");
    private AbstractAction aboutAction;
    private AbstractAction openInYedAction = null;
@@ -195,7 +203,15 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
       JMenu layoutMenu = new JMenu("Layout");
       createLayoutMenu(layoutMenu);
-      toolsmenu.add(layoutMenu);
+      viewmenu.add(layoutMenu);
+
+      AbstractAction sparqlAction = new AbstractAction("Execute SPARQL") {
+         @Override
+         public void actionPerformed(ActionEvent ae) {
+            executeSPARQL();
+         }
+      };
+      toolsmenu.add(sparqlAction);
 
       JMenuItem openItem = new JMenuItem(openAction);
       JMenuItem exportItem = new JMenuItem(exportAction);
@@ -220,6 +236,8 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       settingsAction.getSettingsComponent().setPreferredSize(new Dimension(700, 500));
       settingsAction.initialize();
       settingsAction.addNode(null, "General", settings.getGeneralSettings(), null);
+      settingsAction.addNode(null, "Schemas", settings.getSchemasSettings(), null);
+      settingsAction.addNode(null, "SPARQL", settings.getSPARQLSettings(), null);
       settingsAction.addNode(null, "Style", settings.getStyleSettings(), null);
       settingsAction.addNode(null, "Packages", settings.getPackageSettings(), null);
       settingsAction.addNode(null, "yEd", settings.getYedSettings(), null);
@@ -239,14 +257,57 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       Mbar.add(filemenu);
       Mbar.add(optionsmenu);
       Mbar.add(toolsmenu);
+      Mbar.add(viewmenu);
       Mbar.add(helpmenu);
    }
-   
+
+   @Override
+   public void createPopupMenu(JPopupMenu menu) {
+      JMenuItem showOntologyItem = new JMenuItem("Show Ontology");
+      showOntologyItem.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            showOntology();
+         }
+      });
+      menu.add(showOntologyItem);
+   }
+
+   private void showOntology() {
+      OntologyMetadataViewer viewer = new OntologyMetadataViewer();
+      viewer.showOntologyMetadata(appli);
+   }
+
    @Override
    public void updateMenus() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       openInYedAction.setEnabled(conf.hasYedExeDirectory() && conf.getYedExeDirectory() != null);
-   }   
+   }
+
+   private void executeSPARQL() {
+      OwlDiagram elt = getElement();
+      if (elt != null) {
+         OwlSchema schema = elt.getSchema();
+         DefaultMDIDialogBuilder builder = new DefaultMDIDialogBuilder("SPARQL Window");
+         JTextArea area = new JTextArea(40, 30);
+         builder.setResizable(true);
+         builder.addVerticalDialogPart(area);
+         builder.setDialogType(MDIDialogBuilder.YES_CANCEL_DIALOG);
+         builder.setYesLabel("Apply");
+         builder.setListener(new DialogListener() {
+            @Override
+            public void apply() {
+               applySPARQL(schema, area.getText());
+            }
+         });
+         appli.showDialog(builder, MDIDialogType.UNIQUE_INSTANCE);
+      }
+   }
+
+   private void applySPARQL(OwlSchema schema, String sparql) {
+      ExecuteSPARQLAction sparqlAction = new ExecuteSPARQLAction(appli, schema, sparql);
+      appli.executeAction(sparqlAction);
+   }
 
    private void centerGraph() {
       OwlDiagram elt = getElement();

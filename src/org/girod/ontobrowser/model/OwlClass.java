@@ -32,9 +32,11 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.jena.ontology.OntClass;
@@ -43,7 +45,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Represents an Owl class.
  *
- * @version 0.5
+ * @version 0.7
  */
 public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();
@@ -51,6 +53,7 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, OwlClass> superClasses = new HashMap<>();
    private final Map<ElementKey, OwlClass> subClasses = new HashMap<>();
    private boolean hasDefinedSuperClass = false;
+   private OntClass ontClass = null;
    private boolean isPackage = false;
    private ElementKey packageKey = null;
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
@@ -58,13 +61,24 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, OwlProperty> toProperties = new HashMap<>();
    private final Map<ElementKey, OwlClass> aliasClasses = new HashMap<>();
    private final Map<ElementKey, OwlClass> classFromAlias = new HashMap<>();
+   private final List<OwlEquivalentExpression> equivalentExpressions = new ArrayList<>();
 
    public OwlClass(OntClass ontClass) {
       super(ontClass.getNameSpace(), ontClass.getLocalName());
+      this.ontClass = ontClass;
    }
 
    public OwlClass(String namespace, String name) {
       super(namespace, name);
+   }
+
+   /**
+    * Return the underlying OntClass.
+    *
+    * @return the OntClass
+    */
+   public OntClass getOntClass() {
+      return ontClass;
    }
 
    /**
@@ -307,15 +321,62 @@ public class OwlClass extends NamedOwlElement {
    }
 
    /**
-    * Return the map of equivalent (alias) classes.
+    * Add an equivalent expression.
     *
-    * @return the equivalent classes
+    * @param expression the expression
     */
-   public Map<ElementKey, OwlClass> getEquivalentClasses() {
+   public void addEquivalentExpression(OwlEquivalentExpression expression) {
+      this.equivalentExpressions.add(expression);
+      Iterator<NamedOwlElement> it = expression.getElements().values().iterator();
+      while (it.hasNext()) {
+         NamedOwlElement element = it.next();
+         element.addInEquivalentExpression(this);
+      }
+   }
+
+   /**
+    * Return the list of equivalent expressions.
+    *
+    * @return the equivalent expressions
+    */
+   public List<OwlEquivalentExpression> getEquivalentExpressions() {
+      return equivalentExpressions;
+   }
+
+   /**
+    * Return true if this owl Class has quivalent expressions.
+    *
+    * @return true if this owl Class has quivalent expressions
+    */
+   public boolean hasEquivalentExpressions() {
+      return !equivalentExpressions.isEmpty();
+   }
+
+   /**
+    * Return the elements which are in equivalent expressions.
+    *
+    * @return the elements map
+    */
+   public Map<ElementKey, NamedOwlElement> getElementsInEquivalentExpressions() {
+      Map<ElementKey, NamedOwlElement> map = new HashMap<>();
+      Iterator<OwlEquivalentExpression> it = equivalentExpressions.iterator();
+      while (it.hasNext()) {
+         OwlEquivalentExpression expression = it.next();
+         map.putAll(expression.getElements());
+      }
+      return map;
+   }
+
+   /**
+    * Return the map of alias classes.
+    *
+    * @return the alias classes
+    */
+   public Map<ElementKey, OwlClass> getAliasClasses() {
       return aliasClasses;
    }
 
-   public boolean hasEquivalentClasses() {
+   public boolean hasAliasClasses() {
       return !aliasClasses.isEmpty();
    }
 
@@ -365,6 +426,15 @@ public class OwlClass extends NamedOwlElement {
 
    public boolean hasOwlProperties() {
       return !properties.isEmpty();
+   }
+
+   /**
+    * Return true if this class has equivalent expressions.
+    *
+    * @return true if this class has equivalent expressions.
+    */
+   public boolean isEquivalentClass() {
+      return !aliasClasses.isEmpty() || !classFromAlias.isEmpty() || !equivalentExpressions.isEmpty();
    }
 
 }

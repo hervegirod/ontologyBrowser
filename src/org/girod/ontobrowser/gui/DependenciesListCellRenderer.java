@@ -121,7 +121,7 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
          boolean from = bridge.isFromProperty();
          StringBuilder buf = new StringBuilder();
          buf.append("<html>");
-         buf.append("<b>").append(property.getName());
+         buf.append("<b>").append(property.getDisplayedName());
          Map<ElementKey, OwlRestriction> restrictions;
          if (from) {
             buf.append(" <font color=\"blue\">from Domain</font></b> <i>");
@@ -144,7 +144,7 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
          OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty) property;
          StringBuilder buf = new StringBuilder();
          buf.append("<html>");
-         buf.append("<b>").append(property.getName()).append("</b>");
+         buf.append("<b>").append(property.getDisplayedName()).append("</b>");
          buf.append(" <i>");
          Iterator<OwlDatatype> it = datatypeproperty.getTypes().values().iterator();
          while (it.hasNext()) {

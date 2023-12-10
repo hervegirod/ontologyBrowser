@@ -39,7 +39,7 @@ import org.apache.jena.ontology.DatatypeProperty;
 /**
  * Represents an Owl Datatype property.
  *
- * @version 0.4
+ * @version 0.7
  */
 public class OwlDatatypeProperty extends OwlProperty<DatatypeProperty> {
    private OwlClass owlClass = null;
@@ -48,7 +48,7 @@ public class OwlDatatypeProperty extends OwlProperty<DatatypeProperty> {
    public OwlDatatypeProperty(DatatypeProperty ontProperty, String namespace, String name) {
       super(ontProperty, namespace, name);
    }
-
+   
    public void setOwlClass(OwlClass owlClass) {
       this.owlClass = owlClass;
    }

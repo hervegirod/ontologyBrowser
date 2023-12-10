@@ -33,12 +33,14 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 
 /**
  * The element key, with a name and namespace.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializable {
    public static final String XML_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
@@ -71,6 +73,26 @@ public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializab
          } else {
             return prefix + ":" + name;
          }
+      }
+   }
+
+   public URI toURI() {
+      String uriAsString = namespace + name;
+      try {
+         return new URI(uriAsString);
+      } catch (URISyntaxException ex) {
+         return null;
+      }
+   }
+
+   public static ElementKey createFromURI(String uriAsString) {
+      if (uriAsString.contains("#")) {
+         int index = uriAsString.indexOf("#");
+         String namespace = uriAsString.substring(0, index + 1);
+         String name = uriAsString.substring(index + 1);
+         return create(namespace, name);
+      } else {
+         return null;
       }
    }
 

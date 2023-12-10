@@ -39,7 +39,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * Represents an Owl element represented in its tree.
  *
- * @version 0.5
+ * @version 0.7
  */
 public class OwlElementRep {
    private final NamedOwlElement element;
@@ -48,7 +48,7 @@ public class OwlElementRep {
 
    public OwlElementRep(NamedOwlElement element, OwlSchema schema) {
       this.element = element;
-      this.name = element.getName();
+      this.name = element.getDisplayedName();
       this.prefix = schema.getPrefix(element.getNamespace());
    }
 
@@ -62,7 +62,7 @@ public class OwlElementRep {
 
    @Override
    public String toString() {
-      if (prefix == null) {
+      if (prefix == null || prefix.isEmpty()) {
          return name;
       } else {
          return prefix + ":" + name;

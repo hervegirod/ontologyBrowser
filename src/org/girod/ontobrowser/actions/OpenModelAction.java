@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import org.girod.ontobrowser.graph.GraphExtractor;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -66,6 +67,7 @@ import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.gui.GraphPanel;
+import org.girod.ontobrowser.gui.errors.SwingErrorLogger;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
@@ -85,7 +87,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -97,6 +99,7 @@ public class OpenModelAction extends AbstractMDIAction {
    private Map<ElementKey, mxCell> cell4Class = null;
    private static final String FONT_FAMILY = "Dialog";
    private static final int FONT_SIZE = 11;
+   private boolean showAlias = false;
    private short owlRepresentationType = OwlRepresentationType.TYPE_UNDEFINED;
 
    /**
@@ -111,6 +114,7 @@ public class OpenModelAction extends AbstractMDIAction {
       super(app, "Open");
       this.file = file;
       this.name = FileUtilities.getFileNameBody(file);
+      this.showAlias = BrowserConfiguration.getInstance().showAlias;
       this.setDescription(desc, longDesc);
    }
 
@@ -227,6 +231,10 @@ public class OpenModelAction extends AbstractMDIAction {
 
          graphPanel = new GraphPanel((GUIApplication) app);
          graphPanel.setDiagram(diagram);
+         if (extractor.hasErrors()) {
+            SwingErrorLogger logger = new SwingErrorLogger();
+            logger.showParserExceptions(extractor.getErrors());
+         }
       } catch (OntologyException ex) {
          JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);
       } catch (RiotException ex) {
@@ -301,6 +309,19 @@ public class OpenModelAction extends AbstractMDIAction {
       styles.put(mxConstants.STYLE_EDGE, mxConstants.EDGESTYLE_SIDETOSIDE);
       stylesheet.putCellStyle("property", styles);
 
+      styles = new HashMap<>(styles);
+      styles.put(mxConstants.STYLE_STARTARROW, mxConstants.NONE);
+      styles.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+      styles.put(mxConstants.STYLE_ENDFILL, "white");
+      styles.put(mxConstants.STYLE_FONTSIZE, 11);
+      styles.put(mxConstants.STYLE_DASHED, true);
+      styles.put(mxConstants.STYLE_FILL_OPACITY, 0);
+      styles.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR);
+      styles.put(mxConstants.STYLE_ENDSIZE, 10);
+      styles.put(mxConstants.STYLE_ROUNDED, true);
+      styles.put(mxConstants.STYLE_EDGE, mxConstants.EDGESTYLE_SIDETOSIDE);
+      stylesheet.putCellStyle("alias", styles);
+
       styles = stylesheet.getDefaultVertexStyle();
       styles = new HashMap<>(styles);
       styles.put(mxConstants.STYLE_FILLCOLOR, customStyles.getBackgroundColorAsString(CustomGraphStyles.CLASS));
@@ -346,8 +367,8 @@ public class OpenModelAction extends AbstractMDIAction {
       Iterator<OwlClass> it = owlClasses.values().iterator();
       while (it.hasNext()) {
          OwlClass owlClass = it.next();
-         Dimension d = LabelUtils.getDimension(owlClass.getName(), FONT_SIZE, FONT_FAMILY);
-         mxCell classCell = (mxCell) graph.insertVertex(parent, null, owlClass.getName(), 0, 100, d.width, d.height);
+         Dimension d = LabelUtils.getDimension(owlClass.getDisplayedName(), FONT_SIZE, FONT_FAMILY);
+         mxCell classCell = (mxCell) graph.insertVertex(parent, null, owlClass.getDisplayedName(), 0, 100, d.width, d.height);
          classCell.setStyle("class");
          allCells.add(classCell);
          ElementKey key = owlClass.getKey();
@@ -359,8 +380,8 @@ public class OpenModelAction extends AbstractMDIAction {
             Iterator<OwlIndividual> it2 = owlClass.getIndividuals().values().iterator();
             while (it2.hasNext()) {
                OwlIndividual individual = it2.next();
-               d = LabelUtils.getDimension(individual.getName(), FONT_SIZE, FONT_FAMILY);
-               mxCell individualCell = (mxCell) graph.insertVertex(parent, null, individual.getName(), 0, 100, d.width, d.height);
+               d = LabelUtils.getDimension(individual.getDisplayedName(), FONT_SIZE, FONT_FAMILY);
+               mxCell individualCell = (mxCell) graph.insertVertex(parent, null, individual.getDisplayedName(), 0, 100, d.width, d.height);
                individualCell.setStyle("individual");
                mxCell edge = (mxCell) graph.insertEdge(parent, null, "", classCell, individualCell);
                edge.setStyle("property");
@@ -383,14 +404,23 @@ public class OpenModelAction extends AbstractMDIAction {
                edge.setStyle("parent");
             }
          }
+         if (showAlias && theClass.hasAliasClasses()) {
+            Iterator<ElementKey> it4 = theClass.getAliasClasses().keySet().iterator();
+            while (it4.hasNext()) {
+               ElementKey keyAlias = it4.next();
+               mxCell theAliasCell = cell4Class.get(keyAlias);
+               mxCell edge = (mxCell) graph.insertEdge(parent, null, "", theCell, theAliasCell);
+               edge.setStyle("alias");               
+            }
+         }
       }
 
       // datatype properties
       Iterator<OwlDatatypeProperty> it3 = owlDatatypeProperties.values().iterator();
       while (it3.hasNext()) {
          OwlDatatypeProperty datatypeProperty = it3.next();
-         Dimension d = LabelUtils.getDimension(datatypeProperty.getName(), FONT_SIZE, FONT_FAMILY);
-         mxCell propertyCell = (mxCell) graph.insertVertex(parent, null, datatypeProperty.getName(), 0, 100, d.width, d.height);
+         Dimension d = LabelUtils.getDimension(datatypeProperty.getDisplayedName(), FONT_SIZE, FONT_FAMILY);
+         mxCell propertyCell = (mxCell) graph.insertVertex(parent, null, datatypeProperty.getDisplayedName(), 0, 100, d.width, d.height);
          allCells.add(propertyCell);
          propertyCell.setStyle("dataProperty");
          ElementKey key = datatypeProperty.getKey();
@@ -414,7 +444,7 @@ public class OpenModelAction extends AbstractMDIAction {
                   ElementKey propKey = it5.next();
                   if (owlClasses.containsKey(propKey)) {
                      mxCell rangeCell = cell4Class.get(propKey);
-                     mxCell edge = (mxCell) graph.insertEdge(parent, null, objectProp.getName(), theCell, rangeCell);
+                     mxCell edge = (mxCell) graph.insertEdge(parent, null, objectProp.getDisplayedName(), theCell, rangeCell);
                      edge.setStyle("property");
                   }
                }
@@ -423,7 +453,7 @@ public class OpenModelAction extends AbstractMDIAction {
                ElementKey propKey = datatypeProp.getKey();
                if (cell4Dataproperty.containsKey(propKey)) {
                   mxCell rangeCell = cell4Dataproperty.get(propKey);
-                  mxCell edge = (mxCell) graph.insertEdge(parent, null, datatypeProp.getName(), theCell, rangeCell);
+                  mxCell edge = (mxCell) graph.insertEdge(parent, null, datatypeProp.getDisplayedName(), theCell, rangeCell);
                   edge.setStyle("property");
                }
 

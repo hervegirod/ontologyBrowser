@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions;
+package org.girod.ontobrowser.graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * This class attempt to extract packages from the class hierarchy.
  *
- * @version 0.5
+ * @version 0.7
  */
 public class PackagesExtractor {
    private final OwlSchema schema;

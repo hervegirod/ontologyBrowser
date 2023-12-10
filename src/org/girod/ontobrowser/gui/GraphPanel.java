@@ -39,6 +39,7 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -57,6 +58,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -65,6 +67,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -81,6 +85,7 @@ import org.girod.ontobrowser.model.ElementTypes;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
+import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -91,9 +96,9 @@ import org.mdiutil.io.FileUtilities;
 /**
  * The panel for one ontology graph.
  *
- * @version 0.6
+ * @version 0.7
  */
-public class GraphPanel extends JSplitPane {
+public class GraphPanel extends JSplitPane implements GUITabTypes {
    private final GUIApplication browser;
    // Classes tree
    private final DefaultMutableTreeNode thingRoot = new DefaultMutableTreeNode("Thing");
@@ -101,17 +106,21 @@ public class GraphPanel extends JSplitPane {
    private final DefaultTreeModel classTreeModel = new DefaultTreeModel(thingRoot);
    private final JTree classTree = new JTree(classTreeModel);
    // Properties tree
-   private final DefaultMutableTreeNode propertiesRoot = new DefaultMutableTreeNode("Properties");
-   private final DefaultMutableTreeNode dataPropertiesRoot = new DefaultMutableTreeNode("Data Properties");
-   private final DefaultMutableTreeNode objectPropertiesRoot = new DefaultMutableTreeNode("Object Properties");
+   private final DefaultMutableTreeNode propertiesRoot = new DefaultMutableTreeNode(PROPERTIES_NAME);
+   private final DefaultMutableTreeNode dataPropertiesRoot = new DefaultMutableTreeNode(DATA_PROPERTIES_NAME);
+   private final DefaultMutableTreeNode objectPropertiesRoot = new DefaultMutableTreeNode(OBJECT_PROPERTIES_NAME);
    private final DefaultTreeModel propertiesTreeModel = new DefaultTreeModel(propertiesRoot);
    private final JTree propertiesTree = new JTree(propertiesTreeModel);
    // Annotations tree
-   private final DefaultMutableTreeNode annotationsRoot = new DefaultMutableTreeNode("Annotations");
+   private final DefaultMutableTreeNode annotationsRoot = new DefaultMutableTreeNode(ANNOTATIONS_NAME);
    private final DefaultTreeModel annotationsTreeModel = new DefaultTreeModel(annotationsRoot);
    private final JTree annotationsTree = new JTree(annotationsTreeModel);
+   // Datatypes tree
+   private final DefaultMutableTreeNode datatypesRoot = new DefaultMutableTreeNode(DATATYPES_NAME);
+   private final DefaultTreeModel datatypesTreeModel = new DefaultTreeModel(datatypesRoot);
+   private final JTree datatypesTree = new JTree(datatypesTreeModel);
    // Individuals tree
-   private final DefaultMutableTreeNode individualsRoot = new DefaultMutableTreeNode("Individuals");
+   private final DefaultMutableTreeNode individualsRoot = new DefaultMutableTreeNode(INDIVIDUALS_NAME);
    private final DefaultTreeModel individualsTreeModel = new DefaultTreeModel(individualsRoot);
    private final JTree individualsTree = new JTree(individualsTreeModel);
    // Packages tree
@@ -124,12 +133,14 @@ public class GraphPanel extends JSplitPane {
    private mxGraphComponent graphComp = null;
    private final JSplitPane contentpanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
    private final JPanel diagramPanel = new JPanel();
-   private JPanel componentPanel = new JPanel();
+   private final JPanel defaultComponentPanel = new JPanel();
    private ComponentPanelFactory panelFactory = null;
    private OwlElementRep selectedElement = null;
+   private boolean autoTabChange = false;
    private final Map<ElementKey, DefaultMutableTreeNode> keyToClassNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToPropertyNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToAnnotationNode = new HashMap<>();
+   private final Map<ElementKey, DefaultMutableTreeNode> keyToDatatypeNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToIndividualNode = new HashMap<>();
 
    public GraphPanel(GUIApplication browser) {
@@ -143,6 +154,7 @@ public class GraphPanel extends JSplitPane {
       toolTipmanager.registerComponent(classTree);
       toolTipmanager.registerComponent(propertiesTree);
       toolTipmanager.registerComponent(individualsTree);
+      toolTipmanager.registerComponent(datatypesTree);
    }
 
    /**
@@ -191,6 +203,15 @@ public class GraphPanel extends JSplitPane {
    }
 
    /**
+    * Return the Owl datatypes tree.
+    *
+    * @return the Owl datatypes tree
+    */
+   public JTree getDatatypesTree() {
+      return datatypesTree;
+   }
+
+   /**
     * Return the Owl individuals tree.
     *
     * @return the Owl individuals tree
@@ -219,25 +240,35 @@ public class GraphPanel extends JSplitPane {
          case ElementTypes.CLASS:
             classTree.setSelectionPath(path);
             classTree.scrollPathToVisible(path);
-            modelTab.setSelectedIndex(0);
+            autoSelectTab(TAB_CLASS_INDEX);
             break;
          case ElementTypes.PROPERTY:
          case ElementTypes.DATAPROPERTY:
          case ElementTypes.OBJECTPROPERTY:
             propertiesTree.setSelectionPath(path);
             propertiesTree.scrollPathToVisible(path);
-            modelTab.setSelectedIndex(1);
+            autoSelectTab(TAB_PROPERTY_INDEX);
             break;
          case ElementTypes.ANNOTATION:
             annotationsTree.setSelectionPath(path);
             annotationsTree.scrollPathToVisible(path);
-            modelTab.setSelectedIndex(2);
+            autoSelectTab(TAB_ANNOTATION_INDEX);
+         case ElementTypes.DATATYPE:
+            datatypesTree.setSelectionPath(path);
+            datatypesTree.scrollPathToVisible(path);
+            autoSelectTab(TAB_DATATYPE_INDEX);
          case ElementTypes.INDIVIDUAL:
             individualsTree.setSelectionPath(path);
             individualsTree.scrollPathToVisible(path);
-            modelTab.setSelectedIndex(3);
+            autoSelectTab(TAB_INDIVIDUAL_INDEX);
             break;
       }
+   }
+
+   private void autoSelectTab(int index) {
+      autoTabChange = true;
+      modelTab.setSelectedIndex(index);
+      autoTabChange = false;
    }
 
    public DefaultMutableTreeNode getNode(NamedOwlElement elt) {
@@ -256,7 +287,7 @@ public class GraphPanel extends JSplitPane {
    public void setDiagram(OwlDiagram diagram) {
       this.diagram = diagram;
       this.schema = diagram.getSchema();
-      panelFactory = new ComponentPanelFactory(schema);
+      panelFactory = new ComponentPanelFactory(this, schema);
 
       mxGraph graph = diagram.getGraph();
       mxStylesheet stylesheet = graph.getStylesheet();
@@ -282,6 +313,7 @@ public class GraphPanel extends JSplitPane {
       computeClassTree();
       computePropertiesTree();
       computeAnnotationsTree();
+      computeDatatypesTree();
       computeIndividualsTree();
 
       // expands rows for the trees
@@ -292,7 +324,7 @@ public class GraphPanel extends JSplitPane {
 
       this.setRightComponent(contentpanel);
       contentpanel.setTopComponent(diagramPanel);
-      contentpanel.setBottomComponent(componentPanel);
+      contentpanel.setBottomComponent(defaultComponentPanel);
       contentpanel.setDividerLocation(400);
       if (schema.hasPackages()) {
          JSplitPane classTreePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -300,20 +332,44 @@ public class GraphPanel extends JSplitPane {
          classTreePane.setBottomComponent(new JScrollPane(packagesTree));
          classTreePane.setDividerLocation(250);
          modelTab = new JTabbedPane();
-         modelTab.add("Classes", classTreePane);
-         modelTab.add("Properties", new JScrollPane(propertiesTree));
-         modelTab.add("Annotations", new JScrollPane(annotationsTree));
-         modelTab.add("Individuals", new JScrollPane(individualsTree));
+         modelTab.add(CLASSES_NAME, classTreePane);
+         modelTab.add(PROPERTIES_NAME, new JScrollPane(propertiesTree));
+         addIndividualsTab(schema.isIncludingIndividuals());
+         modelTab.add(ANNOTATIONS_NAME, new JScrollPane(annotationsTree));
+         modelTab.add(DATATYPES_NAME, new JScrollPane(datatypesTree));
          this.setLeftComponent(modelTab);
       } else {
          modelTab = new JTabbedPane();
-         modelTab.add("Classes", new JScrollPane(classTree));
-         modelTab.add("Properties", new JScrollPane(propertiesTree));
-         modelTab.add("Annotations", new JScrollPane(annotationsTree));
-         modelTab.add("Individuals", new JScrollPane(individualsTree));
+         modelTab.add(CLASSES_NAME, new JScrollPane(classTree));
+         modelTab.add(PROPERTIES_NAME, new JScrollPane(propertiesTree));
+         addIndividualsTab(schema.isIncludingIndividuals());
+         modelTab.add(ANNOTATIONS_NAME, new JScrollPane(annotationsTree));
+         modelTab.add(DATATYPES_NAME, new JScrollPane(datatypesTree));
          this.setLeftComponent(modelTab);
       }
+      modelTab.addChangeListener(new ChangeListener() {
+         @Override
+         public void stateChanged(ChangeEvent e) {
+            if (!autoTabChange) {
+               listenTabChange();
+            }
+         }
+      });
       this.setDividerLocation(350);
+   }
+
+   private void addIndividualsTab(boolean includeIndividuals) {
+      if (includeIndividuals) {
+         modelTab.add(INDIVIDUALS_NAME, new JScrollPane(individualsTree));
+      } else {
+         JPanel emptyPanel = new JPanel();
+         emptyPanel.setBackground(Color.WHITE);
+         emptyPanel.setLayout(new BorderLayout());
+         JLabel emptyLabel = new JLabel("Individuals Not Included");
+         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
+         modelTab.add(INDIVIDUALS_NAME, emptyPanel);
+      }
    }
 
    private ModelTreeRenderer setupTrees() {
@@ -324,6 +380,7 @@ public class GraphPanel extends JSplitPane {
       classTree.setCellRenderer(treeRenderer);
       propertiesTree.setCellRenderer(treeRenderer);
       annotationsTree.setCellRenderer(treeRenderer);
+      datatypesTree.setCellRenderer(treeRenderer);
       individualsTree.setCellRenderer(treeRenderer);
       return treeRenderer;
    }
@@ -333,6 +390,7 @@ public class GraphPanel extends JSplitPane {
       propertiesTree.expandRow(0);
       annotationsTree.expandRow(0);
       individualsTree.expandRow(0);
+      datatypesTree.expandRow(0);
    }
 
    /**
@@ -399,6 +457,27 @@ public class GraphPanel extends JSplitPane {
    }
 
    /**
+    * Select a datatype in the datatypes tree.
+    *
+    * @param theKey the datatype key
+    */
+   public void selectDatatype(ElementKey theKey) {
+      if (keyToDatatypeNode.containsKey(theKey)) {
+         DefaultMutableTreeNode node = keyToDatatypeNode.get(theKey);
+         TreePath path = new TreePath(node.getPath());
+         highlightElement(ElementTypes.DATATYPE, path);
+         Object o = node.getUserObject();
+         if (o instanceof OwlElementRep) {
+            selectedElement = (OwlElementRep) o;
+            selectElementRep(selectedElement);
+         } else {
+            updateComponentPanel(null);
+            selectedElement = null;
+         }
+      }
+   }
+
+   /**
     * Select an individual in the individuals tree.
     *
     * @param theKey the individual key
@@ -426,7 +505,44 @@ public class GraphPanel extends JSplitPane {
       }
       addPropertiesTreeListeners();
       addIndividualsTreeListeners();
+      addDatatypesTreeListeners();
       addAnnotationsTreeListeners();
+   }
+
+   private void listenTabChange() {
+      int tabIndex = modelTab.getSelectedIndex();
+      switch (tabIndex) {
+         case TAB_CLASS_INDEX:
+            TreePath path = classTree.getSelectionModel().getSelectionPath();
+            setSelectedElementFromPath(path);
+            break;
+         case TAB_PROPERTY_INDEX:
+            path = propertiesTree.getSelectionModel().getSelectionPath();
+            setSelectedElementFromPath(path);
+            break;
+         case TAB_ANNOTATION_INDEX:
+            path = annotationsTree.getSelectionModel().getSelectionPath();
+            setSelectedElementFromPath(path);
+            break;
+         case TAB_DATATYPE_INDEX:
+            path = datatypesTree.getSelectionModel().getSelectionPath();
+            setSelectedElementFromPath(path);
+            break;
+         case TAB_INDIVIDUAL_INDEX:
+            path = individualsTree.getSelectionModel().getSelectionPath();
+            setSelectedElementFromPath(path);
+            break;
+      }
+   }
+
+   private void setSelectedElementFromPath(TreePath path) {
+      if (path != null) {
+         Object o = path.getLastPathComponent();
+         o = ((DefaultMutableTreeNode) o).getUserObject();
+         if (o instanceof OwlElementRep) {
+            selectedElement = (OwlElementRep) o;
+         }
+      }
    }
 
    private void addClassTreeListeners() {
@@ -507,6 +623,33 @@ public class GraphPanel extends JSplitPane {
          public void mouseClicked(MouseEvent e) {
             if (selectedElement != null && e.getButton() == MouseEvent.BUTTON3) {
                clickOnPropertiesTree(e.getX(), e.getY());
+            }
+         }
+      });
+   }
+
+   private void addDatatypesTreeListeners() {
+      datatypesTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+         @Override
+         public void valueChanged(TreeSelectionEvent e) {
+            TreePath path = e.getPath();
+            Object o = path.getLastPathComponent();
+            o = ((DefaultMutableTreeNode) o).getUserObject();
+            if (o instanceof OwlElementRep) {
+               selectedElement = (OwlElementRep) o;
+               updateComponentPanel(null);
+            } else {
+               updateComponentPanel(null);
+               selectedElement = null;
+            }
+         }
+      });
+
+      datatypesTree.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            if (selectedElement != null && e.getButton() == MouseEvent.BUTTON3) {
+               clickOnDatatypesTree(e.getX(), e.getY());
             }
          }
       });
@@ -600,6 +743,19 @@ public class GraphPanel extends JSplitPane {
       });
       menu.add(item);
       menu.show(propertiesTree, x, y);
+   }
+
+   private void clickOnDatatypesTree(int x, int y) {
+      JPopupMenu menu = new JPopupMenu();
+      JMenuItem item = new JMenuItem("Copy to Clipboard");
+      item.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            copyToClipboard();
+         }
+      });
+      menu.add(item);
+      menu.show(datatypesTree, x, y);
    }
 
    private void clickOnAnnotationsTree(int x, int y) {
@@ -705,7 +861,7 @@ public class GraphPanel extends JSplitPane {
       }
       menu.show(classTree, x, y);
    }
-   
+
    private void updateComponentPanel(OwlElementRep selectedElement) {
       int location = contentpanel.getDividerLocation();
       JComponent panel = panelFactory.getComponentPanel(selectedElement);
@@ -766,6 +922,17 @@ public class GraphPanel extends JSplitPane {
       }
    }
 
+   public void selectElement(NamedOwlElement element) {
+      ElementKey key = element.getKey();
+      if (keyToClassNode.containsKey(key)) {
+         this.selectClass(key);
+      } else if (keyToPropertyNode.containsKey(key)) {
+         this.selectProperty(key);
+      } else if (keyToIndividualNode.containsKey(key)) {
+         this.selectIndividual(key);
+      }
+   }
+
    private void selectElementRep(OwlElementRep rep) {
       ElementKey key = rep.getOwlElement().getKey();
       updateComponentPanel(rep);
@@ -804,7 +971,7 @@ public class GraphPanel extends JSplitPane {
       schema = diagram.getSchema();
       SortedMap<ElementKey, OwlAnnotation> sortedMap = new TreeMap<>();
       // first created a sorted map for the annotations keys
-      Iterator<OwlAnnotation> it = schema.getAnnotations().values().iterator();
+      Iterator<OwlAnnotation> it = schema.getElementAnnotations().values().iterator();
       while (it.hasNext()) {
          OwlAnnotation annotation = it.next();
          sortedMap.put(annotation.getKey(), annotation);
@@ -815,6 +982,24 @@ public class GraphPanel extends JSplitPane {
          OwlAnnotation annotation = it.next();
          DefaultMutableTreeNode node = createAnnotationNode(annotation);
          annotationsRoot.add(node);
+      }
+   }
+
+   private void computeDatatypesTree() {
+      schema = diagram.getSchema();
+      SortedMap<ElementKey, OwlDatatype> sortedMap = new TreeMap<>();
+      // first created a sorted map for the datatypes keys
+      Iterator<OwlDatatype> it = schema.getDatatypes().values().iterator();
+      while (it.hasNext()) {
+         OwlDatatype datatype = it.next();
+         sortedMap.put(datatype.getKey(), datatype);
+      }
+      // now create the nodes
+      it = sortedMap.values().iterator();
+      while (it.hasNext()) {
+         OwlDatatype datatype = it.next();
+         DefaultMutableTreeNode node = createDatatypeNode(datatype);
+         datatypesRoot.add(node);
       }
    }
 
@@ -967,6 +1152,15 @@ public class GraphPanel extends JSplitPane {
       ElementKey theKey = annotation.getKey();
       if (!keyToAnnotationNode.containsKey(theKey)) {
          keyToAnnotationNode.put(theKey, node);
+      }
+      return node;
+   }
+
+   private DefaultMutableTreeNode createDatatypeNode(OwlDatatype datatype) {
+      DefaultMutableTreeNode node = new DefaultMutableTreeNode(createElementRep(datatype));
+      ElementKey theKey = datatype.getKey();
+      if (!keyToDatatypeNode.containsKey(theKey)) {
+         keyToDatatypeNode.put(theKey, node);
       }
       return node;
    }

@@ -37,30 +37,45 @@ import java.net.URI;
 /**
  * The value of an annotation on an element.
  *
- * @since 0.6
+ * @version 0.7
  */
 public interface AnnotationValue {
+   public static final short LITERAL_TYPE = 0;
+   public static final short ELEMENT_TYPE = 1;
+   public static final short URI_TYPE = 2;
+
    /**
     * Return true if the annotation value is an URI.
     *
     * @return true if the annotation value is an URI
-    */      
-   public boolean isURI();
+    */
+   public short getType();
 
    /**
     * Return the annotation value as an URI.
     *
     * @return the annotation value as an URI
-    */   
-   public URIAnnotationValue asURI();
+    */
+   public default URIAnnotationValue asURI() {
+      return null;
+   }
 
    /**
-    * Return true if the annotation value is a literal.
+    * Return the annotation value as an URI.
     *
-    * @return true if the annotation value is a literal
-    */   
-   public default boolean isLiteral() {
-      return !isURI();
+    * @return the annotation value as an URI
+    */
+   public default ElementAnnotationValue asElement() {
+      return null;
+   }
+
+   /**
+    * Return the annotation value as a Literal.
+    *
+    * @return the annotation value as a Literal
+    */
+   public default LiteralAnnotationValue asLiteral() {
+      return null;
    }
 
    /**
@@ -70,13 +85,6 @@ public interface AnnotationValue {
     */
    public String getLiteral();
 
-   /**
-    * Return the annotation value as a Literal.
-    *
-    * @return the annotation value as a Literal
-    */   
-   public LiteralAnnotationValue asLiteral(); 
-
    public static class URIAnnotationValue implements AnnotationValue {
       private final URI uri;
 
@@ -84,9 +92,14 @@ public interface AnnotationValue {
          this.uri = uri;
       }
 
+      /**
+       * Return {@link #URI_TYPE}.
+       *
+       * @return {@link #URI_TYPE}
+       */
       @Override
-      public boolean isURI() {
-         return true;
+      public short getType() {
+         return URI_TYPE;
       }
 
       public URI getURI() {
@@ -107,10 +120,42 @@ public interface AnnotationValue {
       public URIAnnotationValue asURI() {
          return this;
       }
+   }
+
+   public static class ElementAnnotationValue implements AnnotationValue {
+      private final NamedOwlElement element;
+
+      public ElementAnnotationValue(NamedOwlElement element) {
+         this.element = element;
+      }
 
       @Override
-      public LiteralAnnotationValue asLiteral() {
-         return null;
+      public String toString() {
+         return getLiteral();
+      }
+
+      public NamedOwlElement getElement() {
+         return element;
+      }
+
+      @Override
+      public String getLiteral() {
+         return element.toString();
+      }
+
+      /**
+       * Return {@link #LITERAL_TYPE}.
+       *
+       * @return {@link #LITERAL_TYPE}
+       */
+      @Override
+      public short getType() {
+         return ELEMENT_TYPE;
+      }
+
+      @Override
+      public ElementAnnotationValue asElement() {
+         return this;
       }
    }
 
@@ -131,14 +176,14 @@ public interface AnnotationValue {
          return literal;
       }
 
+      /**
+       * Return {@link #LITERAL_TYPE}.
+       *
+       * @return {@link #LITERAL_TYPE}
+       */
       @Override
-      public boolean isURI() {
-         return false;
-      }
-
-      @Override
-      public URIAnnotationValue asURI() {
-         return null;
+      public short getType() {
+         return LITERAL_TYPE;
       }
 
       @Override

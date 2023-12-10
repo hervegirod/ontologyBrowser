@@ -35,12 +35,17 @@ package org.girod.ontobrowser;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
+import org.girod.ontobrowser.gui.errors.ErrorLevel;
 import org.mdiutil.swing.JFileSelector;
 import org.mdiutil.swing.JMultipleFileSelector;
 import org.mdiutil.swing.PropertyEditor;
@@ -48,13 +53,15 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
    private File dir = new File(System.getProperty("user.dir"));
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
+   private final PropertyEditor schemasSettings = new PropertyEditor();
+   private final PropertyEditor sparqlSettings = new PropertyEditor();
    private final PropertyEditor styleSettings = new PropertyEditor();
    private final PropertyEditor packageSettings = new PropertyEditor();
    private final PropertyEditor yEdSettings = new PropertyEditor();
@@ -63,9 +70,13 @@ public class BrowserSettings {
    private JCheckBox showDataPropertiesTypesCb;
    private JCheckBox addThingClassCb;
    private JCheckBox showIndirectRelationsCb;
+   private JCheckBox showAliasCb;
+   private JComboBox logLevelCb;
    private JCheckBox showPackagesCb;
    private JCheckBox showPackagesAsClosedCb;
    private JCheckBox showPackagesInPackageViewCb;
+   private JCheckBox prefixInSPARQLCb;
+   private JTextField basePrefixTf;
    private final SpinnerNumberModel padWidthSpinnerModel = new SpinnerNumberModel(15, 0, 100, 1);
    private JSpinner padWidthSpinner;
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
@@ -75,6 +86,7 @@ public class BrowserSettings {
    private JFileSelector customStylesFs;
    private JFileSelector yedExeDirectoryFs;
    private JFileSelector packagesConfigurationFs;
+   private JCheckBox builtinSchemasCb;
    private JMultipleFileSelector schemasLocationsFs;
 
    private BrowserSettings() {
@@ -104,6 +116,24 @@ public class BrowserSettings {
     */
    public PropertyEditor getGeneralSettings() {
       return generalSettings;
+   }
+
+   /**
+    * Return the schemas Settings.
+    *
+    * @return the schemas Settings
+    */
+   public PropertyEditor getSchemasSettings() {
+      return schemasSettings;
+   }
+
+   /**
+    * Return the SPARQL Settings.
+    *
+    * @return the SPARQL Settings
+    */
+   public PropertyEditor getSPARQLSettings() {
+      return sparqlSettings;
    }
 
    /**
@@ -150,6 +180,7 @@ public class BrowserSettings {
       showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
       addThingClassCb.setSelected(conf.addThingClass);
       showIndirectRelationsCb.setSelected(conf.showIndirectRelations);
+      showAliasCb.setSelected(conf.showAlias);
       padWidthSpinner.setValue(conf.padWidth);
       padHeightSpinner.setValue(conf.padHeight);
       autoRefreshCb.setSelected(conf.autoRefresh);
@@ -166,12 +197,16 @@ public class BrowserSettings {
          packagesConfigurationFs.setCurrentDirectory(dir);
       }
       yedExeDirectoryFs.setSelectedFile(conf.getYedExeDirectory());
+      logLevelCb.setSelectedItem(getLogItem(conf.logLevel));
+      builtinSchemasCb.setSelected(conf.useBuiltinSchemas);
       if (conf.getAlternateLocations() != null) {
          schemasLocationsFs.setSelectedFiles(conf.getAlternateLocations());
       } else {
          schemasLocationsFs.setSelectedFiles(null);
          schemasLocationsFs.setCurrentDirectory(dir);
       }
+      prefixInSPARQLCb.setSelected(conf.addPrefixInSPARQL);
+      basePrefixTf.setText(conf.basePrefix);
    }
 
    /**
@@ -179,6 +214,8 @@ public class BrowserSettings {
     */
    public void initialize() {
       initializeGeneralSettings();
+      initializeSchemasSettings();
+      initializeSPARQLSettings();
       initializeYedSettings();
       initializeStyleSettings();
       initializePackageSettings();
@@ -266,6 +303,60 @@ public class BrowserSettings {
    }
 
    /**
+    * Initialize the schemas Settings.
+    */
+   private void initializeSPARQLSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      prefixInSPARQLCb = new JCheckBox("", conf.addPrefixInSPARQL);
+      prefixInSPARQLCb.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            conf.addPrefixInSPARQL = prefixInSPARQLCb.isSelected();
+         }
+      });
+
+      basePrefixTf = new JTextField(conf.basePrefix);
+      basePrefixTf.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            conf.basePrefix = basePrefixTf.getText();
+         }
+      });
+   }
+
+   /**
+    * Initialize the schemas Settings.
+    */
+   private void initializeSchemasSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      File _dir = conf.getDefaultDirectory();
+
+      builtinSchemasCb = new JCheckBox("", conf.useBuiltinSchemas);
+      builtinSchemasCb.setBackground(Color.WHITE);
+      builtinSchemasCb.addActionListener((ActionEvent e) -> {
+         conf.useBuiltinSchemas = builtinSchemasCb.isSelected();
+         conf.setAlternateLocations();
+      });
+
+      schemasLocationsFs = new JMultipleFileSelector("Schemas Alternate Locations");
+      schemasLocationsFs.setHasOptionalFiles(true);
+      schemasLocationsFs.setCurrentDirectory(_dir);
+      schemasLocationsFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      schemasLocationsFs.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            File[] files = ((JMultipleFileSelector) e.getSource()).getSelectedFiles();
+            if (files != null && files.length != 0) {
+               conf.setAlternateLocations(files);
+               dir = files[0].getParentFile();
+            } else {
+               conf.setAlternateLocations(null);
+            }
+         }
+      });
+   }
+
+   /**
     * Initialize the general Settings.
     */
    private void initializeGeneralSettings() {
@@ -314,22 +405,52 @@ public class BrowserSettings {
          conf.showIndirectRelations = showIndirectRelationsCb.isSelected();
       });
 
-      schemasLocationsFs = new JMultipleFileSelector("Schemas Alternate Locations");
-      schemasLocationsFs.setHasOptionalFiles(true);
-      schemasLocationsFs.setCurrentDirectory(_dir);
-      schemasLocationsFs.setFileSelectionMode(JFileChooser.FILES_ONLY);
-      schemasLocationsFs.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            File[] files = ((JMultipleFileSelector) e.getSource()).getSelectedFiles();
-            if (files != null) {
-               conf.setAlternateLocations(files);
-               dir = files[0].getParentFile();
-            } else {
-               conf.setAlternateLocations(null);
-            }
+      showAliasCb = new JCheckBox("", conf.showAlias);
+      showAliasCb.setBackground(Color.WHITE);
+      showAliasCb.addActionListener((ActionEvent e) -> {
+         conf.showAlias = showAliasCb.isSelected();
+      });
+
+      // log level
+      String[] logLevelType = {"No Logging", "Log All", "Log Warnings", "Log Errors"};
+      logLevelCb = new JComboBox<>(logLevelType);
+      logLevelCb.setSelectedItem(getLogItem(conf.logLevel));
+
+      logLevelCb.addItemListener(new ItemListener() {
+         public void itemStateChanged(ItemEvent e) {
+            conf.logLevel = getLogLevel(logLevelCb.getSelectedItem().toString());
          }
       });
+   }
+
+   private short getLogLevel(String logItem) {
+      switch (logItem) {
+         case "No Logging":
+            return ErrorLevel.NO_LOGGING;
+         case "Log All":
+            return ErrorLevel.INFO;
+         case "Log Warnings":
+            return ErrorLevel.WARNING;
+         case "Log Errors":
+            return ErrorLevel.ERROR;
+         default:
+            return ErrorLevel.NO_LOGGING;
+      }
+   }
+
+   private String getLogItem(short logLevel) {
+      switch (logLevel) {
+         case ErrorLevel.NO_LOGGING:
+            return "No Logging";
+         case ErrorLevel.INFO:
+            return "Log All";
+         case ErrorLevel.WARNING:
+            return "Log Warnings";
+         case ErrorLevel.ERROR:
+            return "Log Errors";
+         default:
+            return "No Logging";
+      }
    }
 
    /**
@@ -356,7 +477,6 @@ public class BrowserSettings {
       showPackagesAsClosedCb.addActionListener((ActionEvent e) -> {
          conf.showPackagesAsClosed = showPackagesAsClosedCb.isSelected();
       });
-      
 
       packagesConfigurationFs = new JFileSelector("Packages Configuration");
       packagesConfigurationFs.setHasOptionalFiles(true);
@@ -387,10 +507,18 @@ public class BrowserSettings {
       generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
       generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations");
+      generalSettings.addProperty(showAliasCb, "", "Show Alias");
       generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
       generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
-      generalSettings.addProperty(schemasLocationsFs, "", "Schemas Alternate Locations");
       generalSettings.setVisible(true);
+
+      schemasSettings.addProperty(builtinSchemasCb, "", "Use Built-in Schemas");
+      schemasSettings.addProperty(schemasLocationsFs, "", "Schemas Alternate Locations");
+      schemasSettings.setVisible(true);
+
+      sparqlSettings.addProperty(prefixInSPARQLCb, "", "Add Prefix in SPARQL Requests");
+      sparqlSettings.addProperty(basePrefixTf, "", "Default Base Prefix");
+      sparqlSettings.setVisible(true);
 
       styleSettings.addProperty(padWidthSpinner, "", "Width Padding");
       styleSettings.addProperty(padHeightSpinner, "", "Height Padding");

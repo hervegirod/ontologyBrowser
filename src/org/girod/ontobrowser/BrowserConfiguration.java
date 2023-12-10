@@ -38,9 +38,8 @@ import java.util.PropertyResourceBundle;
 import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import org.apache.jena.riot.system.stream.JenaIOEnvironment;
-import org.apache.jena.riot.system.stream.LocationMapper;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
+import org.girod.ontobrowser.gui.errors.ErrorLevel;
 import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.mdi.bootstrap.Configuration;
 import org.mdiutil.lang.swing.ResourceUILoader;
@@ -51,7 +50,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -77,6 +76,9 @@ public class BrowserConfiguration implements Configuration {
    public boolean showDataPropertiesTypes = false;
    public boolean addThingClass = true;
    public boolean showIndirectRelations = false;
+   public boolean showAlias = false;
+   public short logLevel = ErrorLevel.WARNING;
+   public boolean useBuiltinSchemas = false;
    private File[] alternateLocations = null;
    // padding and size
    public int padWidth = 15;
@@ -88,6 +90,9 @@ public class BrowserConfiguration implements Configuration {
    private boolean hasPackagesConfiguration = false;
    private File packagesConfigurationFile = null;
    public final PackagesConfiguration packagesConfiguration = new PackagesConfiguration();
+   // SPARQL
+   public boolean addPrefixInSPARQL = false;
+   public String basePrefix = "basePrefix";
    // GUI
    public boolean autoRefresh = false;
    private boolean hasCustomStyles = false;
@@ -192,20 +197,22 @@ public class BrowserConfiguration implements Configuration {
 
    /**
     * Set the alternate locations for schemas.
+    */
+   public void setAlternateLocations() {
+      setAlternateLocations(this.alternateLocations);
+   }
+
+   /**
+    * Set the alternate locations for schemas.
     *
     * @param alternateLocations the schemas alternate locations
     */
    public void setAlternateLocations(File[] alternateLocations) {
       this.alternateLocations = alternateLocations;
-      LocationMapper mapper = new LocationMapper();
-      JenaIOEnvironment.setGlobalLocationMapper(mapper);
       if (alternateLocations != null && alternateLocations.length != 0) {
          this.defaultDir = alternateLocations[0].getParentFile();
-         for (int i = 0; i < alternateLocations.length; i++) {
-            File schemaFile = alternateLocations[i];
-            mapper.altMapping(schemaFile.toURI().toString());
-         }
       }
+      SchemasResolvers.getInstance().setAlternateLocations(alternateLocations, useBuiltinSchemas);
    }
 
    /**
@@ -352,8 +359,17 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       p.putBoolean("addThingClass", addThingClass);
       p.putBoolean("showIndirectRelations", showIndirectRelations);
+      p.putBoolean("showAlias", showAlias);
       p.putBoolean("showComments", showComments);
+      p.putInt("logLevel", (int) logLevel);
+      
+      // schemas
+      p.putBoolean("useBuiltinSchemas", useBuiltinSchemas);
       PreferencesHelper.putFiles(p, "alternateLocations", alternateLocations);
+      
+      // SPARQL
+      p.putBoolean("addPrefixInSPARQL", addPrefixInSPARQL);    
+      p.put("basePrefix", basePrefix);
 
       // styles
       p.putInt("padWidth", padWidth);
@@ -386,9 +402,18 @@ public class BrowserConfiguration implements Configuration {
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       addThingClass = p.getBoolean("addThingClass", addThingClass);
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
+      showAlias = p.getBoolean("showAlias", showAlias);
       showComments = p.getBoolean("showComments", showComments);
+      logLevel = (short) p.getInt("logLevel", logLevel);
+      
+      // schemas
+      useBuiltinSchemas = p.getBoolean("useBuiltinSchemas", useBuiltinSchemas);
       alternateLocations = PreferencesHelper.getFiles(p, "alternateLocations", alternateLocations);
       setAlternateLocations(alternateLocations);
+      
+      // SPARQL
+      addPrefixInSPARQL = p.getBoolean("addPrefixInSPARQL", addPrefixInSPARQL); 
+      basePrefix = p.get("basePrefix", basePrefix);
 
       // styles
       padWidth = p.getInt("padWidth", padWidth);

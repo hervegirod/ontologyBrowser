@@ -35,7 +35,7 @@ package org.girod.ontobrowser.model;
 /**
  * The Search types.
  *
- * @version 0.6
+ * @version 0.7
  */
 public interface ElementTypes {
    public static String ALL = "All";
@@ -44,5 +44,6 @@ public interface ElementTypes {
    public static String DATAPROPERTY = "Dataproperties";
    public static String OBJECTPROPERTY = "Objectproperties";
    public static String ANNOTATION = "Annotations";
+   public static String DATATYPE = "Datatypes";
    public static String INDIVIDUAL = "Individuals";
 }

@@ -71,7 +71,7 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This Dialog shows the dependencies of an element.
  *
- * @version 0.6
+ * @version 0.7
  */
 public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private NamedOwlElement element;
@@ -169,6 +169,15 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             OwlClass theClass = it.next();
             model.addElement(theClass);
          }
+         if (individual.isInEquivalentExpressions()) {
+            model.addElement("Used in Equivalent Expressions");
+            map = new TreeMap<>(individual.getInEquivalentExpressions());
+            it = map.values().iterator();
+            while (it.hasNext()) {
+               OwlClass theClass = it.next();
+               model.addElement(theClass);
+            }
+         }
       } else if (element instanceof OwlClass) {
          OwlClass theClass = (OwlClass) element;
          // data properties of the Class
@@ -202,9 +211,9 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             }
          }
          // equivalent classes
-         if (theClass.hasEquivalentClasses()) {
+         if (theClass.hasAliasClasses()) {
             model.addElement("Alias Classes");
-            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getEquivalentClasses());
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getAliasClasses());
             Iterator<OwlClass> iti = mapc.values().iterator();
             while (iti.hasNext()) {
                OwlClass alias = iti.next();
@@ -218,6 +227,24 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
             while (iti.hasNext()) {
                OwlClass aliased = iti.next();
                model.addElement(aliased);
+            }
+         }
+         if (theClass.hasEquivalentExpressions()) {
+            model.addElement("Use in Equivalent Expressions");
+            SortedMap<ElementKey, NamedOwlElement> mapc = new TreeMap<>(theClass.getElementsInEquivalentExpressions());
+            Iterator<NamedOwlElement> itc = mapc.values().iterator();
+            while (itc.hasNext()) {
+               NamedOwlElement theElement = itc.next();
+               model.addElement(theElement);
+            }
+         }         
+         if (theClass.isInEquivalentExpressions()) {
+            model.addElement("Used in Equivalent Expressions");
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getInEquivalentExpressions());
+            Iterator<OwlClass> it = mapc.values().iterator();
+            while (it.hasNext()) {
+               OwlClass eqClass = it.next();
+               model.addElement(eqClass);
             }
          }
          Map<ElementKey, OwlClass> mapd = schema.getDependentClasses(theClass);
@@ -279,12 +306,21 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                OwlRestriction restriction = it.next();
                model.addElement(restriction.getOwlClass());
             }
-            
+
             // Inverse property
             OwlObjectProperty theInverseProperty = theObjectProperty.getInverseProperty();
             if (theInverseProperty != null) {
                model.addElement("Inverse Property");
                model.addElement(theInverseProperty);
+            }
+            if (theProperty.isInEquivalentExpressions()) {
+               model.addElement("Used in Equivalent Expressions");
+               SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theProperty.getInEquivalentExpressions());
+               Iterator<OwlClass> it2 = mapc.values().iterator();
+               while (it2.hasNext()) {
+                  OwlClass eqClass = it2.next();
+                  model.addElement(eqClass);
+               }
             }
          }
       }

@@ -33,34 +33,103 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import org.apache.jena.ontology.Individual;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  * Represents an Individual.
  *
- * @version 0.5
+ * @version 0.7
+ * @param <I> the type of the underlying class
  */
-public class OwlIndividual extends NamedOwlElement {
+public class OwlIndividual<I extends Resource> extends NamedOwlElement {
+   private final I individual;
    private final Map<ElementKey, OwlClass> parentClasses;
-   
-   public OwlIndividual(Individual individual) {
+   private final Map<ElementKey, ObjectPropertyValue> objectPropertyValues = new HashMap<>();
+   private final Map<ElementKey, DatatypePropertyValue> datatypePropertyValues = new HashMap<>();
+
+   public OwlIndividual(I individual) {
       super(individual.getNameSpace(), individual.getLocalName());
       this.parentClasses = new HashMap<>();
-   }     
+      this.individual = individual;
+   }
 
-   public OwlIndividual(OwlClass parentClass, Individual individual) {
+   public OwlIndividual(OwlClass parentClass, I individual) {
       super(individual.getNameSpace(), individual.getLocalName());
       this.parentClasses = new HashMap<>();
       this.parentClasses.put(parentClass.getKey(), parentClass);
+      this.individual = individual;
+      updateNameSpace();
    }
-   
-   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
+
+   public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, I individual) {
       super(individual.getNameSpace(), individual.getLocalName());
       this.parentClasses = parentClasses;
-   }   
+      this.individual = individual;
+      updateNameSpace();
+   }
+
+   /**
+    * Return the Individual.
+    *
+    * @return the Individual
+    */
+   public I getIndividual() {
+      return individual;
+   }
+
+   private void updateNameSpace() {
+      if (namespace == null && !parentClasses.isEmpty()) {
+         String _namespace = null;
+         Iterator<ElementKey> it = parentClasses.keySet().iterator();
+         while (it.hasNext()) {
+            _namespace = it.next().getNamespace();
+            break;
+         }
+         this.namespace = _namespace;
+      }
+   }
 
    public Map<ElementKey, OwlClass> getParentClasses() {
       return parentClasses;
+   }
+
+   /**
+    * Add an object property value.
+    *
+    * @param value the value
+    */
+   public void addObjectPropertyValue(ObjectPropertyValue value) {
+      ElementKey theKey = value.getKey();
+      objectPropertyValues.put(theKey, value);
+   }
+
+   /**
+    * Return the object propety values.
+    *
+    * @return the object propety values
+    */
+   public Map<ElementKey, ObjectPropertyValue> getObjectPropertyValues() {
+      return objectPropertyValues;
+   }
+   
+   /**
+    * Add an datatype property value.
+    *
+    * @param value the value
+    */
+   public void addDatatypePropertyValue(DatatypePropertyValue value) {
+      ElementKey theKey = value.getKey();
+      datatypePropertyValues.put(theKey, value);
+   }
+
+   /**
+    * Return the datatype propety values.
+    *
+    * @return the datatype propety values
+    */
+   public Map<ElementKey, DatatypePropertyValue> getDatatypePropertyValues() {
+      return datatypePropertyValues;
    }   
 }

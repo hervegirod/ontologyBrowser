@@ -96,7 +96,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
          OwlClass superClass = theClass.getFirstSuperClass();
          if (superClass == null) {
             GraphMLGroupNode node = graph.addGroupNode();
-            setGroupNodeStyle(node, theClass.getName());
+            setGroupNodeStyle(node, theClass.getDisplayedName());
             packagesNodes.put(key, node);
             processedPackages.add(key);
             return node;
@@ -104,7 +104,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
             ElementKey superclassKey = superClass.getKey();
             if (superclassKey.equals(thePackageKey)) {
                GraphMLGroupNode node = graph.addGroupNode();
-               setGroupNodeStyle(node, theClass.getName());
+               setGroupNodeStyle(node, theClass.getDisplayedName());
                packagesNodes.put(key, node);
                processedPackages.add(key);
                return node;
@@ -115,13 +115,13 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                if (packagesNodes.containsKey(superclassKey)) {
                   GraphMLGroupNode superclassNode = packagesNodes.get(superclassKey);
                   GraphMLGroupNode node = superclassNode.addGroupNode();
-                  setGroupNodeStyle(node, theClass.getName());
+                  setGroupNodeStyle(node, theClass.getDisplayedName());
                   packagesNodes.put(key, node);
                   processedPackages.add(key);
                   return node;
                } else {
                   GraphMLGroupNode node = graph.addGroupNode();
-                  setGroupNodeStyle(node, theClass.getName());
+                  setGroupNodeStyle(node, theClass.getDisplayedName());
                   packagesNodes.put(key, node);
                   processedPackages.add(key);
                   return node;
@@ -214,7 +214,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
       inode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.INDIVIDUAL));
       NodeLabel ilabel = inode.createLabel(true);
       ilabel.setFontSize(11);
-      ilabel.setLabel(individual.getName());
+      ilabel.setLabel(individual.getDisplayedName());
       GraphMLEdge edge = graph.addEdge(node, inode);
       Arrows arrows = edge.getArrows();
       arrows.setSource(Arrows.NONE);
@@ -232,13 +232,13 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
       if (showDataPropertiesTypes) {
          String typeS = getType(dataProperty);
          if (typeS != null) {
-            label.setLabel(dataProperty.getName() + "\n" + typeS);
+            label.setLabel(dataProperty.getDisplayedName() + "\n" + typeS);
             propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
          } else {
-            label.setLabel(dataProperty.getName());
+            label.setLabel(dataProperty.getDisplayedName());
          }
       } else {
-         label.setLabel(dataProperty.getName());
+         label.setLabel(dataProperty.getDisplayedName());
       }
       return propertyNode;
    }
@@ -260,7 +260,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
          gnode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
          NodeLabel label = gnode.createLabel(true);
          label.setFontSize(11);
-         label.setLabel(owlClass.getName());
+         label.setLabel(owlClass.getDisplayedName());
          elementToNode.put(key, node);
       }
 
@@ -326,7 +326,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                      IGraphMLNode rangeNode = elementToNode.get(propKey);
                      GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                      EdgeLabel label = edge.createLabel(true);
-                     label.setLabel(property.getName());
+                     label.setLabel(property.getDisplayedName());
                      Arrows arrows = edge.getArrows();
                      arrows.setSource(Arrows.STANDARD);
                      arrows.setTarget(Arrows.NONE);
@@ -350,7 +350,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                               } else {
                                  OwlClass packageClass = schema.getOwlClass(packageKey);
                                  packageNode = graph.addGroupNode();
-                                 setGroupNodeStyle(packageNode, packageClass.getName());
+                                 setGroupNodeStyle(packageNode, packageClass.getDisplayedName());
                                  packagesNodes.put(entry.getKey(), packageNode);
                                  packageNode.setRealizedStateValue(false);
                               }
@@ -359,14 +359,14 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                               node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
                               NodeLabel label = node.createLabel(true);
                               label.setFontSize(11);
-                              label.setLabel(targetClass.getName());
+                              label.setLabel(targetClass.getDisplayedName());
                            } else {
                               node = graph.addNode();
                               node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
                               node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.EXTERNAL_PACKAGE));
                               NodeLabel label = node.createLabel(true);
                               label.setFontSize(11);
-                              label.setLabel(targetClass.getName() + "\nfrom " + packageKey.getName());
+                              label.setLabel(targetClass.getDisplayedName() + "\nfrom " + packageKey.getName());
                               node.setHeight(node.getHeight() * 1.5f);
                            }
                            elementToNode.put(entry.getKey(), node);
@@ -376,13 +376,13 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                            node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.EXTERNAL_PACKAGE));
                            NodeLabel label = node.createLabel(true);
                            label.setFontSize(11);
-                           label.setLabel(targetClass.getName());
+                           label.setLabel(targetClass.getDisplayedName());
                            elementToNode.put(entry.getKey(), node);
                         }
 
                         GraphMLEdge edge = graph.addEdge(node, theNode);
                         EdgeLabel elabel = edge.createLabel(true);
-                        elabel.setLabel(property.getName());
+                        elabel.setLabel(property.getDisplayedName());
                         Arrows arrows = edge.getArrows();
                         arrows.setSource(Arrows.STANDARD);
                         arrows.setTarget(Arrows.NONE);
@@ -401,7 +401,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                GraphMLNode propertyNode = addDataPropertyInPackage(theNode, dataProperty);
                GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
                EdgeLabel elabel = edge.createLabel(true);
-               elabel.setLabel(property.getName());
+               elabel.setLabel(property.getDisplayedName());
                Arrows arrows = edge.getArrows();
                arrows.setSource(Arrows.STANDARD);
                arrows.setTarget(Arrows.NONE);

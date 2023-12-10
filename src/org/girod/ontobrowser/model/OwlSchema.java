@@ -32,7 +32,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.io.File;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,18 +48,21 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.6
+ * @version 0.7
  */
-public class OwlSchema implements Cloneable, Serializable {
+public class OwlSchema extends AnnotatedElement implements Cloneable, Serializable {
+   private File file = null;
    private final OntModel ontModel;
    private OwlClass owlThingClass;
+   private boolean includeIndividuals = true;
    private final Map<String, String> prefixMap = new HashMap<>();
    private final Map<ElementKey, OwlClass> classes = new HashMap<>();
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
    private final Map<ElementKey, OwlObjectProperty> objectProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
-   private final Map<ElementKey, OwlAnnotation> annotations = new HashMap<>();
+   private final Map<ElementKey, OwlAnnotation> elementsAnnotations = new HashMap<>();
+   private final Map<ElementKey, OwlDatatype> datatypes = new HashMap<>();
    private final Set<String> namespaces = new HashSet<>();
    private Map<ElementKey, OwlClass> packages = null;
 
@@ -66,16 +71,53 @@ public class OwlSchema implements Cloneable, Serializable {
       computePrefixMap();
    }
 
+   /**
+    * Set the file which specifies the ontology.
+    *
+    * @param file the file
+    */
+   public void setFile(File file) {
+      this.file = file;
+   }
+
+   /**
+    * Return the file which specifies the ontology.
+    *
+    * @return the file
+    */
+   public File getFile() {
+      return file;
+   }
+
+   /**
+    * Return the OntModel.
+    *
+    * @return the OntModel
+    */
+   public OntModel getOntModel() {
+      return ontModel;
+   }
+
    private void computePrefixMap() {
       Iterator<Entry<String, String>> it = ontModel.getNsPrefixMap().entrySet().iterator();
       while (it.hasNext()) {
          Entry<String, String> entry = it.next();
          String ns = entry.getValue();
          String prefix = entry.getKey();
-         if (!prefix.isEmpty()) {
-            prefixMap.put(ns, prefix);
+         prefixMap.put(ns, prefix);
+         if (!ns.endsWith("/#")) {
+            prefixMap.put(ns + "/#", prefix);
          }
       }
+   }
+
+   /**
+    * Return the prefix map.
+    *
+    * @return the prefix map
+    */
+   public Map<String, String> getPrefixMap() {
+      return prefixMap;
    }
 
    /**
@@ -108,6 +150,24 @@ public class OwlSchema implements Cloneable, Serializable {
          owlThingClass = new OwlClass(thingClass);
       }
       return owlThingClass;
+   }
+
+   /**
+    * Set if this schema is including individuals.
+    *
+    * @param includeIndividuals true if this schema is set to include individuals
+    */
+   public void setIncludeIndividuals(boolean includeIndividuals) {
+      this.includeIndividuals = includeIndividuals;
+   }
+
+   /**
+    * Return true if this schema is set including individuals.
+    *
+    * @return true if this schema is set to include individuals
+    */
+   public boolean isIncludingIndividuals() {
+      return includeIndividuals;
    }
 
    /**
@@ -166,6 +226,62 @@ public class OwlSchema implements Cloneable, Serializable {
       }
    }
 
+   public void addDatatype(OwlDatatype datatype) {
+      datatypes.put(datatype.getKey(), datatype);
+   }
+
+   public Map<ElementKey, OwlDatatype> getDatatypes() {
+      return datatypes;
+   }
+
+   public boolean hasDatatype(ElementKey key) {
+      return datatypes.containsKey(key);
+   }
+
+   public OwlDatatype getDatatype(ElementKey key) {
+      return datatypes.get(key);
+   }
+
+   public boolean hasElement(URI uri) {
+      String uriAsString = uri.toString();
+      if (uriAsString.contains("#")) {
+         String namespace = uriAsString.substring(0, uriAsString.indexOf('#') + 1);
+         String name = uriAsString.substring(uriAsString.indexOf('#') + 1);
+         ElementKey key = ElementKey.create(namespace, name);
+         if (individuals.containsKey(key)) {
+            return true;
+         } else if (classes.containsKey(key)) {
+            return true;
+         } else if (properties.containsKey(key)) {
+            return true;
+         } else {
+            return false;
+         }
+      } else {
+         return false;
+      }
+   }
+
+   public NamedOwlElement getElement(URI uri) {
+      String uriAsString = uri.toString();
+      if (uriAsString.contains("#")) {
+         String namespace = uriAsString.substring(0, uriAsString.indexOf('#') + 1);
+         String name = uriAsString.substring(uriAsString.indexOf('#') + 1);
+         ElementKey key = ElementKey.create(namespace, name);
+         if (individuals.containsKey(key)) {
+            return individuals.get(key);
+         } else if (classes.containsKey(key)) {
+            return classes.get(key);
+         } else if (properties.containsKey(key)) {
+            return properties.get(key);
+         } else {
+            return null;
+         }
+      } else {
+         return null;
+      }
+   }
+
    /**
     * Return the individuals.
     *
@@ -194,45 +310,45 @@ public class OwlSchema implements Cloneable, Serializable {
    public OwlIndividual getIndividual(ElementKey key) {
       return individuals.get(key);
    }
-   
+
    /**
     * Add an annotation.
     *
     * @param annotation the annotation
     */
-   public void addAnnotation(OwlAnnotation annotation) {
+   public void addElementAnnotation(OwlAnnotation annotation) {
       addNamespace(annotation);
-      annotations.put(annotation.getKey(), annotation);
-   }   
-   
+      elementsAnnotations.put(annotation.getKey(), annotation);
+   }
+
    /**
     * Return true if there is an annotation for a specified key.
     *
     * @param key the key
     * @return true if there is an annotation for the specified key
     */
-   public boolean hasAnnotation(ElementKey key) {
-      return annotations.containsKey(key);
+   public boolean hasElementAnnotation(ElementKey key) {
+      return elementsAnnotations.containsKey(key);
    }
-   
+
    /**
     * Return the annotation for a specified key.
     *
     * @param key the key
     * @return the annotation
     */
-   public OwlAnnotation getAnnotation(ElementKey key) {
-      return annotations.get(key);
-   }      
+   public OwlAnnotation getElementAnnotation(ElementKey key) {
+      return elementsAnnotations.get(key);
+   }
 
    /**
     * Return the annotations.
     *
     * @return the annotations
     */
-   public Map<ElementKey, OwlAnnotation> getAnnotations() {
-      return annotations;
-   }   
+   public Map<ElementKey, OwlAnnotation> getElementAnnotations() {
+      return elementsAnnotations;
+   }
 
    /**
     * Add an Owl class.
