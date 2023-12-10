@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import org.girod.ontobrowser.graph.PackagesExtractor;
 import static org.junit.Assert.*;
 import java.io.File;
 import java.net.URL;
