@@ -105,6 +105,9 @@
             <include name="src/**/*.xml"/>
             <include name="src/**/*.xsd"/>
             <include name="src/**/*.png"/>
+            <include name="src/**/*.ttl"/>
+            <include name="src/**/*.owl"/>
+            <include name="src/**/*.rdf"/>
             <include name="src/**/*.gif"/>
             <include name="src/manifest*.mf"/>
          </fileset>
@@ -204,6 +207,9 @@
             <include name="org/girod/**/*.xml"/>
             <include name="org/girod/**/*.xsd"/>
             <include name="org/girod/**/*.png"/>
+            <include name="org/girod/**/*.ttl"/>
+            <include name="org/girod/**/*.owl"/>
+            <include name="org/girod/**/*.rdf"/>
             <include name="org/girod/**/*.gif"/>
             <include name="org/girod/**/*.properties"/>
          </fileset>
