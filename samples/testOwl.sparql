@@ -1,0 +1,4 @@
+SELECT ?individual
+WHERE {
+?individual rdf:type test:Class5 .
+}

@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX alarms: <http://www.dassault-aviation.com/ontologies/2023/10/FalconProcedures#>
+
+SELECT ?individual
+WHERE {
+?individual rdf:type alarms:AlarmType .
+}
