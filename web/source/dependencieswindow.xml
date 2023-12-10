@@ -3,40 +3,43 @@
    <meta desc="This article presents the Dependencies window" />
 
    The dependencies Window of an element shows all the elements which are associated with this element.
-   
+
    <title title="Class dependencies" />
    <moreInfo id="Class dependencies" />
    The dependencies for a Class show:
    <ul>
-      <li>The Alias Classes</li>        
-      <li>The Classes which are at the other end of an object property relation of this Class</li>              
+      <li>The Alias Classes<note>These are the Classes which are direcrly associated with an Equivalence relation</note></li>
+      <li>The Classes which are at the other end of an object property relation of this Class</li>
       <li>The data properties associated with the Class</li>
-      <li>The object properties associated with the Class, for the domain or the range of the property</li>      
-      <li>The individuals associated with the Class</li>            
+      <li>The object properties associated with the Class, for the domain or the range of the property</li>
+      <li>The elements used in equivalent expressions for this Class</li>
+      <li>The Classes for which this Class is used in equivalent expressions</li>
+      <li>The individuals associated with the Class</li>
    </ul>
    <img id="classDependencies" />
-   
+
    <title title="Data property dependencies" />
    The dependencies for a Data property show:
    <ul>
-      <li>The Classes associated with the domain of the property</li>        
+      <li>The Classes associated with the domain of the property</li>
    </ul>
-   <img id="datapropDependencies" />   
-   
+   <img id="datapropDependencies" />
+
    <title title="Object property dependencies" />
    The dependencies for an Object property show:
    <ul>
-      <li>The Classes associated with the domain of the property</li>       
-      <li>The Classes associated with the range of the property</li>   
+      <li>The Classes associated with the domain of the property</li>
+      <li>The Classes associated with the range of the property</li>
    </ul>
-   <img id="objectpropDependencies" />      
-   
+   <img id="objectpropDependencies" />
+
    <title title="Individual dependencies" />
    The dependencies for an Individual show:
    <ul>
-      <li>The Classes associated with the Individual</li>        
+      <li>The Classes associated with the Individual</li>
+      <li>The Classes for which this Individual is used in equivalent expressions</li>
    </ul>
-   <img id="individualDependencies" />      
-   
+   <img id="individualDependencies" />
+
    <cat id="browser" />
 </article>

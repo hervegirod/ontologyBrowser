@@ -5,4 +5,5 @@
    <category id="support" desc="Informations about the support for the OWL/RDF specification" />
    <category id="packages" desc="Concerns packages" />
    <category id="browser" desc="Concerns the built-in browser" />
+   <category id="tools" desc="Concerns the tools included in the browser" />
 </categories>

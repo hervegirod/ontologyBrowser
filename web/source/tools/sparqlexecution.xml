@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="SPARQL execution">
+   <meta desc="This article presents the SPARQL execution tool" />
+   The Tools =&gt; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema.
+
+   <title title="configuration" />
+   <moreInfo id="configuration#SPARQL settings" desc="SPARQL settings" />
+   By default you must add the prefix in your query, such as for example:
+   <pre syntax="sparql">
+      PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+      PREFIX owl: &lt;http://www.w3.org/2002/07/owl#&gt;
+      PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
+      PREFIX test: &lt;http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#&gt;
+      PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+      SELECT ?individual
+      WHERE {
+      ?individual rdf:type test:Class5 .
+      }
+   </pre>
+
+   If you check the "Add Prefix in SPARQL Requests" option in the SPARQL settings, you don't nee anymore to add thez prefix, such as:
+   By default you must add the prefix in your query, such as for example:
+   <pre syntax="sparql">
+      SELECT ?individual
+      WHERE {
+      ?individual rdf:type test:Class5 .
+      }
+   </pre>
+
+   <title title="execute a query" />
+   The Tools =&gt; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema:
+   <img id="sparqlquery" />
+
+   If the query executes correctly, will have the folowing result window:
+   <img id="sparqlresult" />
+
+   <see id="configuration#SPARQL settings" desc="SPARQL settings" />
+   <cat id="tools" />
+</article>

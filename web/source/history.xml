@@ -52,10 +52,23 @@
    <ul>
       <li>Use MDIUtilities 1.2.60</li>
       <li>Use MDIFramework 1.4.1</li>  
-      <li>Use docJGenerator 1.6.5.6</li>
+      <li>Use docJGenerator 1.6.5.8</li>
       <li>Add tooltips showing the comments of elements in the ontology</li>
       <li>Show the classes associated with the selected Class in the dependencies window</li>
-   </ul>    
+      <li>Parse the default annotations for elements in the model and show documented elements in the tree</li>
+      <li>Parse and show all annotations in the model</li>
+   </ul>  
+   
+   <title title="Version 0.7" />
+   <ul>
+      <li>Add a log level for the browser</li>
+      <li>Show correctly the individuals which are parts of equivalent classes</li>  
+      <li>Fix some cases where the dependencies window would not show the dependencies on the correct element</li>
+      <li>Support seeAlso and isDefinedBy annotations on elements in the Ontology</li>
+      <li>Allow to specify alternate locations for imported URIs</li>
+      <li>Use labels to name the elements when they are present</li>
+      <li>Add a configuration option to show aliased classes in the diagram</li>
+   </ul>         
 
    <cat id="general" />
 </article>

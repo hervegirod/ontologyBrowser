@@ -6,6 +6,8 @@
    The configuration of the tool has two types of settings:
    <ul>
       <li>The General settings</li>
+      <li>The Schemas settings</li>
+      <li>The SPARQL settings</li>
       <li>The Styles settings</li>
       <li>The Packages settings</li>
       <li>The yEd settings</li>
@@ -19,11 +21,27 @@
       <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
       <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
       <li>"Show Indirect Relations": checked if the indirect relations are shown in the <ref id="Dependencies window" /></li>
-      <li>"Show Commented Elements": checked if elemetns which have comments must be shown with a specific icon. See also
+      <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
+      <li>"Show Commented Elements": checked if elements which have comments must be shown with a specific icon. See also
          <ref id="elements default annotations" /> for more information</li>
-      <li>"Add Thing Class": checked if the the <code>Thing</code> class should be present</li>
+      <li>"Add Thing Class": checked if the <code>Thing</code> class should be present</li>
+   </ul>
+
+   <title title="Schemas settings" />
+   <moreInfo id="Schemas alternate locations" />
+   <img id="configSchemas" />
+   <ul>
+      <li>"Use built-in Schemas": checked if the browser must use built-in schemas</li>
       <li>"Schemas Alternate Locations": allow to specify alternate locations for URIs imported in your Ontologies. See also
          <ref id="Schemas alternate locations" /> for more information</li>
+   </ul>
+
+   <title title="SPARQL settings" />
+   <moreInfo id="SPARQL execution" />
+   <img id="configSPARQL" />
+   <ul>
+      <li>"Add Prefix in SPARQL Requests": checked if the prefixes for the current schema must be automatically included in the SPARQL requests</li>
+      <li>"Default Base Prefix": the default base rpefix to use in the automatically included prefix  if the base prefix of the schema is empty</li>
    </ul>
 
    <title title="Styles settings" />
