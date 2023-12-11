@@ -50,3 +50,4 @@
  - Add a configuration option to show aliased classes in the diagram
  - Add a Datatypes tree
  - Allow to execute SPARQL queries
+ - Add a standards folder in the distribution
