@@ -2,14 +2,23 @@
 <catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
     <uri id="Imports Wizard Entry" name="http://www.w3.org/2006/time#2016" uri="owl-time.owl"/>
     <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="duplicate:http://localhost/INAV" uri="MapGeoSparql.owl.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="duplicate:http://localhost/INAV" uri="WithoutThing.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="http://localhost/TEST" uri="test.owl.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="http://localhost/Test" uri="testQualified.owl.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="pizza.owl.rdf"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwl.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwlPackages2.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-18" uri="timedOntology.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1684499069527" name="http://www.w3.org/2006/time" uri="owl-time.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://localhost/INAV" uri="MapGeoSparql.owl.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://localhost/INAV" uri="WithoutThing.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://localhost/TEST" uri="test.owl.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://localhost/Test" uri="testQualified.owl.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://my.ontology/ontologyTest" uri="testUsingBFO.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="pizza.owl.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.semanticweb.org/herve/ontologies/2023/11/untitled-ontology-15/" uri="TestEquivalent.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.semanticweb.org/herve/ontologies/2023/11/untitled-ontology-17/" uri="testAnnotations.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwl.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwl2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwl3Comments.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwl4.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwlPackages2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="duplicate:http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11" uri="testOwlrelative.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-18" uri="timedOntology.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.semanticweb.org/herve/ontologies/2023/6/untitled-ontology-7/" uri="testAlias.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.semanticweb.org/scdsahv/ontologies/2023/11/MyOntology/" uri="TestIndividuals.rdf"/>
+        <uri id="Automatically generated entry, Timestamp=1702218694016" name="http://www.w3.org/2006/time" uri="owl-time.owl"/>
     </group>
 </catalog>
