@@ -102,7 +102,6 @@ public abstract class AnnotatedElement {
     */
    public void setComments(String comments) {
       if (comments != null) {
-         annotations.put(COMMENT, new AnnotationValue.LiteralAnnotationValue(comments));
          createDocumentation().setComments(comments);
       }
    }
@@ -114,7 +113,6 @@ public abstract class AnnotatedElement {
     */
    public void setIsDefinedBy(AnnotationValue isDefinedBy) {
       if (isDefinedBy != null) {
-         annotations.put(DEFINED_BY, isDefinedBy);
          createDocumentation().setIsDefinedBy(isDefinedBy);
       }
    }
@@ -138,7 +136,6 @@ public abstract class AnnotatedElement {
     */
    public void setSeeAlso(AnnotationValue seeAlso) {
       if (seeAlso != null) {
-         annotations.put(SEE_ALSO, seeAlso);
          createDocumentation().setSeeAlso(seeAlso);
       }
    }

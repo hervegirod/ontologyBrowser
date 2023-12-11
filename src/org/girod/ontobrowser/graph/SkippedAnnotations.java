@@ -43,54 +43,50 @@ import org.girod.ontobrowser.model.ElementKey;
 public class SkippedAnnotations {
    private static SkippedAnnotations annotationsInstance = null;
    private final Set<ElementKey> skipped = new HashSet<>();
-   private final Set<ElementKey> comments = new HashSet<>();   
-   
-   private SkippedAnnotations() {   
+   private final Set<ElementKey> comments = new HashSet<>();
+
+   private SkippedAnnotations() {
       setup();
    }
-   
+
    public static SkippedAnnotations getInstance() {
       if (annotationsInstance == null) {
          annotationsInstance = new SkippedAnnotations();
       }
       return annotationsInstance;
    }
-   
+
    public boolean isComment(ElementKey key) {
       return comments.contains(key);
-   }   
-   
+   }
+
    public boolean isSkipped(ElementKey key) {
       return skipped.contains(key);
    }
-   
+
    public boolean isSkippedForClass(ElementKey key) {
       return skipped.contains(key) || comments.contains(key);
-   }   
-   
+   }
+
    private void setup() {
       String owl = "http://www.w3.org/2002/07/owl#";
       addSkipped(owl, "inverseOf");
       addSkipped(owl, "equivalentClass");
-      
+
       String rdfSchema = "http://www.w3.org/2000/01/rdf-schema#";
       addSkipped(rdfSchema, "domain");
       addSkipped(rdfSchema, "range");
-      addSkipped(rdfSchema, "isDefinedBy");
       addSkipped(rdfSchema, "subClassOf");
-      
-      addComment(rdfSchema, "comment");     
-      addComment(rdfSchema, "seeAlso");      
-      
+
       String rdfsyntax = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
       addSkipped(rdfsyntax, "type");
    }
-   
+
    private void addComment(String namespace, String name) {
       ElementKey key = ElementKey.create(namespace, name);
       comments.add(key);
-   }   
-   
+   }
+
    private void addSkipped(String namespace, String name) {
       ElementKey key = ElementKey.create(namespace, name);
       skipped.add(key);
