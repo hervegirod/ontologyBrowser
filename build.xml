@@ -88,6 +88,9 @@
          <fileset description="samples" dir=".">
             <include name="samples/**/*.*"/>
          </fileset>
+         <fileset description="scripts" dir=".">
+            <include name="scripts/**/*"/>
+         </fileset>
          <fileset description="standards" dir=".">
             <include name="standards/**/*.*"/>
          </fileset>
@@ -106,11 +109,12 @@
             <include name="src/**/*.html"/>
             <include name="src/**/*.xml"/>
             <include name="src/**/*.xsd"/>
-            <include name="src/**/*.png"/>
             <include name="src/**/*.ttl"/>
             <include name="src/**/*.owl"/>
             <include name="src/**/*.rdf"/>
+            <include name="src/**/*.png"/>
             <include name="src/**/*.gif"/>
+            <include name="src/**/*.jpg"/>
             <include name="src/manifest*.mf"/>
          </fileset>
          <fileset description="binaries" dir="${dist.dir}">
@@ -127,6 +131,9 @@
          </fileset>
          <fileset description="samples" dir=".">
             <include name="samples/**/*.*"/>
+         </fileset>
+         <fileset description="scripts" dir=".">
+            <include name="scripts/**/*"/>
          </fileset>
          <fileset description="standards" dir=".">
             <include name="standards/**/*.*"/>
@@ -208,10 +215,11 @@
             <include name="org/girod/**/*.class"/>
             <include name="org/girod/**/*.xml"/>
             <include name="org/girod/**/*.xsd"/>
-            <include name="org/girod/**/*.png"/>
             <include name="org/girod/**/*.ttl"/>
             <include name="org/girod/**/*.owl"/>
             <include name="org/girod/**/*.rdf"/>
+            <include name="org/girod/**/*.png"/>
+            <include name="org/girod/**/*.jpg"/>
             <include name="org/girod/**/*.gif"/>
             <include name="org/girod/**/*.properties"/>
          </fileset>
