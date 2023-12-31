@@ -30,33 +30,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser;
+package org.girod.ontobrowser.parsers;
 
+import java.awt.Color;
 import java.io.File;
-import org.girod.ontobrowser.model.ElementKey;
-import org.girod.ontobrowser.model.PackageConfigType;
-import org.girod.ontobrowser.model.PackagesConfiguration;
+import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.gui.CustomGraphStyles;
+import org.mdiutil.lang.swing.HTMLSwingColors;
 import org.mdiutil.xml.XMLSAXParser;
 import org.mdiutil.xml.swing.BasicSAXHandler;
 import org.xml.sax.Attributes;
 
 /**
- * This class allows to parse the packages configuration.
+ * This class allows to parse the custom colors for the browser.
  *
- * @since 0.5
+ * @version 0.8
  */
-public class PackagesConfigurationParser extends BasicSAXHandler {
-   private PackagesConfiguration packagesConfiguration;
+public class CustomGraphStylesParser extends BasicSAXHandler {
+   private CustomGraphStyles graphStyles;
+   private CustomGraphStyles.ElementStyle currentStyle = null;
+   
 
-   public PackagesConfigurationParser() {
+   public CustomGraphStylesParser() {
    }
 
    public void parse(File file) {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      packagesConfiguration = conf.getPackagesConfiguration();
-      packagesConfiguration.reset();
+      graphStyles = conf.getCustomGraphStyles();
+      graphStyles.reset();
       XMLSAXParser parser = new XMLSAXParser(this);
-      parser.setSchema(conf.getPackagesConfigurationSchema());
+      parser.setSchema(conf.getGraphStylesSchema());
       parser.parse(file);
    }
 
@@ -66,69 +69,79 @@ public class PackagesConfigurationParser extends BasicSAXHandler {
     */
    @Override
    public void startElement(String uri, String localname, String qname, Attributes attr) {
-      switch (qname) {
-         case "packagesConfiguration":
-            parseDefaults(attr);
-            break;
-         case "forgetPackage":
-            addPackage(attr, true);
-            break;
-         case "forgetNamespace":
-            parseNamespace(attr);
-            break;
-         case "forcePackage":
-            addPackage(attr, false);
-            break;
-         default:
-            break;
+      if (qname.equals("element")) {
+         parseElement(attr);
+      } else if (qname.equals("background") && currentStyle != null) {
+         parseBackgroundColor(attr);
+      } else if (qname.equals("property") && currentStyle != null) {
+         parseProperty(attr);         
       }
    }
-
-   private void parseDefaults(Attributes attr) {
+   
+   private void parseElement(Attributes attr) {
+      currentStyle = null;
+      
       for (int i = 0; i < attr.getLength(); i++) {
          String attrname = attr.getQName(i);
          String attrvalue = attr.getValue(i);
-         if (attrname.equals("acceptDefaults")) {
-            packagesConfiguration.acceptDefaults(attrvalue.equals("true"));
-         }
-      }
-   }
-
-   private void parseNamespace(Attributes attr) {
-      for (int i = 0; i < attr.getLength(); i++) {
-         String attrname = attr.getQName(i);
-         String attrvalue = attr.getValue(i);
-         if (attrname.equals("namespace")) {
-            packagesConfiguration.forgetNamespace(attrvalue);
-         }
-      }
-   }
-
-   private void addPackage(Attributes attr, boolean forget) {
-      for (int i = 0; i < attr.getLength(); i++) {
-         String attrname = attr.getQName(i);
-         String attrvalue = attr.getValue(i);
-         if (attrname.equals("path")) {
-            String path = attrvalue;
-            int index = path.lastIndexOf('#');
-            ElementKey key;
-            if (index != -1) {
-               String name = path.substring(index + 1);
-               if (index != 0) {
-                  String namespace = path.substring(0, index + 1);
-                  key = new ElementKey(namespace, name);
-               } else {
-                  key = new ElementKey(name);
-               }
-            } else {
-               key = new ElementKey(path);
-            }
-            if (forget) {
-               packagesConfiguration.addClass(key, PackageConfigType.FORGET_PACKAGE);
-            } else {
-               packagesConfiguration.addClass(key, PackageConfigType.FORCE_PACKAGE);
+         if (attrname.equals("type")) {
+            switch (attrvalue) {
+               case "class":
+                  currentStyle = graphStyles.getStyle(CustomGraphStyles.CLASS);
+                  break;
+               case "package":
+                  currentStyle = graphStyles.getStyle(CustomGraphStyles.PACKAGE);
+                  break;
+               case "externalPackage":
+                  currentStyle = graphStyles.getStyle(CustomGraphStyles.EXTERNAL_PACKAGE);
+                  break;      
+               case "individual":
+                  currentStyle = graphStyles.getStyle(CustomGraphStyles.INDIVIDUAL);
+                  break;   
+               case "property":
+                  currentStyle = graphStyles.getStyle(CustomGraphStyles.PROPERTY);
+                  break;                    
             }
          }
       }
    }
+
+   private void parseBackgroundColor(Attributes attr) {
+      for (int i = 0; i < attr.getLength(); i++) {
+         String attrname = attr.getQName(i);
+         String attrvalue = attr.getValue(i);
+         switch (attrname) {
+            case "color": {
+               Color col = HTMLSwingColors.decodeColor(attrvalue);
+               currentStyle.backgroundColor = col;
+               break;
+            }
+         }
+      }
+   }
+   
+   private void parseProperty(Attributes attr) {
+      String key = null;
+      String value = null;
+      
+      for (int i = 0; i < attr.getLength(); i++) {
+         String attrname = attr.getQName(i);
+         String attrvalue = attr.getValue(i);
+         switch (attrname) {
+            case "key":
+               key = attrvalue;
+               break;
+            case "value":
+               value = attrvalue;
+               break;               
+         }
+      }
+      if (key != null && value != null) {
+         if (currentStyle.type == CustomGraphStyles.PACKAGE) {
+            if (key.equals("showInnerGraphDisplay")) {
+               graphStyles.setShowInnerGraphDisplay(value.equals("true"));
+            }
+         }
+      }
+   }   
 }

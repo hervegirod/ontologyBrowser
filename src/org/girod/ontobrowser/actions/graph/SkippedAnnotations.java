@@ -30,41 +30,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.actions.graph;
+
+import java.util.HashSet;
+import java.util.Set;
+import org.girod.ontobrowser.model.ElementKey;
 
 /**
- * Represents an object property value.
+ * The skipped annotations.
  *
  * @version 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
+public class SkippedAnnotations {
+   private static SkippedAnnotations annotationsInstance = null;
+   private final Set<ElementKey> skipped = new HashSet<>();
 
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+   private SkippedAnnotations() {
+      setup();
    }
 
-   /**
-    * Return the object property. Identical as {@link #getProperty()}.
-    *
-    * @return the object property
-    */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
+   public static SkippedAnnotations getInstance() {
+      if (annotationsInstance == null) {
+         annotationsInstance = new SkippedAnnotations();
+      }
+      return annotationsInstance;
    }
 
-   /**
-    * Return the target.
-    *
-    * @return the target
-    */
-   public OwlIndividual getTarget() {
-      return target;
+   public boolean isSkipped(ElementKey key) {
+      return skipped.contains(key);
    }
 
-   @Override
-   public String toString() {
-      return target.toString();
+   private void setup() {
+      String owl = "http://www.w3.org/2002/07/owl#";
+      addSkipped(owl, "inverseOf");
+      addSkipped(owl, "equivalentClass");
+
+      String rdfSchema = "http://www.w3.org/2000/01/rdf-schema#";
+      addSkipped(rdfSchema, "domain");
+      addSkipped(rdfSchema, "range");
+      addSkipped(rdfSchema, "subClassOf");
+      addSkipped(rdfSchema, "subPropertyOf");
+
+      String rdfsyntax = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+      addSkipped(rdfsyntax, "type");
+   }
+
+   private void addSkipped(String namespace, String name) {
+      ElementKey key = ElementKey.create(namespace, name);
+      skipped.add(key);
    }
 }

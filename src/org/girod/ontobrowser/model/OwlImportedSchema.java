@@ -32,39 +32,79 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.net.URI;
+import java.util.Map;
+
 /**
- * Represents an object property value.
+ * Represents an imported schema found in the ontology prefix.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
+public class OwlImportedSchema implements OwlDeclaredSchema {
+   private final String prefix;
+   private final String namespace;
+   private SchemasRepository.SchemaRep schemaRep = null;
 
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+   public OwlImportedSchema(String prefix, String namespace) {
+      this.prefix = prefix;
+      this.namespace = namespace;
    }
 
    /**
-    * Return the object property. Identical as {@link #getProperty()}.
+    * Return the schema prefix in the declaration.
     *
-    * @return the object property
+    * @return the prefix
     */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
+   @Override
+   public String getPrefix() {
+      return prefix;
    }
 
    /**
-    * Return the target.
+    * Return the schema namespace.
     *
-    * @return the target
+    * @return the namespace
     */
-   public OwlIndividual getTarget() {
-      return target;
+   @Override
+   public String getNamespace() {
+      return namespace;
+   }
+
+   /**
+    * Return the URI of the namespace.
+    *
+    * @return the URI
+    */
+   @Override
+   public URI toURI() {
+      return schemaRep.toURI();
    }
 
    @Override
-   public String toString() {
-      return target.toString();
+   public boolean hasName() {
+      return schemaRep.hasName();
+   }
+
+   @Override
+   public String getName() {
+      return schemaRep.getName();
+   }
+
+   public void setSchemaRep(SchemasRepository.SchemaRep schemaRep) {
+      this.schemaRep = schemaRep.create(prefix);
+   }
+
+   public SchemasRepository.SchemaRep getSchemaRep() {
+      return schemaRep;
+   }
+
+   /**
+    * Return the schemas on which this schema depends on by namespace.
+    *
+    * @return the schemas
+    */
+   @Override
+   public Map<String, ? extends OwlDeclaredSchema> getDependenciesByNamespace() {
+      return schemaRep.getDependenciesByNamespace();
    }
 }

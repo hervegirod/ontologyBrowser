@@ -56,6 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
+import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlClass;
@@ -65,13 +66,15 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
+import org.girod.ontobrowser.model.ElementFilter;
+import org.girod.ontobrowser.utils.SchemaUtils;
 import org.mdi.bootstrap.swing.MDIDialog;
 import org.mdiutil.swing.GenericDialog;
 
 /**
  * This Dialog shows the dependencies of an element.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private NamedOwlElement element;
@@ -159,6 +162,11 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    }
 
    private void initializeList(boolean refreshed) {
+      boolean includeParentRelations = BrowserConfiguration.getInstance().includeParentRelations;
+      boolean includeAlias = BrowserConfiguration.getInstance().includeAlias;
+      ElementFilter properties = new ElementFilter();
+      properties.includeParentRelations = includeParentRelations;
+      properties.includeAlias = includeAlias;
       if (element instanceof OwlIndividual) {
          // Classes of the Individual
          model.addElement("Classes");
@@ -182,7 +190,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          OwlClass theClass = (OwlClass) element;
          // data properties of the Class
          model.addElement("Data Properties");
-         SortedMap<ElementKey, OwlProperty> mapp = new TreeMap<>(theClass.getOwlProperties());
+         SortedMap<ElementKey, OwlProperty> mapp = new TreeMap<>(SchemaUtils.getDataProperties(theClass, properties));
          Iterator<OwlProperty> itp = mapp.values().iterator();
          while (itp.hasNext()) {
             OwlProperty property = itp.next();
@@ -192,7 +200,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }
          // domain properties of the Class
          model.addElement("Object Properties Domain");
-         mapp = new TreeMap<>(theClass.getOwlProperties());
+         mapp = new TreeMap<>(SchemaUtils.getDomainProperties(theClass, properties));
          itp = mapp.values().iterator();
          while (itp.hasNext()) {
             OwlProperty property = itp.next();
@@ -202,7 +210,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }
          // range properties of the Class
          model.addElement("Object Properties Range");
-         mapp = new TreeMap<>(theClass.getRangeOwlProperties());
+         mapp = new TreeMap<>(SchemaUtils.getRangeProperties(theClass, properties));
          itp = mapp.values().iterator();
          while (itp.hasNext()) {
             OwlProperty property = itp.next();
@@ -237,7 +245,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                NamedOwlElement theElement = itc.next();
                model.addElement(theElement);
             }
-         }         
+         }
          if (theClass.isInEquivalentExpressions()) {
             model.addElement("Used in Equivalent Expressions");
             SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getInEquivalentExpressions());

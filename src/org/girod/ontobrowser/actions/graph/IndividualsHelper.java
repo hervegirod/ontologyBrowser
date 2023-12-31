@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.graph;
+package org.girod.ontobrowser.actions.graph;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -54,7 +54,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * A helper for boolean expressions.
  *
- * @since 0.7
+ * @version 0.8
  */
 public class IndividualsHelper {
    private final OwlSchema graph;

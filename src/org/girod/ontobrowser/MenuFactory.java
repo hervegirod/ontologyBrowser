@@ -48,17 +48,17 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
-import org.apache.jena.ontology.OntModel;
+import org.girod.ontobrowser.actions.ApplyDebugScriptAction;
+import org.girod.ontobrowser.actions.ApplyScriptAction;
 import org.girod.ontobrowser.actions.ExecuteSPARQLAction;
 import org.girod.ontobrowser.actions.ExportGraphAction;
-import org.girod.ontobrowser.actions.OntologyMetadataViewer;
 import org.girod.ontobrowser.actions.OpenInYedAction;
 import org.girod.ontobrowser.actions.OpenModelAction;
 import org.girod.ontobrowser.gui.GraphPanel;
@@ -70,6 +70,7 @@ import org.mdi.app.swing.AbstractMDIMenuFactory;
 import org.mdi.app.swing.DefaultMDIDialogBuilder;
 import org.mdi.app.swing.DefaultMDIDialogBuilder.DialogListener;
 import org.mdi.bootstrap.MDIDialogType;
+import org.mdi.bootstrap.swing.GUIApplication;
 import org.mdi.bootstrap.swing.MDIDialogBuilder;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdi.gui.swing.AbstractSettingsAction;
@@ -81,7 +82,7 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This class creates the Menus for the application.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
@@ -213,6 +214,22 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       };
       toolsmenu.add(sparqlAction);
 
+      AbstractAction scriptAction = new AbstractAction("Execute Script") {
+         @Override
+         public void actionPerformed(ActionEvent ae) {
+            executeScript();
+         }
+      };
+      AbstractAction debugScriptAction = new AbstractAction("Debug Script") {
+         @Override
+         public void actionPerformed(ActionEvent ae) {
+            debugScript();
+         }
+      };
+      toolsmenu.addSeparator();
+      toolsmenu.add(scriptAction);
+      toolsmenu.add(debugScriptAction);
+
       JMenuItem openItem = new JMenuItem(openAction);
       JMenuItem exportItem = new JMenuItem(exportAction);
       JMenuItem openInYedItem = new JMenuItem(openInYedAction);
@@ -238,6 +255,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       settingsAction.addNode(null, "General", settings.getGeneralSettings(), null);
       settingsAction.addNode(null, "Schemas", settings.getSchemasSettings(), null);
       settingsAction.addNode(null, "SPARQL", settings.getSPARQLSettings(), null);
+      settingsAction.addNode(null, "Scripts", settings.getScriptsSettings(), null);
       settingsAction.addNode(null, "Style", settings.getStyleSettings(), null);
       settingsAction.addNode(null, "Packages", settings.getPackageSettings(), null);
       settingsAction.addNode(null, "yEd", settings.getYedSettings(), null);
@@ -262,26 +280,42 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    }
 
    @Override
-   public void createPopupMenu(JPopupMenu menu) {
-      JMenuItem showOntologyItem = new JMenuItem("Show Ontology");
-      showOntologyItem.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            showOntology();
-         }
-      });
-      menu.add(showOntologyItem);
-   }
-
-   private void showOntology() {
-      OntologyMetadataViewer viewer = new OntologyMetadataViewer();
-      viewer.showOntologyMetadata(appli);
-   }
-
-   @Override
    public void updateMenus() {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      openInYedAction.setEnabled(conf.hasYedExeDirectory() && conf.getYedExeDirectory() != null);
+      openInYedAction.setEnabled(bconf.hasYedExeDirectory() && bconf.getYedExeDirectory() != null);
+   }
+
+   private void executeScript() {
+      GraphPanel graphPanel = getGraphPanel();
+      if (graphPanel != null) {
+         JFileChooser chooser = new JFileChooser();
+         chooser.setDialogTitle("Select Groovy Script");
+         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+         chooser.setFileFilter(bconf.scriptfilter);
+         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+         chooser.setCurrentDirectory(bconf.getDefaultDirectory());
+         if (chooser.showOpenDialog(((GUIApplication) appli).getApplicationWindow()) == JFileChooser.APPROVE_OPTION) {
+            File scriptFile = chooser.getSelectedFile();
+            ApplyScriptAction scriptAction = new ApplyScriptAction(appli, scriptFile, graphPanel);
+            appli.executeAction(scriptAction);
+         }
+      }
+   }
+
+   private void debugScript() {
+      GraphPanel graphPanel = getGraphPanel();
+      if (graphPanel != null) {
+         JFileChooser chooser = new JFileChooser();
+         chooser.setDialogTitle("Select Groovy Script");
+         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+         chooser.setFileFilter(bconf.scriptfilter);
+         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+         chooser.setCurrentDirectory(bconf.getDefaultDirectory());
+         if (chooser.showOpenDialog(((GUIApplication) appli).getApplicationWindow()) == JFileChooser.APPROVE_OPTION) {
+            File scriptFile = chooser.getSelectedFile();
+            ApplyDebugScriptAction scriptAction = new ApplyDebugScriptAction(appli, scriptFile, graphPanel);
+            appli.executeAction(scriptAction);
+         }
+      }
    }
 
    private void executeSPARQL() {
@@ -315,6 +349,25 @@ public class MenuFactory extends AbstractMDIMenuFactory {
          mxGraphComponent comp = elt.getGraphComponent();
          comp.setCenterPage(true);
          comp.scrollToCenter(true);
+      }
+   }
+
+   /**
+    * Return the current graph panel.
+    *
+    * @return the current graph panel
+    */
+   public GraphPanel getGraphPanel() {
+      SwingFileProperties prop = ((AbstractMDIApplication) appli).getSelectedProperties();
+      if (prop != null) {
+         JComponent comp = prop.getComponent();
+         if (comp instanceof GraphPanel) {
+            return (GraphPanel) comp;
+         } else {
+            return null;
+         }
+      } else {
+         return null;
       }
    }
 

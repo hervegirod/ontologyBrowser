@@ -65,14 +65,27 @@ import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
 
 /**
+ * An abstract class which exports a doiagram as a GraphML graoh.
  *
- * @version 0.5
+ * @version 0.8
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
+   /**
+    * The file to export.
+    */
    protected File file = null;
-   protected OwlDiagram diagram = null;
-   protected OwlSchema schema;
+   /**
+    * The diagram.
+    */
+   protected final OwlDiagram diagram;
+   /**
+    * The schema.
+    */
+   protected final OwlSchema schema;
+   /**
+    * The exported graph.
+    */
    protected GraphMLDiagram graph;
    protected Map<ElementKey, GraphMLGroupNode> packagesNodes = new HashMap<>();
    protected Map<ElementKey, IGraphMLNode> elementToNode;
@@ -95,6 +108,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
       super(app, desc);
       this.file = file;
       this.diagram = diagram;
+      this.schema = diagram.getSchema();
       this.customStyles = BrowserConfiguration.getInstance().getCustomGraphStyles();
       this.setDescription(desc, desc);
    }
@@ -149,7 +163,6 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
       defaults.arrowTarget = Arrows.STANDARD;
 
       packagesNodes = new HashMap<>();
-      schema = diagram.getSchema();
    }
 
    /**

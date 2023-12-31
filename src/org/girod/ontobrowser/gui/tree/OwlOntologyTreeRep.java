@@ -30,65 +30,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.graph;
-
-import java.util.HashSet;
-import java.util.Set;
-import org.girod.ontobrowser.model.ElementKey;
+package org.girod.ontobrowser.gui.tree;
 
 /**
  *
- * @since 0.7
+ * @since 0.8
  */
-public class SkippedAnnotations {
-   private static SkippedAnnotations annotationsInstance = null;
-   private final Set<ElementKey> skipped = new HashSet<>();
-   private final Set<ElementKey> comments = new HashSet<>();
-
-   private SkippedAnnotations() {
-      setup();
-   }
-
-   public static SkippedAnnotations getInstance() {
-      if (annotationsInstance == null) {
-         annotationsInstance = new SkippedAnnotations();
-      }
-      return annotationsInstance;
-   }
-
-   public boolean isComment(ElementKey key) {
-      return comments.contains(key);
-   }
-
-   public boolean isSkipped(ElementKey key) {
-      return skipped.contains(key);
-   }
-
-   public boolean isSkippedForClass(ElementKey key) {
-      return skipped.contains(key) || comments.contains(key);
-   }
-
-   private void setup() {
-      String owl = "http://www.w3.org/2002/07/owl#";
-      addSkipped(owl, "inverseOf");
-      addSkipped(owl, "equivalentClass");
-
-      String rdfSchema = "http://www.w3.org/2000/01/rdf-schema#";
-      addSkipped(rdfSchema, "domain");
-      addSkipped(rdfSchema, "range");
-      addSkipped(rdfSchema, "subClassOf");
-
-      String rdfsyntax = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-      addSkipped(rdfsyntax, "type");
-   }
-
-   private void addComment(String namespace, String name) {
-      ElementKey key = ElementKey.create(namespace, name);
-      comments.add(key);
-   }
-
-   private void addSkipped(String namespace, String name) {
-      ElementKey key = ElementKey.create(namespace, name);
-      skipped.add(key);
-   }
+public interface OwlOntologyTreeRep {
+   public String getPrefix();
+   
+   public String getNamespace();
 }

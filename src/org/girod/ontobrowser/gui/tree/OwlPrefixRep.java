@@ -30,41 +30,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.gui.tree;
 
 /**
- * Represents an object property value.
+ * Represents a mapping between a prefix and a namespace represented in its tree.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
-
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+public class OwlPrefixRep implements OwlOntologyTreeRep {
+   public final String prefix;
+   public final String namespace;
+   
+   public OwlPrefixRep(String prefix, String namespace) {
+      this.prefix = prefix;
+      this.namespace = namespace;
    }
-
-   /**
-    * Return the object property. Identical as {@link #getProperty()}.
-    *
-    * @return the object property
-    */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
-   }
-
-   /**
-    * Return the target.
-    *
-    * @return the target
-    */
-   public OwlIndividual getTarget() {
-      return target;
+   
+   @Override
+   public String getPrefix() {
+      return prefix;
+   }   
+   
+   @Override
+   public String getNamespace() {
+      return namespace;
    }
 
    @Override
    public String toString() {
-      return target.toString();
+      return "<html><b>" + prefix + ":</b><br><i>" + namespace + "</i></html>";
    }
 }

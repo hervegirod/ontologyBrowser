@@ -42,7 +42,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.7
+ * @version 0.8
  */
 public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
@@ -71,6 +71,20 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
       return restriction;
    }
 
+   /**
+    * Return true if the property has a domain.
+    *
+    * @return true if the property has a domain
+    */
+   public boolean hasDomain() {
+      return !domain.isEmpty();
+   }
+
+   /**
+    * Return the domain of the property.
+    *
+    * @return the domain
+    */
    public Map<ElementKey, OwlRestriction> getDomain() {
       return domain;
    }
@@ -151,5 +165,10 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
 
    public int getMaxCardinality() {
       return maxCardinality;
+   }
+
+   @Override
+   public void accept(ElementVisitor visitor) {
+      visitor.visit(this);
    }
 }

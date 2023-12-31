@@ -32,39 +32,89 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.net.URI;
+
 /**
- * Represents an object property value.
+ * A named element.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
+public interface NamedElement {
+   /**
+    * Return the element prefix.
+    *
+    * @return the prefix
+    */
+   public String getPrefix();
 
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+   /**
+    * Return the element URI.
+    *
+    * @return the URI
+    */
+   public URI toURI();
+
+   /**
+    * Return the element name.
+    *
+    * @return the name
+    */
+   public String getName();
+
+   /**
+    * Return the element displayed name.
+    *
+    * @return the element displayed name.
+    */
+   public String getDisplayedName();
+
+   /**
+    * Return the element prefixed displayed name.
+    *
+    * @return the element prefixed displayed name.
+    */
+   public String getPrefixedDisplayedName();
+
+   /**
+    * Return the element namespace.
+    *
+    * @return the namespace
+    */
+   public String getNamespace();
+
+   /**
+    * Return the element key.
+    *
+    * @return the key
+    */
+   public ElementKey getKey();
+
+   /**
+    * Used to apply the Visitor pattern with this Element. The typical behavior is to call for
+    * the <i>Visit</i> method of the Visitor, and to call the <i>accept</i> method on the Element children.
+    *
+    * @param visitor the Visitor
+    */
+   public default void accept(ElementVisitor visitor) {
+      visitor.visit(this);
    }
 
    /**
-    * Return the object property. Identical as {@link #getProperty()}.
+    * Return the type of the element.
     *
-    * @return the object property
+    * @return the element type
     */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
-   }
-
-   /**
-    * Return the target.
-    *
-    * @return the target
-    */
-   public OwlIndividual getTarget() {
-      return target;
-   }
-
-   @Override
-   public String toString() {
-      return target.toString();
+   public default String getElementType() {
+      if (this instanceof OwlClass) {
+         return ElementTypes.CLASS;
+      } else if (this instanceof OwlProperty) {
+         return ElementTypes.PROPERTY;
+      } else if (this instanceof OwlIndividual) {
+         return ElementTypes.INDIVIDUAL;
+      } else if (this instanceof OwlAnnotation) {
+         return ElementTypes.ANNOTATION;
+      } else {
+         return null;
+      }
    }
 }

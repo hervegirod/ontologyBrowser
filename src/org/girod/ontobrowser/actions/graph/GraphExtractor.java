@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.graph;
+package org.girod.ontobrowser.actions.graph;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,6 +70,7 @@ import org.apache.jena.vocabulary.OWL2;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.actions.AbstractWarningAction;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
@@ -96,7 +97,7 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class GraphExtractor extends AbstractWarningAction {
    private final File file;
@@ -260,6 +261,7 @@ public class GraphExtractor extends AbstractWarningAction {
          if (thisProperty.isObjectProperty()) {
             ObjectProperty objProperty = (ObjectProperty) thisProperty;
             OwlObjectProperty owlProperty = new OwlObjectProperty(objProperty, nameSpace, thisProperty.getLocalName());
+            setPrefix(owlProperty);
             exprHelper.addEquivalentProperties(equivalentProperties, objProperty, owlProperty.getKey());
             owlProp = owlProperty;
             graph.addOwlProperty(owlProperty);
@@ -326,6 +328,7 @@ public class GraphExtractor extends AbstractWarningAction {
          } else if (thisProperty.isDatatypeProperty()) {
             DatatypeProperty datatypeProperty = (DatatypeProperty) thisProperty;
             OwlDatatypeProperty owlProperty = new OwlDatatypeProperty(datatypeProperty, nameSpace, thisProperty.getLocalName());
+            setPrefix(owlProperty);
             exprHelper.addEquivalentProperties(equivalentProperties, datatypeProperty, owlProperty.getKey());
             ExtendedIterator declDomain = datatypeProperty.listDomain();
             if (!declDomain.hasNext()) {
@@ -376,7 +379,16 @@ public class GraphExtractor extends AbstractWarningAction {
             graph.addOwlProperty(owlProperty);
          } else if (thisProperty.isResource()) {
             Resource resource = thisProperty.asResource();
-            graph.addElementAnnotation(new OwlAnnotation(resource));
+            OwlAnnotation annotation = new OwlAnnotation(resource);
+            graph.addElementAnnotation(annotation);
+            StmtIterator iterSmt = resource.listProperties();
+            while (iterSmt.hasNext()) {
+               Statement statement = iterSmt.next();
+               Property predicate = statement.getPredicate();
+               RDFNode node = statement.getObject();
+               ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+               annotationsHelper.addAnnotationValue(node, annotation, theKey);
+            }
          }
          if (owlProp != null) {
             getRestrictions(thisProperty, owlProp);
@@ -402,6 +414,7 @@ public class GraphExtractor extends AbstractWarningAction {
             hasThingClass = true;
          } else {
             owlClass = new OwlClass(thisClass);
+            setPrefix(owlClass);
             StmtIterator stmt = thisClass.listProperties();
             while (stmt.hasNext()) {
                Statement statement = stmt.next();
@@ -554,6 +567,16 @@ public class GraphExtractor extends AbstractWarningAction {
       return graph;
    }
 
+   private void setPrefix(NamedOwlElement element) {
+      String namespace = element.getNamespace();
+      if (namespace != null) {
+         String prefix = graph.getPrefix(namespace);
+         if (prefix != null) {
+            element.setPrefix(prefix);
+         }
+      }
+   }
+
    private void addIndividual(Individual individual) {
       if (individual.getLocalName() == null) {
          List<OntClass> theClasses = getOwlClasses(individual);
@@ -578,6 +601,7 @@ public class GraphExtractor extends AbstractWarningAction {
             }
          }
          OwlIndividual owlIndividual = new OwlDeclaredIndividual(parentClasses, individual);
+         setPrefix(owlIndividual);
          if (!graph.hasIndividual(owlIndividual.getKey())) {
             StmtIterator iterSmt = individual.listProperties();
             while (iterSmt.hasNext()) {

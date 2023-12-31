@@ -45,7 +45,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Represents an Owl class.
  *
- * @version 0.7
+ * @version 0.
  */
 public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();
@@ -79,6 +79,15 @@ public class OwlClass extends NamedOwlElement {
     */
    public OntClass getOntClass() {
       return ontClass;
+   }
+
+   /**
+    * Return true if this Class is the Thing class.
+    *
+    * @return true if this Class is the Thing class
+    */
+   public boolean isThing() {
+      return getKey().equals(ElementKey.THING);
    }
 
    /**
@@ -391,6 +400,19 @@ public class OwlClass extends NamedOwlElement {
 
    public boolean hasFromAliasedClasses() {
       return !classFromAlias.isEmpty();
+   } 
+   
+   public boolean hasAnyAliasedClasses() {
+      return !classFromAlias.isEmpty() || !aliasClasses.isEmpty();
+   }    
+
+   /**
+    * Return true if this class has Owl Properties.
+    *
+    * @return true if this class has Owl Properties
+    */
+   public boolean hasOwlProperties() {
+      return !properties.isEmpty();
    }
 
    /**
@@ -422,10 +444,6 @@ public class OwlClass extends NamedOwlElement {
 
    public OwlProperty getOwlProperty(ElementKey key) {
       return properties.get(key);
-   }
-
-   public boolean hasOwlProperties() {
-      return !properties.isEmpty();
    }
 
    /**

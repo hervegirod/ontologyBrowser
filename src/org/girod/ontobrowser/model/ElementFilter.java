@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2021, 2023 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,39 +32,31 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import org.girod.ontobrowser.BrowserConfiguration;
+
 /**
- * Represents an object property value.
+ * The filter for elements.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
-
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
-   }
-
+public class ElementFilter {
    /**
-    * Return the object property. Identical as {@link #getProperty()}.
-    *
-    * @return the object property
+    * True if the parent classes relations must be included.
     */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
-   }
-
+   public boolean includeParentRelations = false;
    /**
-    * Return the target.
-    *
-    * @return the target
+    * True if the alias classes relations must be included.
     */
-   public OwlIndividual getTarget() {
-      return target;
-   }
+   public boolean includeAlias = false;
+   
+   public ElementFilter(boolean includeParentRelations, boolean includeAlias) {
+      this.includeParentRelations = includeParentRelations;
+      this.includeAlias = includeAlias;      
+   }   
 
-   @Override
-   public String toString() {
-      return target.toString();
+   public ElementFilter() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      this.includeParentRelations = conf.includeParentRelations;
+      this.includeAlias = conf.includeAlias;      
    }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ontologies>
+   <ontology namespace="http://www.opengis.net/ont/geosparql" name="GeoSPARQL" family="Open Geospatial Consortium"
+             description="The OGC GeoSPARQL standard supports representing and querying geospatial data on the Semantic Web"
+             uri="https://www.ogc.org/standard/geosparql/">
+      <dependsOn namespace="http://purl.org/dc/terms/"/>
+   </ontology>
+   <ontology namespace="http://www.opengis.net/ont/sf" name="OGC Simple Features" family="Open Geospatial Consortium"
+             description="ISO 19125-1:2004 establishes a common architecture for geographic information and defines terms to use within the architecture. It also standardizes names and geometric definitions for Types for Geometry"
+             uri="https://www.ogc.org/standard/sfa/">
+      <dependsOn namespace="http://www.opengis.net/ont/geosparql"/>
+      <dependsOn namespace="http://purl.org/dc/terms/"/>
+   </ontology>
+   <ontology namespace="http://purl.org/dc/terms/" name="DCMI Metadata Terms" family="DublinCore"
+             description="This document is an up-to-date specification of all metadata terms maintained by the Dublin Core Metadata Initiative, including properties, vocabulary encoding schemes, syntax encoding schemes, and classes."
+             uri="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/"/>
+   <ontology namespace="http://purl.org/dc/elements/1.1/" name="Dublin Core Metadata Element Set" family="DublinCore"
+             description="This document is an up-to-date specification of all metadata terms maintained by the Dublin Core Metadata Initiative"
+             uri="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/"/>
+   <ontology namespace="http://www.ifomis.org/bfo/1.1" name="Basic Formal Ontology (BFO)"
+             description="The Basic Formal Ontology (BFO) is a small, upper-level ontology that is designed for use in supporting information retrieval, analysis and integration in scientific and other domains"
+             uri="https://github.com/BFO-ontology/BFO">
+      <dependsOn namespace="http://purl.org/dc/terms/"/>
+   </ontology>
+   <ontology namespace="http://purl.obolibrary.org/obo/iao.owl" name="Information Artifact Ontology"
+             description="The Information Artifact Ontology (IAO) is a new ontology of information entities, originally driven by work by the OBI digital entity and realizable information entity branch."
+             uri="https://github.com/information-artifact-ontology/IAO/">
+      <dependsOn namespace="http://purl.org/dc/terms/"/>
+      <dependsOn namespace="http://purl.org/dc/elements/1.1/"/>
+   </ontology>
+   <ontology namespace="http://www.w3.org/2006/time" name="Time Ontology in OWL"
+             description="OWL-Time is an OWL-2 DL ontology of temporal concepts, for describing the temporal properties of resources in the world or described in Web pages"
+             uri="https://raw.githubusercontent.com/w3c/sdw/gh-pages/time/rdf/time.ttl">
+      <dependsOn namespace="http://purl.org/dc/terms/"/>
+   </ontology>
+</ontologies>
+

@@ -39,14 +39,21 @@ import java.util.Map;
 /**
  * Represents a named Owl element.
  *
- * @version 0.7
+ * @version 0.8
  */
-public abstract class NamedOwlElement extends AnnotatedElement implements Cloneable {
-
+public abstract class NamedOwlElement extends AnnotatedElement implements NamedElement, Cloneable {
+   /**
+    * The element namespace.
+    */
    protected String namespace;
+   /**
+    * The element name.
+    */
    protected final String name;
-
-   protected final String prefix;
+   /**
+    * The element prefix.
+    */
+   protected String prefix = null;
    private ElementKey key = null;
    private final Map<ElementKey, OwlClass> inEquivalentExpressions = new HashMap<>();
 
@@ -61,13 +68,33 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
       super();
       this.namespace = namespace;
       this.name = name;
-      this.prefix = null;
    }
 
+   /**
+    * Set the element prefix.
+    *
+    * @param prefix the prefix
+    */
+   public void setPrefix(String prefix) {
+      this.prefix = prefix;
+   }
+
+   /**
+    * Return the element prefix.
+    *
+    * @return the prefix
+    */
+   @Override
    public String getPrefix() {
       return prefix;
    }
 
+   /**
+    * Return the element URI.
+    *
+    * @return the URI
+    */
+   @Override
    public URI toURI() {
       return getKey().toURI();
    }
@@ -103,25 +130,6 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
       return !inEquivalentExpressions.isEmpty();
    }
 
-   /**
-    * Return the type of the element.
-    *
-    * @return the element type
-    */
-   public String getElementType() {
-      if (this instanceof OwlClass) {
-         return ElementTypes.CLASS;
-      } else if (this instanceof OwlProperty) {
-         return ElementTypes.PROPERTY;
-      } else if (this instanceof OwlIndividual) {
-         return ElementTypes.INDIVIDUAL;
-      } else if (this instanceof OwlAnnotation) {
-         return ElementTypes.ANNOTATION;
-      } else {
-         return null;
-      }
-   }
-
    @Override
    public NamedOwlElement clone() {
       try {
@@ -137,6 +145,7 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
     *
     * @return the name
     */
+   @Override
    public String getName() {
       return name;
    }
@@ -146,6 +155,7 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
     *
     * @return the element displayed name.
     */
+   @Override
    public String getDisplayedName() {
       if (label != null) {
          return label;
@@ -155,10 +165,26 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
    }
 
    /**
+    * Return the element prefixed displayed name.
+    *
+    * @return the element prefixed displayed name.
+    */
+   @Override
+   public String getPrefixedDisplayedName() {
+      String theName = getDisplayedName();
+      if (prefix == null) {
+         return theName;
+      } else {
+         return prefix + ":" + theName;
+      }
+   }
+
+   /**
     * Return the element namespace.
     *
     * @return the namespace
     */
+   @Override
    public String getNamespace() {
       return namespace;
    }
@@ -168,6 +194,7 @@ public abstract class NamedOwlElement extends AnnotatedElement implements Clonea
     *
     * @return the key
     */
+   @Override
    public ElementKey getKey() {
       if (key == null) {
          key = new ElementKey(namespace, name);

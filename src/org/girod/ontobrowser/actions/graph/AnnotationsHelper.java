@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.graph;
+package org.girod.ontobrowser.actions.graph;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,6 +53,7 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.girod.ontobrowser.model.AnnotatedElement;
 import org.girod.ontobrowser.model.AnnotationValue;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
@@ -63,7 +64,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * This class get the annotations on elements in the graph.
  *
- * @since 0.7
+ * @version 0.8
  */
 public class AnnotationsHelper {
    private final OwlSchema graph;
@@ -239,6 +240,19 @@ public class AnnotationsHelper {
       try {
          seeAlso = resource.getSeeAlso();
       } catch (OntologyException e) {
+         if (resource.isURIResource()) {
+            String uriAsString = resource.getURI();
+            URI uri;
+            try {
+               uri = new URI(uriAsString);
+               if (!graph.hasElement(uri)) {
+                  element.setSeeAlso(new AnnotationValue.URIAnnotationValue(uri));
+               } else {
+                  element.setSeeAlso(new AnnotationValue.ElementAnnotationValue(graph.getElement(uri)));
+               }
+            } catch (URISyntaxException ex) {
+            }
+         }
          seeAlso = null;
       }
       if (seeAlso != null) {
@@ -292,7 +306,7 @@ public class AnnotationsHelper {
    }
 
    public AnnotationValue addAnnotationValue(OntClass theClass, OwlClass owlClass, ElementKey annotationKey, Property property) {
-      if (skipped.isSkippedForClass(annotationKey)) {
+      if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       RDFNode theNode = theClass.getPropertyValue(property);
@@ -338,8 +352,30 @@ public class AnnotationsHelper {
       return value;
    }
 
+   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlAnnotation annotation, ElementKey annotationKey) {
+      if (skipped.isSkipped(annotationKey)) {
+         return null;
+      }
+      AnnotationValue value = null;
+      if (theNode.isLiteral()) {
+         String literal = theNode.asLiteral().getString();
+         value = new AnnotationValue.LiteralAnnotationValue(literal);
+      } else if (theNode.isURIResource()) {
+         String uriAsString = theNode.asResource().getURI();
+         try {
+            URI uri = new URI(uriAsString);
+            value = new AnnotationValue.URIAnnotationValue(uri);
+         } catch (URISyntaxException ex) {
+         }
+      }
+      if (value != null) {
+         annotation.addAnnotation(annotationKey, value);
+      }
+      return value;
+   }
+
    public AnnotationValue addAnnotationValue(RDFNode theNode, OwlObjectProperty owlProperty, ElementKey annotationKey) {
-      if (skipped.isSkippedForClass(annotationKey)) {
+      if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       AnnotationValue value = null;
@@ -361,7 +397,7 @@ public class AnnotationsHelper {
    }
 
    public AnnotationValue addAnnotationValue(RDFNode theNode, OwlDatatypeProperty owlProperty, ElementKey annotationKey) {
-      if (skipped.isSkippedForClass(annotationKey)) {
+      if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       AnnotationValue value = null;

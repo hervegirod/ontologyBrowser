@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -49,15 +50,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.girod.ontobrowser.gui.tree.OwlElementRep;
+import org.girod.ontobrowser.gui.tree.OwlImportedSchemaRep;
+import org.girod.ontobrowser.gui.tree.OwlOntologyRep;
 import org.girod.ontobrowser.model.AnnotationValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.OwlImportedSchema;
 import org.girod.ontobrowser.model.OwlSchema;
+import org.girod.ontobrowser.model.SchemasRepository;
 
 /**
  * The Compoent panel factory.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class ComponentPanelFactory {
    private final GraphPanel panel;
@@ -68,6 +73,19 @@ public class ComponentPanelFactory {
       this.panel = panel;
    }
 
+   public JComponent getComponentPanel(OwlImportedSchemaRep element) {
+      if (element.isImportedSchema()) {
+         return getOwlImportedSchemaPanel(element.getImportedSchema());
+      } else {
+         return getOwlImportedSchemaPanel(element.getImportedSchemaRep());
+      }
+   }
+
+   public JComponent getComponentPanel(OwlOntologyRep element) {
+      OwlSchema _schema = element.schema;
+      return getOwlSchemaPanel(_schema);
+   }
+
    public JComponent getComponentPanel(OwlElementRep selectedElement) {
       if (selectedElement == null) {
          return new JPanel();
@@ -76,26 +94,55 @@ public class ComponentPanelFactory {
       return getOwlClassPanel(namedElement);
    }
 
-   private JComponent getOwlClassPanel(NamedOwlElement theElement) {
+   private JComponent getOwlImportedSchemaPanel(OwlImportedSchema schema) {
+      return getOwlImportedSchemaPanel(schema.getSchemaRep());
+   }
+
+   private JComponent getOwlImportedSchemaPanel(SchemasRepository.SchemaRep schema) {
       JPanel thePanel = new JPanel();
       thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
-      StringBuilder html = new StringBuilder();
-      html.append("<html>");
-      String title = theElement.getKey().getPrefixedName(schema);
-      html.append(title);
-      html.append(" <i style=\"font-weight: normal;\">- ");
-      html.append(theElement.getNamespace()).append(theElement.getDisplayedName());
-      html.append("</i>");
-      html.append("</html>");
-      JLabel label = new JLabel(html.toString());
-      thePanel.add(label);
+      thePanel.add(Box.createVerticalStrut(5));
+
+      final DefaultTableModel tablemodel = new UneditableTableModel();
+      final JTable table = new JTable();
+      tablemodel.addColumn("Namespace");
+      tablemodel.addColumn("Name");
+      tablemodel.addColumn("Description");
+
+      Vector v = new Vector();
+      v.add(schema.getNamespace());
+      String name = schema.getName();
+      if (name == null) {
+         name = " ";
+      }
+      v.add(name);
+      String description = schema.getDescription();
+      if (description == null) {
+         description = " ";
+      }
+      v.add(description);
+      tablemodel.addRow(v);
+
+      table.setModel(tablemodel);
+      WordWrapCellRenderer cellRenderer = new WordWrapCellRenderer();
+      table.getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
+      table.getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
+
+      thePanel.add(new JScrollPane(table));
+      thePanel.add(Box.createVerticalGlue());
+      return new JScrollPane(thePanel);
+   }
+
+   private JComponent getOwlSchemaPanel(OwlSchema schema) {
+      JPanel thePanel = new JPanel();
+      thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
       thePanel.add(Box.createVerticalStrut(5));
 
       final DefaultTableModel tablemodel = new UneditableTableModel();
       final JTable table = new JTable();
       tablemodel.addColumn("Annotation");
       tablemodel.addColumn("Value");
-      Iterator<Entry<ElementKey, AnnotationValue>> it = theElement.getAnnotations().entrySet().iterator();
+      Iterator<Entry<ElementKey, AnnotationValue>> it = schema.getAnnotations().entrySet().iterator();
       while (it.hasNext()) {
          Entry<ElementKey, AnnotationValue> entry = it.next();
          Vector v = new Vector();
@@ -106,7 +153,7 @@ public class ComponentPanelFactory {
          } else if (value instanceof AnnotationValue.ElementAnnotationValue) {
             v.add(value);
          } else {
-            v.add(value.toString());
+            v.add(getAnnotationText(value.toString()));
          }
          tablemodel.addRow(v);
       }
@@ -140,5 +187,86 @@ public class ComponentPanelFactory {
       thePanel.add(new JScrollPane(table));
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);
+   }
+
+   private JComponent getOwlClassPanel(NamedOwlElement theElement) {
+      JPanel thePanel = new JPanel();
+      thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
+      StringBuilder html = new StringBuilder();
+      html.append("<html>");
+      String title = theElement.getKey().getPrefixedName(schema);
+      html.append(title);
+      html.append(" <i style=\"font-weight: normal;\">- ");
+      html.append(theElement.getNamespace()).append(theElement.getDisplayedName());
+      html.append("</i>");
+      html.append("</html>");
+      JLabel label = new JLabel(html.toString());
+      thePanel.add(label);
+      thePanel.add(Box.createVerticalStrut(5));
+
+      final DefaultTableModel tablemodel = new UneditableTableModel();
+      final JTable table = new JTable();
+      tablemodel.addColumn("Annotation");
+      tablemodel.addColumn("Value");
+      Iterator<Entry<ElementKey, AnnotationValue>> it = theElement.getAnnotations().entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, AnnotationValue> entry = it.next();
+         Vector v = new Vector();
+         v.add(entry.getKey().toString());
+         AnnotationValue value = entry.getValue();
+         if (value instanceof AnnotationValue.URIAnnotationValue) {
+            v.add(value);
+         } else if (value instanceof AnnotationValue.ElementAnnotationValue) {
+            v.add(value);
+         } else {
+            v.add(getAnnotationText(value.toString()));
+         }
+         tablemodel.addRow(v);
+      }
+
+      table.setModel(tablemodel);
+      table.getColumnModel().getColumn(1).setCellRenderer(new WordWrapCellRenderer());
+      table.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            // see https://stackoverflow.com/questions/7350893/click-event-on-jtable-java
+            // see https://stackoverflow.com/questions/4256680/click-hyperlink-in-jtable
+            int row = table.rowAtPoint(e.getPoint());
+            int col = table.columnAtPoint(e.getPoint());
+            if (col == 1) {
+               Object o = tablemodel.getValueAt(row, 1);
+               if (o instanceof AnnotationValue.URIAnnotationValue) {
+                  try {
+                     AnnotationValue.URIAnnotationValue cellElt = (AnnotationValue.URIAnnotationValue) o;
+                     URI uri = cellElt.getURI();
+                     Desktop.getDesktop().browse(uri);
+                  } catch (IOException ex) {
+                  }
+               } else if (o instanceof AnnotationValue.ElementAnnotationValue) {
+                  AnnotationValue.ElementAnnotationValue celElt = (AnnotationValue.ElementAnnotationValue) o;
+                  NamedOwlElement element = celElt.getElement();
+                  panel.selectElement(element);
+               }
+            }
+         }
+      });
+      thePanel.add(new JScrollPane(table));
+      thePanel.add(Box.createVerticalGlue());
+      return new JScrollPane(thePanel);
+   }
+
+   private String getAnnotationText(String value) {
+      StringBuilder buf = new StringBuilder();
+      buf.append("<html>");
+      StringTokenizer tok = new StringTokenizer(value, "\n");
+      while (tok.hasMoreTokens()) {
+         String tk = tok.nextToken();
+         buf.append(tk);
+         if (tok.hasMoreTokens()) {
+            buf.append("<br>");
+         }
+      }
+      buf.append("</html>");
+      return buf.toString();
    }
 }

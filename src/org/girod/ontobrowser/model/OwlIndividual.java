@@ -104,18 +104,27 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement {
       ElementKey theKey = value.getKey();
       objectPropertyValues.put(theKey, value);
    }
+   
+   /**
+    * Return true if this class has property values.
+    *
+    * @return true if this class has property values
+    */
+   public boolean hasPropertyValues() {
+      return !objectPropertyValues.isEmpty() || !datatypePropertyValues.isEmpty();
+   }   
 
    /**
-    * Return the object propety values.
+    * Return the object property values.
     *
-    * @return the object propety values
+    * @return the object property values
     */
    public Map<ElementKey, ObjectPropertyValue> getObjectPropertyValues() {
       return objectPropertyValues;
    }
-   
+
    /**
-    * Add an datatype property value.
+    * Add a datatype property value.
     *
     * @param value the value
     */
@@ -125,11 +134,41 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement {
    }
 
    /**
-    * Return the datatype propety values.
+    * Return the datatype property values.
     *
     * @return the datatype propety values
     */
    public Map<ElementKey, DatatypePropertyValue> getDatatypePropertyValues() {
       return datatypePropertyValues;
-   }   
+   }
+
+   /**
+    * Return the datatype property values.
+    *
+    * @return the datatype property values
+    */
+   public PropertyValue getPropertyValue(ElementKey key) {
+      if (datatypePropertyValues.containsKey(key)) {
+         return datatypePropertyValues.get(key);
+      } else {
+         return objectPropertyValues.get(key);
+      }
+   }
+
+   @Override
+   public void accept(ElementVisitor visitor) {
+      boolean cont = visitor.visit(this);
+      if (cont) {
+         Iterator<ObjectPropertyValue> it = objectPropertyValues.values().iterator();
+         while (it.hasNext()) {
+            ObjectPropertyValue theValue = it.next();
+            theValue.accept(visitor);
+         }
+         Iterator<DatatypePropertyValue> it2 = datatypePropertyValues.values().iterator();
+         while (it2.hasNext()) {
+            DatatypePropertyValue theProperty = it2.next();
+            theProperty.accept(visitor);
+         }
+      }
+   }
 }

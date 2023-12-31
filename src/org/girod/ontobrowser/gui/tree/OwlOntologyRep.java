@@ -30,41 +30,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.gui.tree;
+
+import org.girod.ontobrowser.gui.GUITabTypes;
+import org.girod.ontobrowser.model.OwlSchema;
 
 /**
- * Represents an object property value.
+ * Represents a mapping between a prefix and a namespace represented in its tree.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
+public class OwlOntologyRep implements OwlOntologyTreeRep {
+   public final OwlSchema schema;
 
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
-   }
-
-   /**
-    * Return the object property. Identical as {@link #getProperty()}.
-    *
-    * @return the object property
-    */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
-   }
-
-   /**
-    * Return the target.
-    *
-    * @return the target
-    */
-   public OwlIndividual getTarget() {
-      return target;
+   public OwlOntologyRep(OwlSchema schema) {
+      this.schema = schema;
    }
 
    @Override
    public String toString() {
-      return target.toString();
+      return GUITabTypes.ONTOLOGY_NAME;
    }
+   
+   @Override
+   public String getPrefix() {
+      return schema.getPrefix();
+   }   
+   
+   @Override
+   public String getNamespace() {
+      return schema.getNamespace();
+   }      
 }

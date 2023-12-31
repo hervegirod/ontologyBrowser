@@ -35,41 +35,45 @@ package org.girod.ontobrowser.model;
 /**
  * Represents a datatype property value.
  *
- * @since 0.7
+ * @since 0.8
  */
-public class DatatypePropertyValue {
-   private final OwlDatatypeProperty property;
-   private final OwlIndividual source;
+public class DatatypePropertyValue extends PropertyValue<OwlDatatypeProperty> {
    private final OwlDatatype datatype;
    private final String value;
 
    public DatatypePropertyValue(OwlDatatypeProperty property, OwlIndividual source, OwlDatatype datatype, String value) {
-      this.property = property;
-      this.source = source;
+      super(property, source);
       this.datatype = datatype;
       this.value = value;
    }
-   
-   public ElementKey getKey() {
-      return property.getKey();
-   }
-   
+
+   /**
+    * Return the datatype property. Identical as {@link #getProperty()}.
+    *
+    * @return the datatype property
+    */
    public OwlDatatypeProperty getDatatypeProperty() {
       return property;
    }
-   
-   public OwlIndividual getSource() {
-      return source;
-   }   
-   
-   public OwlDatatype getDatatyp() {
+
+   /**
+    * Return the datatype.
+    *
+    * @return the datatype
+    */
+   public OwlDatatype getDatatype() {
       return datatype;
-   }      
-   
+   }
+
+   /**
+    * Return the value as a String.
+    *
+    * @return the value
+    */
    public String getValue() {
       return value;
-   }      
-   
+   }
+
    @Override
    public String toString() {
       return source.toString() + " " + value;

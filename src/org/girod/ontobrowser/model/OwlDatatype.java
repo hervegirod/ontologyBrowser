@@ -35,7 +35,7 @@ package org.girod.ontobrowser.model;
 /**
  * Represents an Owl datatype.
  *
- * @version 0.5
+ * @version 0.8
  */
 public class OwlDatatype extends NamedOwlElement {
    public static final short CUSTOM = -1;
@@ -106,4 +106,9 @@ public class OwlDatatype extends NamedOwlElement {
       Object o = super.clone();
       return (OwlDatatype) o;
    }
+   
+   @Override
+   public void accept(ElementVisitor visitor) {
+      visitor.visit(this);
+   }    
 }

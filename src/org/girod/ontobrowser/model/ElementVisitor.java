@@ -33,38 +33,69 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 /**
- * Represents an object property value.
+ * The interface that all Visitors that visits Owl Schemas must implement.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
-
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+public interface ElementVisitor {
+   /**
+    * Visit an Element. Return true by default.
+    *
+    * @param schema the schema
+    * @return true if the children of the elements should also be visited.
+    */
+   public default boolean visit(OwlSchema schema) {
+      return true;
+   }   
+   
+   /**
+    * Visit an Element. Return true by default.
+    *
+    * @param elt the element
+    * @return true if the children of the elements should also be visited.
+    */
+   public default boolean visit(NamedElement elt) {
+      if (elt instanceof OwlClass) {
+         visitImpl((OwlClass) elt);
+      } else if (elt instanceof OwlProperty) {
+         visitImpl((OwlProperty) elt);
+      } else if (elt instanceof OwlIndividual) {
+         visitImpl((OwlIndividual) elt);
+      } else if (elt instanceof PropertyValue) {
+         visitImpl((PropertyValue) elt);         
+      }
+      return true;
    }
 
    /**
-    * Return the object property. Identical as {@link #getProperty()}.
+    * Visit an OwlClass. Do nothing by default.
     *
-    * @return the object property
+    * @param theClass the OwlClass.
     */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
+   public default void visitImpl(OwlClass theClass) {
    }
-
+   
    /**
-    * Return the target.
+    * Visit an OwlProperty. Do nothing by default.
     *
-    * @return the target
+    * @param theProperty the OwlProperty.
     */
-   public OwlIndividual getTarget() {
-      return target;
-   }
-
-   @Override
-   public String toString() {
-      return target.toString();
-   }
+   public default void visitImpl(OwlProperty theProperty) {
+   }   
+   
+   /**
+    * Visit an Individual. Do nothing by default.
+    *
+    * @param individual the Individual.
+    */
+   public default void visitImpl(OwlIndividual individual) {
+   }   
+   
+   /**
+    * Visit a property value. Do nothing by default.
+    *
+    * @param value the property value.
+    */
+   public default void visitImpl(PropertyValue value) {
+   }    
 }

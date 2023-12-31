@@ -30,41 +30,66 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.gui.tree;
+
+import org.girod.ontobrowser.model.OwlImportedSchema;
+import org.girod.ontobrowser.model.SchemasRepository;
 
 /**
- * Represents an object property value.
+ * Represents a mapping between a prefix and an imported schema represented in the tree.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
+public class OwlImportedSchemaRep implements OwlOntologyTreeRep {
+   public final OwlImportedSchema schema;
+   public final SchemasRepository.SchemaRep schemaRep;
 
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+   public OwlImportedSchemaRep(SchemasRepository.SchemaRep schemaRep) {
+      this.schemaRep = schemaRep;
+      this.schema = null;
    }
 
-   /**
-    * Return the object property. Identical as {@link #getProperty()}.
-    *
-    * @return the object property
-    */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
+   public OwlImportedSchemaRep(OwlImportedSchema schema) {
+      this.schema = schema;
+      this.schemaRep = null;
+   }
+   
+   public boolean isImportedSchema() {
+      return schema != null;
    }
 
-   /**
-    * Return the target.
-    *
-    * @return the target
-    */
-   public OwlIndividual getTarget() {
-      return target;
+   public SchemasRepository.SchemaRep getImportedSchemaRep() {
+      return schemaRep;
+   }
+
+   public OwlImportedSchema getImportedSchema() {
+      return schema;
+   }
+
+   @Override
+   public String getPrefix() {
+      if (schema != null) {
+         return schema.getPrefix();
+      } else {
+         return null;
+      }
+   }
+
+   @Override
+   public String getNamespace() {
+      if (schema != null) {
+         return schema.getNamespace();
+      } else {
+         return schemaRep.getNamespace();
+      }
    }
 
    @Override
    public String toString() {
-      return target.toString();
+      if (schema != null) {
+         return "<html><b>" + schema.getPrefix() + ":</b><br><i>" + schema.getNamespace() + "</i></html>";
+      } else {
+         return "<html><i>" + schemaRep.getNamespace() + "</i></html>";
+      }
    }
 }

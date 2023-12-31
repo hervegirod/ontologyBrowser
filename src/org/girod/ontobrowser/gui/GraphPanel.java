@@ -76,10 +76,16 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.actions.ExportImportGraphAction;
 import org.girod.ontobrowser.actions.ExportPackageGraphAction;
 import org.girod.ontobrowser.actions.OpenPackageInYedAction;
 import org.girod.ontobrowser.gui.tree.ModelTreeRenderer;
+import org.girod.ontobrowser.gui.tree.OntologyTreeRenderer;
 import org.girod.ontobrowser.gui.tree.OwlElementRep;
+import org.girod.ontobrowser.gui.tree.OwlImportedSchemaRep;
+import org.girod.ontobrowser.gui.tree.OwlOntologyRep;
+import org.girod.ontobrowser.gui.tree.OwlOntologyTreeRep;
+import org.girod.ontobrowser.gui.tree.OwlPrefixRep;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.ElementTypes;
 import org.girod.ontobrowser.model.NamedOwlElement;
@@ -123,6 +129,10 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    private final DefaultMutableTreeNode individualsRoot = new DefaultMutableTreeNode(INDIVIDUALS_NAME);
    private final DefaultTreeModel individualsTreeModel = new DefaultTreeModel(individualsRoot);
    private final JTree individualsTree = new JTree(individualsTreeModel);
+   // prefix tree
+   private DefaultMutableTreeNode prefixRoot;
+   private DefaultTreeModel prefixTreeModel;
+   private JTree prefixTree;
    // Packages tree
    private DefaultMutableTreeNode thingPackagesRoot = null;
    private DefaultTreeModel packagesModel = null;
@@ -136,6 +146,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    private final JPanel defaultComponentPanel = new JPanel();
    private ComponentPanelFactory panelFactory = null;
    private OwlElementRep selectedElement = null;
+   private OwlOntologyTreeRep selectedPrefix = null;
    private boolean autoTabChange = false;
    private final Map<ElementKey, DefaultMutableTreeNode> keyToClassNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToPropertyNode = new HashMap<>();
@@ -173,6 +184,15 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
     */
    public OwlDiagram getDiagram() {
       return diagram;
+   }
+
+   /**
+    * Return the Ontology prefixes tree.
+    *
+    * @return the Ontology prefixes tree
+    */
+   public JTree getOntologyPrefixTree() {
+      return prefixTree;
    }
 
    /**
@@ -287,6 +307,9 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    public void setDiagram(OwlDiagram diagram) {
       this.diagram = diagram;
       this.schema = diagram.getSchema();
+      prefixRoot = new DefaultMutableTreeNode(new OwlOntologyRep(schema));
+      prefixTreeModel = new DefaultTreeModel(prefixRoot);
+      prefixTree = new JTree(prefixTreeModel);
       panelFactory = new ComponentPanelFactory(this, schema);
 
       mxGraph graph = diagram.getGraph();
@@ -310,6 +333,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          toolTipmanager.registerComponent(packagesTree);
       }
 
+      computeOntologyPrefixTree();
       computeClassTree();
       computePropertiesTree();
       computeAnnotationsTree();
@@ -332,6 +356,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          classTreePane.setBottomComponent(new JScrollPane(packagesTree));
          classTreePane.setDividerLocation(250);
          modelTab = new JTabbedPane();
+         modelTab.add(ONTOLOGY_NAME, new JScrollPane(prefixTree));
          modelTab.add(CLASSES_NAME, classTreePane);
          modelTab.add(PROPERTIES_NAME, new JScrollPane(propertiesTree));
          addIndividualsTab(schema.isIncludingIndividuals());
@@ -340,6 +365,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          this.setLeftComponent(modelTab);
       } else {
          modelTab = new JTabbedPane();
+         modelTab.add(ONTOLOGY_NAME, new JScrollPane(prefixTree));
          modelTab.add(CLASSES_NAME, new JScrollPane(classTree));
          modelTab.add(PROPERTIES_NAME, new JScrollPane(propertiesTree));
          addIndividualsTab(schema.isIncludingIndividuals());
@@ -382,10 +408,13 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       annotationsTree.setCellRenderer(treeRenderer);
       datatypesTree.setCellRenderer(treeRenderer);
       individualsTree.setCellRenderer(treeRenderer);
+      OntologyTreeRenderer prefixTreeRenderer = new OntologyTreeRenderer();
+      prefixTree.setCellRenderer(prefixTreeRenderer);
       return treeRenderer;
    }
 
    private void expandTrees() {
+      prefixTree.expandRow(0);
       classTree.expandRow(0);
       propertiesTree.expandRow(0);
       annotationsTree.expandRow(0);
@@ -411,6 +440,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             updateComponentPanel(null);
             selectedElement = null;
          }
+         selectedPrefix = null;
       }
    }
 
@@ -432,6 +462,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             updateComponentPanel(null);
             selectedElement = null;
          }
+         selectedPrefix = null;
       }
    }
 
@@ -453,6 +484,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             updateComponentPanel(null);
             selectedElement = null;
          }
+         selectedPrefix = null;
       }
    }
 
@@ -474,6 +506,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             updateComponentPanel(null);
             selectedElement = null;
          }
+         selectedPrefix = null;
       }
    }
 
@@ -495,10 +528,12 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             updateComponentPanel(null);
             selectedElement = null;
          }
+         selectedPrefix = null;
       }
    }
 
    private void addTreeListeners() {
+      addPrefixTreeListeners();
       addClassTreeListeners();
       if (packagesTree != null) {
          addPackagesTreeListeners();
@@ -543,6 +578,45 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             selectedElement = (OwlElementRep) o;
          }
       }
+   }
+
+   private void addPrefixTreeListeners() {
+      prefixTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+         @Override
+         public void valueChanged(TreeSelectionEvent e) {
+            TreePath path = e.getPath();
+            Object o = path.getLastPathComponent();
+            o = ((DefaultMutableTreeNode) o).getUserObject();
+            if (o instanceof OwlOntologyRep) {
+               updateOntologyPanel((OwlOntologyRep) o);
+               selectedPrefix = (OwlOntologyRep) o;
+            } else if (o instanceof OwlPrefixRep) {
+               updateComponentPanel(null);
+               selectedPrefix = (OwlPrefixRep) o;
+            } else if (o instanceof OwlImportedSchemaRep) {
+               updateOntologyImport((OwlImportedSchemaRep) o);
+               selectedPrefix = (OwlOntologyTreeRep) o;
+            } else {
+               updateComponentPanel(null);
+               selectedPrefix = null;
+            }
+            selectedElement = null;
+         }
+      });
+
+      prefixTree.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
+               if (prefixTree.getSelectionModel().getLeadSelectionRow() == 0) {
+                  clickOnPrefixTreeRoot(e.getX(), e.getY());
+               } else if (selectedPrefix != null) {
+                  clickOnPrefixTree(e.getX(), e.getY());
+               }
+            }
+         }
+      }
+      );
    }
 
    private void addClassTreeListeners() {
@@ -664,7 +738,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             o = ((DefaultMutableTreeNode) o).getUserObject();
             if (o instanceof OwlElementRep) {
                selectedElement = (OwlElementRep) o;
-               updateComponentPanel(null);
+               updateComponentPanel(selectedElement);
             } else {
                updateComponentPanel(null);
                selectedElement = null;
@@ -707,6 +781,32 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             }
          }
       });
+   }
+
+   private void clickOnPrefixTreeRoot(int x, int y) {
+      JPopupMenu menu = new JPopupMenu();
+      JMenuItem item = new JMenuItem("Show Ontology Imports graph in yEd");
+      item.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            exportImportGraphInYed();
+         }
+      });
+      menu.add(item);
+      menu.show(prefixTree, x, y);
+   }
+
+   private void clickOnPrefixTree(int x, int y) {
+      JPopupMenu menu = new JPopupMenu();
+      JMenuItem item = new JMenuItem("Copy to Clipboard");
+      item.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            copyToClipboard();
+         }
+      });
+      menu.add(item);
+      menu.show(prefixTree, x, y);
    }
 
    private void clickOnPackageTree(int x, int y) {
@@ -862,6 +962,20 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       menu.show(classTree, x, y);
    }
 
+   private void updateOntologyPanel(OwlOntologyRep element) {
+      int location = contentpanel.getDividerLocation();
+      JComponent panel = panelFactory.getComponentPanel(element);
+      contentpanel.setBottomComponent(panel);
+      contentpanel.setDividerLocation(location);
+   }
+
+   private void updateOntologyImport(OwlImportedSchemaRep element) {
+      int location = contentpanel.getDividerLocation();
+      JComponent panel = panelFactory.getComponentPanel(element);
+      contentpanel.setBottomComponent(panel);
+      contentpanel.setDividerLocation(location);
+   }
+
    private void updateComponentPanel(OwlElementRep selectedElement) {
       int location = contentpanel.getDividerLocation();
       JComponent panel = panelFactory.getComponentPanel(selectedElement);
@@ -871,9 +985,15 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
 
    private void copyToClipboard() {
       Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-      NamedOwlElement theElement = selectedElement.getOwlElement();
-      StringSelection stringSelection = new StringSelection(theElement.toString());
-      clpbrd.setContents(stringSelection, null);
+      if (selectedElement != null) {
+         NamedOwlElement theElement = selectedElement.getOwlElement();
+         StringSelection stringSelection = new StringSelection(theElement.toString());
+         clpbrd.setContents(stringSelection, null);
+      } else {
+         String namespace = selectedPrefix.getNamespace();
+         StringSelection stringSelection = new StringSelection(namespace);
+         clpbrd.setContents(stringSelection, null);
+      }
    }
 
    private void showDependencies(int x, int y) {
@@ -896,7 +1016,16 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          browser.executeAction(action);
       } catch (IOException ex) {
       }
+   }
 
+   private void exportImportGraphInYed() {
+      OwlOntologyRep ontologyRep = (OwlOntologyRep) selectedPrefix;
+      try {
+         File tempFile = File.createTempFile("yEd", ".graphml");
+         ExportImportGraphAction action = new ExportImportGraphAction(browser, "Show Import graph", "Show Import graph", ontologyRep.schema, tempFile);
+         browser.executeAction(action);
+      } catch (IOException ex) {
+      }
    }
 
    private void exportModel(boolean isPackage) {
@@ -930,6 +1059,8 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          this.selectProperty(key);
       } else if (keyToIndividualNode.containsKey(key)) {
          this.selectIndividual(key);
+      } else if (keyToAnnotationNode.containsKey(key)) {
+         this.selectAnnotation(key);
       }
    }
 
@@ -1027,6 +1158,10 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       propertiesTree.expandPath(path);
       path = new TreePath(dataPropertiesRoot.getPath());
       propertiesTree.expandPath(path);
+   }
+
+   private void computeOntologyPrefixTree() {
+      OntologyTreeHelper.computeOntologyPrefixTree(diagram, prefixTree, prefixRoot);
    }
 
    private void computeClassTree() {

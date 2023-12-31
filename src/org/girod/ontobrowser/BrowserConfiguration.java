@@ -32,6 +32,8 @@ the project website at the project page on https://github.com/hervegirod/owlToGr
  */
 package org.girod.ontobrowser;
 
+import org.girod.ontobrowser.parsers.PackagesConfigurationParser;
+import org.girod.ontobrowser.parsers.CustomGraphStylesParser;
 import java.io.File;
 import java.net.URL;
 import java.util.PropertyResourceBundle;
@@ -41,6 +43,8 @@ import javax.swing.JOptionPane;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.gui.errors.ErrorLevel;
 import org.girod.ontobrowser.model.PackagesConfiguration;
+import org.girod.ontobrowser.model.SchemasRepository;
+import org.girod.ontobrowser.parsers.SchemasRepositoryParser;
 import org.mdi.bootstrap.Configuration;
 import org.mdiutil.lang.swing.ResourceUILoader;
 import org.mdiutil.prefs.PreferencesHelper;
@@ -50,7 +54,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -71,39 +75,62 @@ public class BrowserConfiguration implements Configuration {
     * The date.
     */
    public final String date;
+   /*
+    * General configuration
+    */
    public boolean includeIndividuals = false;
    public boolean showRelationsConstraints = false;
    public boolean showDataPropertiesTypes = false;
    public boolean addThingClass = true;
    public boolean showIndirectRelations = false;
    public boolean showAlias = false;
+   public boolean showComments = false;
+   public boolean includeParentRelations = false;
+   public boolean includeAlias = false;
    public short logLevel = ErrorLevel.WARNING;
+   public boolean autoRefresh = false;
+   /*
+    * Schemas locations
+    */
    public boolean useBuiltinSchemas = false;
    private File[] alternateLocations = null;
-   // padding and size
-   public int padWidth = 15;
-   public int padHeight = 10;
-   // packages
+   private final URL schemasRepositoryXSD;
+   private final URL defaultSchemasRepository;
+   private File schemasRepositoryFile = null;
+   private final SchemasRepository schemasRepository = SchemasRepository.getInstance();
+   /*
+    * Packages
+    */
    public boolean showPackages = false;
    public boolean showPackagesAsClosed = false;
    public boolean showPackagesInPackageView = false;
    private boolean hasPackagesConfiguration = false;
    private File packagesConfigurationFile = null;
    public final PackagesConfiguration packagesConfiguration = new PackagesConfiguration();
-   // SPARQL
+   /*
+    * SPARQL
+    */
    public boolean addPrefixInSPARQL = false;
    public String basePrefix = "basePrefix";
-   // GUI
-   public boolean autoRefresh = false;
+   /*
+    * scripts
+    */
+   public boolean endAtFirstException = false;
+   /*
+    * Style
+    */
+   public int padWidth = 15;
+   public int padHeight = 10;
    private boolean hasCustomStyles = false;
-   public boolean showComments = false;
    private File customGraphStylesFile = null;
    public final CustomGraphStyles customGraphStyles = new CustomGraphStyles();
    // graph styles Schema
    private final URL graphStylesXSD;
    // packages configuration Schema
    private final URL packagesConfigurationXSD;
-   // yed
+   /*
+    * yEd
+    */
    private boolean hasYedExeDirectory = false;
    private File yedExeDirectory = null;
 
@@ -115,12 +142,18 @@ public class BrowserConfiguration implements Configuration {
     * The graphml file filter.
     */
    public ExtensionFileFilter graphmlfilter;
+   /**
+    * The groovy script file filter.
+    */
+   public ExtensionFileFilter scriptfilter;
 
    private BrowserConfiguration() {
       // load ressources
       ResourceUILoader loader = new ResourceUILoader("org/girod/ontobrowser/resources");
       graphStylesXSD = loader.getURL("customGraphStyles.xsd");
       packagesConfigurationXSD = loader.getURL("packagesConfiguration.xsd");
+      schemasRepositoryXSD  = loader.getURL("ontologies.xsd");
+      defaultSchemasRepository  = loader.getURL("ontologies.xml");
 
       PropertyResourceBundle prb = loader.getPropertyResourceBundle("browser.properties");
 
@@ -136,6 +169,9 @@ public class BrowserConfiguration implements Configuration {
 
       String[] ext2 = {"graphml"};
       graphmlfilter = new ExtensionFileFilter(ext2, "graphml Files");
+
+      String[] ext3 = {"groovy"};
+      scriptfilter = new ExtensionFileFilter(ext3, "Script");
    }
 
    /**
@@ -350,6 +386,62 @@ public class BrowserConfiguration implements Configuration {
       }
    }
 
+   /**
+    * Return the schemas repository schema.
+    *
+    * @return the schemas repository schema
+    */
+   public URL getSchemasRepositorySchema() {
+      return schemasRepositoryXSD;
+   }
+   
+   /**
+    * Return the default schemas repository.
+    *
+    * @return the default schemas repository
+    */
+   public URL getDefaultSchemasRepository() {
+      return defaultSchemasRepository;
+   }   
+
+   /**
+    * Return the schemas repository.
+    *
+    * @return the schemas repository
+    */
+   public SchemasRepository getSchemasRepository() {
+      return schemasRepository;
+   }
+
+   /**
+    * Return the packages configuration file.
+    *
+    * @return the packages configuration file
+    */
+   public File getSchemasRepositoryFile() {
+      return schemasRepositoryFile;
+   }
+
+   public void setSchemasRepository(File schemasRepositoryFile) {
+      SchemasRepository.getInstance().reset();
+      if (schemasRepositoryFile != null && schemasRepositoryFile.exists()) {
+         SchemasRepositoryParser parser = new SchemasRepositoryParser();
+         try {
+            parser.parse(schemasRepositoryFile);
+            this.defaultDir = schemasRepositoryFile.getParentFile();
+            this.schemasRepositoryFile = schemasRepositoryFile;
+         } catch (Exception e) {
+            this.schemasRepositoryFile = null;
+            JErrorPane pane = new JErrorPane(e, JOptionPane.ERROR_MESSAGE);
+            JDialog dialog = pane.createDialog(null, "Exception");
+            dialog.setModal(false);
+            dialog.setVisible(true);
+         }
+      } else {
+         this.schemasRepositoryFile = null;
+      }
+   }
+
    @Override
    public void putConfiguration(Preferences p, File dir) {
       // general
@@ -361,20 +453,28 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showIndirectRelations", showIndirectRelations);
       p.putBoolean("showAlias", showAlias);
       p.putBoolean("showComments", showComments);
+      p.putBoolean("includeParentRelations", includeParentRelations);
+      p.putBoolean("includeAlias", includeAlias);
       p.putInt("logLevel", (int) logLevel);
-      
+
       // schemas
+      PreferencesHelper.putFile(p, "schemasRepository", schemasRepositoryFile);
       p.putBoolean("useBuiltinSchemas", useBuiltinSchemas);
       PreferencesHelper.putFiles(p, "alternateLocations", alternateLocations);
-      
+
       // SPARQL
-      p.putBoolean("addPrefixInSPARQL", addPrefixInSPARQL);    
+      p.putBoolean("addPrefixInSPARQL", addPrefixInSPARQL);
       p.put("basePrefix", basePrefix);
+
+      // scripts
+      p.putBoolean("endAtFirstException", endAtFirstException);
 
       // styles
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
       p.putBoolean("autoRefresh", autoRefresh);
+      p.putBoolean("hasCustomStyles", hasCustomStyles);
+      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       p.putBoolean("hasCustomStyles", hasCustomStyles);
       PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
 
@@ -388,9 +488,6 @@ public class BrowserConfiguration implements Configuration {
       // yEd
       p.putBoolean("hasYedExeDirectory", hasYedExeDirectory);
       PreferencesHelper.putFile(p, "yedExeDirectory", yedExeDirectory);
-
-      p.putBoolean("hasCustomStyles", hasCustomStyles);
-      PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
    }
 
    @Override
@@ -404,16 +501,23 @@ public class BrowserConfiguration implements Configuration {
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
       showAlias = p.getBoolean("showAlias", showAlias);
       showComments = p.getBoolean("showComments", showComments);
+      includeParentRelations = p.getBoolean("includeParentRelations", includeParentRelations);
+      includeAlias = p.getBoolean("includeAlias", includeAlias);
       logLevel = (short) p.getInt("logLevel", logLevel);
-      
+
       // schemas
+      schemasRepositoryFile = PreferencesHelper.getFile(p, "schemasRepository", schemasRepositoryFile);
+      setSchemasRepository(schemasRepositoryFile);
       useBuiltinSchemas = p.getBoolean("useBuiltinSchemas", useBuiltinSchemas);
       alternateLocations = PreferencesHelper.getFiles(p, "alternateLocations", alternateLocations);
       setAlternateLocations(alternateLocations);
-      
+
       // SPARQL
-      addPrefixInSPARQL = p.getBoolean("addPrefixInSPARQL", addPrefixInSPARQL); 
+      addPrefixInSPARQL = p.getBoolean("addPrefixInSPARQL", addPrefixInSPARQL);
       basePrefix = p.get("basePrefix", basePrefix);
+
+      // scripts
+      endAtFirstException = p.getBoolean("endAtFirstException", endAtFirstException);
 
       // styles
       padWidth = p.getInt("padWidth", padWidth);

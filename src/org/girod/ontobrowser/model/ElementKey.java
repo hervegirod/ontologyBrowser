@@ -40,10 +40,14 @@ import java.util.Objects;
 /**
  * The element key, with a name and namespace.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializable {
    public static final String XML_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
+   /**
+    * The Thing key.
+    */
+   public static final ElementKey THING = ElementKey.create("http://www.w3.org/2002/07/owl#", "Thing");
    private final String namespace;
    private final String name;
 
@@ -52,9 +56,28 @@ public class ElementKey implements Comparable<ElementKey>, Cloneable, Serializab
       this.name = name;
    }
 
+   public ElementKey(OwlSchema schema, String prefix, String name) {
+      if (schema.hasNamespaceFromPrefix(prefix)) {
+         this.namespace = schema.getNamespaceFromPrefix(prefix);
+         this.name = name;
+      } else {
+         this.namespace = null;
+         this.name = name;
+      }
+   }
+
    public ElementKey(String namespace, String name) {
       this.namespace = namespace;
       this.name = name;
+   }
+
+   /**
+    * Return true if this key represents the Thing class.
+    *
+    * @return true if this key represents the Thing class
+    */
+   public boolean isThing() {
+      return this.equals(ElementKey.THING);
    }
 
    /**

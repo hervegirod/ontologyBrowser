@@ -80,6 +80,31 @@ public abstract class AnnotatedElement {
       }
    }
 
+   /**
+    * Return true if there is an annotation for a specific key.
+    *
+    * @param key the annotation key
+    * @return true if there is an annotation for the key
+    */
+   public boolean hasAnnotation(ElementKey key) {
+      return annotations.containsKey(key);
+   }
+
+   /**
+    * Return the annotation of a specific key.
+    *
+    * @param key the annotation key
+    * @return the annotation of a specific key
+    */
+   public AnnotationValue getAnnotation(ElementKey key) {
+      return annotations.get(key);
+   }
+
+   /**
+    * Return the element annotations.
+    *
+    * @return the element annotations
+    */
    public Map<ElementKey, AnnotationValue> getAnnotations() {
       return annotations;
    }
@@ -113,6 +138,7 @@ public abstract class AnnotatedElement {
     */
    public void setIsDefinedBy(AnnotationValue isDefinedBy) {
       if (isDefinedBy != null) {
+         annotations.put(DEFINED_BY, isDefinedBy);
          createDocumentation().setIsDefinedBy(isDefinedBy);
       }
    }
@@ -136,6 +162,7 @@ public abstract class AnnotatedElement {
     */
    public void setSeeAlso(AnnotationValue seeAlso) {
       if (seeAlso != null) {
+         annotations.put(SEE_ALSO, seeAlso);
          createDocumentation().setSeeAlso(seeAlso);
       }
    }

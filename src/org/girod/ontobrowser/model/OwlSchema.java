@@ -34,7 +34,10 @@ package org.girod.ontobrowser.model;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,19 +46,25 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
-import org.girod.ontobrowser.model.restriction.OwlRestriction;
+import org.girod.ontobrowser.utils.SchemaUtils;
 
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.7
+ * @version 0.8
  */
-public class OwlSchema extends AnnotatedElement implements Cloneable, Serializable {
+public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDeclaredSchema, Cloneable, Serializable {
    private File file = null;
    private final OntModel ontModel;
    private OwlClass owlThingClass;
    private boolean includeIndividuals = true;
+   private String defaultNamespace = null;
+   private String defaultPrefix = null;
+   private final Map<String, OwlImportedSchema> importedSchemas = new HashMap<>();
+   private final Map<String, OwlImportedSchema> importedSchemasFromNamespace = new HashMap<>();
+   private final Map<String, OwlDeclaredSchema> declaredSchemasFromNamespace = new HashMap<>();
    private final Map<String, String> prefixMap = new HashMap<>();
+   private final Map<String, String> prefixToNamespace = new HashMap<>();
    private final Map<ElementKey, OwlClass> classes = new HashMap<>();
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlDatatypeProperty> datatypeProperties = new HashMap<>();
@@ -99,25 +108,169 @@ public class OwlSchema extends AnnotatedElement implements Cloneable, Serializab
    }
 
    private void computePrefixMap() {
+      SchemasRepository schemasRepository = SchemasRepository.getInstance();
       Iterator<Entry<String, String>> it = ontModel.getNsPrefixMap().entrySet().iterator();
       while (it.hasNext()) {
          Entry<String, String> entry = it.next();
          String ns = entry.getValue();
          String prefix = entry.getKey();
          prefixMap.put(ns, prefix);
+         prefixToNamespace.put(prefix, ns);
          if (!ns.endsWith("/#")) {
             prefixMap.put(ns + "/#", prefix);
          }
       }
+      if (prefixToNamespace.containsKey("")) {
+         defaultNamespace = prefixToNamespace.get("");
+      }
+      it = prefixToNamespace.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<String, String> entry = it.next();
+         String prefix = entry.getKey();
+         String ns = entry.getValue();
+         if (prefix.isEmpty()) {
+            continue;
+         }
+         String _ns = ns;
+         if (_ns.endsWith("#")) {
+            _ns = _ns.substring(0, _ns.length() - 1);
+         }
+         if (defaultNamespace != null && defaultNamespace.equals(_ns)) {
+            defaultPrefix = prefix;
+         } else {
+            switch (ns) {
+               case "http://www.w3.org/2002/07/owl#":
+               case "http://www.w3.org/2001/XMLSchema#":
+               case "http://www.w3.org/XML/1998/namespace":
+               case "http://www.w3.org/2000/01/rdf-schema#":
+               case "http://lumii.lv/2011/1.0/owlgred#":
+               case "http://www.w3.org/1999/02/22-rdf-syntax-ns#":
+                  break;
+               default:
+                  OwlImportedSchema imported = new OwlImportedSchema(prefix, _ns);
+                  importedSchemas.put(prefix, imported);
+                  importedSchemasFromNamespace.put(_ns, imported);
+
+                  if (schemasRepository.hasSchemaByNamespace(_ns)) {
+                     SchemasRepository.SchemaRep schemaRep = schemasRepository.getSchemaByNamespace(_ns);
+                     imported.setSchemaRep(schemaRep);
+                  } else {
+                     SchemasRepository.SchemaRep schemaRep = new SchemasRepository.SchemaRep(_ns);
+                     imported.setSchemaRep(schemaRep);
+                  }
+                  declaredSchemasFromNamespace.put(ns, imported.getSchemaRep());
+                  break;
+            }
+         }
+      }
+   }
+
+   public Map<String, OwlImportedSchema> getImportedSchemas() {
+      return importedSchemas;
    }
 
    /**
-    * Return the prefix map.
+    * Return true if a prefix correspond to an imported schema.
     *
-    * @return the prefix map
+    * @param prefix the prefix
+    * @return true if the prefix correspond to an imported schema
+    */
+   public boolean hasImportedSchema(String prefix) {
+      return importedSchemas.containsKey(prefix);
+   }
+
+   public OwlImportedSchema getImportedSchema(String prefix) {
+      return importedSchemas.get(prefix);
+   }
+
+   /**
+    * Return true if a namespace correspond to an imported schema.
+    *
+    * @param namespace the namespace
+    * @return true if the prefix correspond to an imported schema
+    */
+   public boolean hasImportedSchemaFromNamespace(String namespace) {
+      return importedSchemasFromNamespace.containsKey(namespace);
+   }
+
+   public Map<String, OwlImportedSchema> getImportedSchemasByNamespace() {
+      return importedSchemasFromNamespace;
+   }
+
+   /**
+    * Return the schemas on which this schema depends on by namespace.
+    *
+    * @return the schemas
+    */
+   @Override
+   public Map<String, OwlDeclaredSchema> getDependenciesByNamespace() {
+      return declaredSchemasFromNamespace;
+   }
+
+   /**
+    * Return the default namespace.
+    *
+    * @return the default namespace
+    */
+   public String getDefaultNamespace() {
+      return defaultNamespace;
+   }
+
+   /**
+    * Return the prefix for the default namespace.
+    *
+    * @return the prefix for the default namespace
+    */
+   public String getDefaultPrefix() {
+      return defaultPrefix;
+   }
+
+   /**
+    * Return true if the Schema has a namespace for a specified prefix.
+    *
+    * @param prefix the prefix
+    * @return true if the Schema has a namespace for the specified prefix
+    */
+   public boolean hasNamespaceFromPrefix(String prefix) {
+      return prefixToNamespace.containsKey(prefix);
+   }
+
+   /**
+    * Return the namespace for a specified prefix.
+    *
+    * @param prefix the prefix
+    * @return the namespace
+    */
+   public String getNamespaceFromPrefix(String prefix) {
+      return prefixToNamespace.get(prefix);
+   }
+
+   /**
+    * Return the map from prefix to namespaces.
+    *
+    * @return the map from prefix to namespaces
+    */
+   public Map<String, String> getPrefixToNamespaceMap() {
+      return prefixToNamespace;
+   }
+
+   /**
+    * Return the map from namespaces to prefix.
+    *
+    * @return the map from namespaces to prefix
     */
    public Map<String, String> getPrefixMap() {
       return prefixMap;
+   }
+
+   /**
+    * Return true if there is a prefix for a namespace.
+    *
+    * @param namespace the namespace
+    * @return true if there is a prefix for the namespace
+    */
+   public boolean hasPrefix(String namespace) {
+      return prefixMap.containsKey(namespace);
    }
 
    /**
@@ -476,44 +629,39 @@ public class OwlSchema extends AnnotatedElement implements Cloneable, Serializab
    /**
     * Return the classes dependant from a class.
     *
+    * @param key the class key
+    * @param filter the filter
+    * @return the dependant classes
+    */
+   public Map<ElementKey, OwlClass> getDependentClasses(ElementKey key, ElementFilter filter) {
+      if (!hasOwlClass(key)) {
+         return null;
+      } else {
+         OwlClass theClass = getOwlClass(key);
+         return getDependentClasses(theClass, filter);
+      }
+   }
+
+   /**
+    * Return the classes dependant from a class.
+    *
     * @param theClass the class
     * @return the dependant classes
     */
    public Map<ElementKey, OwlClass> getDependentClasses(OwlClass theClass) {
-      Map<ElementKey, OwlClass> map = new HashMap<>();
-      Iterator<OwlProperty> it = theClass.getDomainOwlProperties().values().iterator();
-      while (it.hasNext()) {
-         OwlProperty property = it.next();
-         if (property instanceof OwlObjectProperty) {
-            OwlObjectProperty objectProperty = (OwlObjectProperty) property;
-            Map<ElementKey, OwlRestriction> restrictions = objectProperty.getRange();
-            Iterator<OwlRestriction> it2 = restrictions.values().iterator();
-            while (it2.hasNext()) {
-               OwlRestriction restriction = it2.next();
-               OwlClass class2 = restriction.getOwlClass();
-               if (class2 != theClass) {
-                  map.put(class2.getKey(), class2);
-               }
-            }
-         }
-      }
-      it = theClass.getRangeOwlProperties().values().iterator();
-      while (it.hasNext()) {
-         OwlProperty property = it.next();
-         if (property instanceof OwlObjectProperty) {
-            OwlObjectProperty objectProperty = (OwlObjectProperty) property;
-            Map<ElementKey, OwlRestriction> restrictions = objectProperty.getDomain();
-            Iterator<OwlRestriction> it2 = restrictions.values().iterator();
-            while (it2.hasNext()) {
-               OwlRestriction restriction = it2.next();
-               OwlClass class2 = restriction.getOwlClass();
-               if (class2 != theClass) {
-                  map.put(class2.getKey(), class2);
-               }
-            }
-         }
-      }
-      return map;
+      ElementFilter filter = new ElementFilter();
+      return SchemaUtils.getDependentClasses(theClass, filter);
+   }
+
+   /**
+    * Return the classes dependant from a class.
+    *
+    * @param theClass the class
+    * @param filter the filter
+    * @return the dependant classes
+    */
+   public Map<ElementKey, OwlClass> getDependentClasses(OwlClass theClass, ElementFilter filter) {
+      return SchemaUtils.getDependentClasses(theClass, filter);
    }
 
    @Override
@@ -524,5 +672,86 @@ public class OwlSchema extends AnnotatedElement implements Cloneable, Serializab
       } catch (CloneNotSupportedException ex) {
          return null;
       }
+   }
+
+   @Override
+   public void accept(ElementVisitor visitor) {
+      boolean cont = visitor.visit(this);
+      if (cont) {
+         Iterator<OwlDatatype> it = datatypes.values().iterator();
+         while (it.hasNext()) {
+            OwlDatatype theDatatype = it.next();
+            theDatatype.accept(visitor);
+         }
+         Iterator<OwlClass> it4 = classes.values().iterator();
+         while (it4.hasNext()) {
+            OwlClass theClass = it4.next();
+            theClass.accept(visitor);
+         }
+         Iterator<OwlProperty> it2 = properties.values().iterator();
+         while (it2.hasNext()) {
+            OwlProperty theProperty = it2.next();
+            theProperty.accept(visitor);
+         }
+         Iterator<OwlIndividual> it3 = individuals.values().iterator();
+         while (it3.hasNext()) {
+            OwlIndividual theIndividual = it3.next();
+            theIndividual.accept(visitor);
+         }
+      }
+   }
+
+   /**
+    * Return the prefix for the default namespace.
+    *
+    * @return the prefix for the default namespace
+    */
+   @Override
+   public String getPrefix() {
+      return defaultPrefix;
+   }
+
+   /**
+    * Return the URI of the default namespace.
+    *
+    * @return the URI
+    */
+   @Override
+   public URI toURI() {
+      try {
+         URL url = new URL(defaultNamespace);
+         return url.toURI();
+      } catch (MalformedURLException | URISyntaxException ex) {
+         return null;
+      }
+   }
+
+   @Override
+   public String getName() {
+      return getNamespace();
+   }
+
+   @Override
+   public String getDisplayedName() {
+      return getPrefixedDisplayedName();
+   }
+
+   @Override
+   public String getPrefixedDisplayedName() {
+      if (defaultPrefix != null) {
+         return defaultPrefix + ":" + defaultNamespace;
+      } else {
+         return defaultNamespace;
+      }
+   }
+
+   @Override
+   public String getNamespace() {
+      return defaultNamespace;
+   }
+
+   @Override
+   public ElementKey getKey() {
+      return null;
    }
 }

@@ -32,7 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import org.girod.ontobrowser.graph.GraphExtractor;
+import org.girod.ontobrowser.actions.graph.GraphExtractor;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;

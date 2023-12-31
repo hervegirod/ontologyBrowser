@@ -33,13 +33,12 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.Map;
-import org.apache.jena.ontology.OntResource;
 import org.apache.jena.rdf.model.Resource;
 
 /**
  * Represents an Individual coming from a Resource.
  *
- * @since 0.7
+ * @version 0.8
  */
 public class OwlAutoIndividual extends OwlIndividual<Resource> {
    

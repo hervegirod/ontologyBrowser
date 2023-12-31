@@ -32,39 +32,58 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.net.URI;
+import java.util.Map;
+
 /**
- * Represents an object property value.
+ * Represents an Owl declared Schema.
  *
- * @version 0.8
+ * @since 0.8
  */
-public class ObjectPropertyValue extends PropertyValue<OwlObjectProperty> {
-   private final OwlIndividual target;
-
-   public ObjectPropertyValue(OwlObjectProperty property, OwlIndividual source, OwlIndividual target) {
-      super(property, source);
-      this.target = target;
+public interface OwlDeclaredSchema {
+   /**
+    * Return true if the schema has a name.
+    *
+    * @return true if the schema has a name
+    */
+   public default boolean hasName() {
+      return false;
    }
 
    /**
-    * Return the object property. Identical as {@link #getProperty()}.
+    * Return the Schema name.
     *
-    * @return the object property
+    * @return the name
     */
-   public OwlObjectProperty getObjectProperty() {
-      return property;
+   public default String getName() {
+      return null;
    }
 
    /**
-    * Return the target.
+    * Return the schema prefix in the declaration. May be null.
     *
-    * @return the target
+    * @return the prefix
     */
-   public OwlIndividual getTarget() {
-      return target;
-   }
+   public String getPrefix();
 
-   @Override
-   public String toString() {
-      return target.toString();
-   }
+   /**
+    * Return the schema namespace.
+    *
+    * @return the namespace
+    */
+   public String getNamespace();
+
+   /**
+    * Return the URI of the schema namespace.
+    *
+    * @return the URI
+    */
+   public URI toURI();
+
+   /**
+    * Return the schemas on which this schema depends on by namespace.
+    *
+    * @return the schemas
+    */
+   public Map<String, ? extends OwlDeclaredSchema> getDependenciesByNamespace();
 }
