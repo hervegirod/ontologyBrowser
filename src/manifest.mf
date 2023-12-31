@@ -1,60 +1,63 @@
 Manifest-Version: 1.0
 Main-Class: org.girod.ontobrowser.OntoBrowser
-Class-Path: lib/MDIFramework-swingAll.jar \
-            lib/MDIUtilities-core-LGPL.jar \
-            lib/MDIUtilities-ui-LGPL.jar \
-            lib/jgraphx.jar \
-            lib/JGraphml.jar \
-            lib/log4j-1.2.17.jar \
-            lib/unit-api-2.0.jar \
-            lib/xercesImpl-2.11.0.jar \
-            lib/xml-apis-1.4.01.jar \
-            lib/jena/jena-arq-3.15.0.jar \
-            lib/jena/jena-base-3.15.0.jar \
-            lib/jena/jena-cmds-3.15.0.jar \
-            lib/jena/jena-core-3.15.0.jar \
-            lib/jena/jena-iri-3.15.0.jar \
-            lib/jena/jena-rdfconnection-3.15.0.jar \
-            lib/jena/jena-shaded-guava-3.15.0.jar \
-            lib/jena/jena-tdb-3.15.0.jar \
-            lib/jena/jena-tdb2-3.15.0.jar \
-            lib/jena/jena-iri-3.15.0.jar \
-            lib/jena/jena-dboe-base-3.15.0.jar \
-            lib/jena/jena-dboe-index-3.15.0.jar \
-            lib/jena/jena-dboe-storage-3.15.0.jar \
-            lib/jena/jena-dboe-trans-data-3.15.0.jar \
-            lib/jena/jena-dboe-transaction-3.15.0.jar \
-            lib/jena/jena-shacl-3.15.0.jar \
-            lib/jena/geosparql-jena-1.1.2.jar \
-            lib/jena/geoAPI-3.0.1.jar \
-            lib/jena/gt-opengis-22.2.jar \
-            lib/jena/sis-embedded-data-1.0.jar \
-            lib/jena/derby.jar \
-            lib/jena/jsonld-java-0.12.5.jar \
-            lib/jena/expiring-map-1.0.2.jar \
-            lib/jena/sis-referencing-1.0.jar \
-            lib/jena/sis-utility-1.0.jar \
-            lib/jena/sis-metadata-1.0.jar \
-            lib/jena/jts-core-1.16.1.jar \
-            lib/jena/jts-io-common-1.16.1.jar \
-            lib/jena/jdom-2.0.6.jar \
-            lib/jena/jackson-core-2.10.1.jar \
-            lib/jena/jackson-databind-2.10.1.jar \
-            lib/jena/jackson-annotations-2.10.1.jar \
-            lib/jena/javax.annotation-api-1.3.2.jar \
-            lib/jena/collection-0.7.jar \
-            lib/jena/commons-cli-1.4.jar \
-            lib/jena/commons-codec-1.14.jar \
-            lib/jena/commons-csv-1.8.jar \
-            lib/jena/commons-io-2.6.jar \
-            lib/jena/commons-logging-1.2.jar \
-            lib/jena/commons-compress-1.20.jar \
-            lib/jena/commons-lang3-3.10.jar \
-            lib/jena/slf4j-api-1.7.30.jar \
-            lib/jena/slf4j-log4j12-1.7.26.jar \
-            lib/jena/jcl-over-slf4j-1.7.30.jar \
-            lib/jena/libthrift-0.13.0.jar \
-            lib/jena/httpclient-4.5.10.jar \
-            lib/jena/httpclient-cache-4.5.10.jar \
+Class-Path: lib/MDIFramework-swingAll.jar
+            lib/MDIUtilities-core-LGPL.jar
+            lib/MDIUtilities-ui-LGPL.jar
+            lib/jgraphx.jar
+            lib/JGraphml.jar
+            lib/scriptHelper.jar
+            lib/scriptHelperGroovy.jar
+            lib/scriptHelperSwing.jar
+            lib/log4j-1.2.17.jar
+            lib/unit-api-2.0.jar
+            lib/xercesImpl-2.11.0.jar
+            lib/xml-apis-1.4.01.jar
+            lib/jena/jena-arq-3.15.0.jar
+            lib/jena/jena-base-3.15.0.jar
+            lib/jena/jena-cmds-3.15.0.jar
+            lib/jena/jena-core-3.15.0.jar
+            lib/jena/jena-iri-3.15.0.jar
+            lib/jena/jena-rdfconnection-3.15.0.jar
+            lib/jena/jena-shaded-guava-3.15.0.jar
+            lib/jena/jena-tdb-3.15.0.jar
+            lib/jena/jena-tdb2-3.15.0.jar
+            lib/jena/jena-iri-3.15.0.jar
+            lib/jena/jena-dboe-base-3.15.0.jar
+            lib/jena/jena-dboe-index-3.15.0.jar
+            lib/jena/jena-dboe-storage-3.15.0.jar
+            lib/jena/jena-dboe-trans-data-3.15.0.jar
+            lib/jena/jena-dboe-transaction-3.15.0.jar
+            lib/jena/jena-shacl-3.15.0.jar
+            lib/jena/geosparql-jena-1.1.2.jar
+            lib/jena/geoAPI-3.0.1.jar
+            lib/jena/gt-opengis-22.2.jar
+            lib/jena/sis-embedded-data-1.0.jar
+            lib/jena/derby.jar
+            lib/jena/jsonld-java-0.12.5.jar
+            lib/jena/expiring-map-1.0.2.jar
+            lib/jena/sis-referencing-1.0.jar
+            lib/jena/sis-utility-1.0.jar
+            lib/jena/sis-metadata-1.0.jar
+            lib/jena/jts-core-1.16.1.jar
+            lib/jena/jts-io-common-1.16.1.jar
+            lib/jena/jdom-2.0.6.jar
+            lib/jena/jackson-core-2.10.1.jar
+            lib/jena/jackson-databind-2.10.1.jar
+            lib/jena/jackson-annotations-2.10.1.jar
+            lib/jena/javax.annotation-api-1.3.2.jar
+            lib/jena/collection-0.7.jar
+            lib/jena/commons-cli-1.4.jar
+            lib/jena/commons-codec-1.14.jar
+            lib/jena/commons-csv-1.8.jar
+            lib/jena/commons-io-2.6.jar
+            lib/jena/commons-logging-1.2.jar
+            lib/jena/commons-compress-1.20.jar
+            lib/jena/commons-lang3-3.10.jar
+            lib/jena/slf4j-api-1.7.30.jar
+            lib/jena/slf4j-log4j12-1.7.26.jar
+            lib/jena/jcl-over-slf4j-1.7.30.jar
+            lib/jena/libthrift-0.13.0.jar
+            lib/jena/httpclient-4.5.10.jar
+            lib/jena/httpclient-cache-4.5.10.jar
             lib/jena/httpcore-4.4.12.jar
 
