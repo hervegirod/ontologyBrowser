@@ -51,3 +51,16 @@
  - Add a Datatypes tree
  - Allow to execute SPARQL queries
  - Add a standards folder in the distribution
+
+# 0.8
+ - Use scriptHelper 1.6.2
+ - Add scripting debugging functionality
+ - Fix the log level which was impossible to set in the settings
+ - Fix some cases where parsing some ontologies could result in a Cannot convert node xxx to OntClass: it does not have rdf:type owl:Class or equivalent 
+ - Add an option allowing to include SuperClasses in the dependencies of a Class
+ - Add a scripting framework
+ - Show annotations on annotations
+ - Add a tab representing the content of the Ontology (the prefixes and the imports)
+ - Support parent-children for properties
+ - Show the SuperClasses and the SubClasses in the Classes dependencies
+ - Show the SuperProperties and the SubProperties in the Properties dependencies

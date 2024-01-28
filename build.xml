@@ -20,11 +20,16 @@
       <!-- general properties definition -->
       <property name="archiveName" value="ontoBrowser"/>
       <property name="wikiDir" value="web/wiki/"/>
+      <property name="javadocAPI.dir" value="${dist.javadoc.dir}/../ontoBrowserAPI" />
+      <property name="javadocAPIOut" value="web/wiki/javadoc" />
       <condition property="wiki.exists">
          <available file="${wikiDir}/index.html" type="file"/>
       </condition>
       <condition property="javadoc.exists">
          <available file="${dist.javadoc.dir}" type="dir"/>
+      </condition>
+      <condition property="wikijavadoc.exists">
+         <available file="${javadocAPIOut}" type="dir"/>
       </condition>
       <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />
       <property name="docGeneratorVersion" value="1.6.5.8" />
@@ -171,7 +176,7 @@
    <!-- NB overwrite targets : javadocs                                     -->
    <!-- =================================================================== -->
 
-   <target depends="-javadoc-core" name="-javadoc-build" />
+   <target depends="-javadoc-core, -javadoc-api" name="-javadoc-build" />
 
    <target depends="init, -init-project, -post-init" name="-javadoc-core">
       <!-- Javadoc -->
@@ -197,6 +202,57 @@
             <![CDATA[<i>Copyright &#169; 2021, 2022, 2023 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
          </bottom>
       </javadoc>
+   </target>
+
+   <target depends="init, -init-project, -post-init" name="-javadoc-api">
+      <!-- Javadoc -->
+      <javadoc author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}/../ontoBrowserAPI"
+               docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true"
+               noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}"
+               notree="${javadoc.notree}" private="${javadoc.private}"
+               source="${javac.source}" splitindex="${javadoc.splitindex}"
+               use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}"
+               windowtitle="${javadoc.windowtitle}" executable="${javadocEXE}" >
+         <link href="${j2seapi}" />
+         <!-- the Xdoclint argument avoid to get javadoc errors when the documentation format is not compliant for HTML 4, which was the case before
+         Java 8. It would also not be a good idea, because empty tags like br are very useful -->
+         <arg line="-Xdoclint:none"/>
+         <fileset dir="${src.dir}" defaultexcludes="yes">
+            <include name="org/girod/ontobrowser/model/**/*.java"/>
+            <include name="org/girod/ontobrowser/script/Script.java"/>
+            <include name="org/girod/ontobrowser/script/OwlScriptContext.java"/>
+            <include name="org/girod/ontobrowser/script/OwlScriptHelper.java"/>
+         </fileset>
+         <group title="Model">
+            <package name="org.girod.ontobrowser.model*" />
+         </group>
+         <group title="API">
+            <package name="org.girod.ontobrowser.script" />
+         </group>
+         <classpath>
+            <path path="${javac.classpath}"/>
+            <path path="${dist.dir}/ontoBrowser.jar"/>
+         </classpath>
+         <doctitle><![CDATA[<h1>ontologyBrowser API documentation</h1>]]></doctitle>
+         <bottom>
+            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
+         </bottom>
+      </javadoc>
+   </target>
+
+   <!-- copy javadoc to wiki -->
+   <target name="copyjavadoc" description="copy javadoc" depends="init, -post-init, version, deletejavadoc" >
+      <mkdir dir="${javadocAPIOut}" />
+      <copy todir="${javadocAPIOut}">
+         <fileset defaultexcludes="yes" dir="${javadocAPI.dir}" >
+            <include name="**/*.*"/>
+         </fileset>
+      </copy>
+   </target>
+   <target name="deletejavadoc" depends="init, -post-init, version" if="${wikijavadoc.exists}">
+      <delete includeEmptyDirs="true">
+         <fileset dir="${javadocAPIOut}" includes="**/*.*" />
+      </delete>
    </target>
 
    <!-- =================================================================== -->
@@ -269,21 +325,7 @@
          <arg value="-checkHTTPLinks=false"/>
          <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
-         <arg value="-search=titles"/>
-         <arg value="-fullTextSearch=true"/>
-         <classpath>
-            <pathelement path="web/soft/docGenerator.jar"/>
-         </classpath>
-      </java>
-   </target>
-
-   <target name="generateWikiForSourceForge" description="generate for sourceforge" depends="init, version" >
-      <java classname="org.docgene.main.DocGenerator">
-         <arg value="-input=web/source"/>
-         <arg value="-output=web/sourceforge"/>
-         <arg value="-lightbox=true"/>
-         <arg value="-$version=${version}"/>
-         <arg value="-config=web/source/sourceforge.properties"/>
+         <arg value="-config=web/source/config.properties"/>         
          <arg value="-search=titles"/>
          <arg value="-fullTextSearch=true"/>
          <classpath>
