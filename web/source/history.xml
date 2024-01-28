@@ -19,7 +19,7 @@
 
    <title title="Version 0.4" />
    <ul>
-      <li>Use docJGenerator 1.6.4.9</li>      
+      <li>Use docJGenerator 1.6.4.9</li>
       <li>Use MDIUtilities 1.2.51</li>
       <li>Use jGraphml 1.2.4</li>
       <li>Use MDIFramework 1.3.10.1</li>
@@ -29,12 +29,12 @@
       <li>Add a tree showing the packages and the classes on the left of the UI</li>
       <li>Center the diagram when selecting a class</li>
    </ul>
-   
+
    <title title="Version 0.5" />
    <ul>
       <li>Use MDIUtilities 1.2.58</li>
       <li>Use MDIFramework 1.4</li>
-      <li>Use jGraphml 1.2.5</li>      
+      <li>Use jGraphml 1.2.5</li>
       <li>Use docJGenerator 1.6.5.5</li>
       <li>Use Netbeans 12.5 for the development</li>
       <li>Reorganize the libraries to put jena libraries in a specific folder</li>
@@ -46,29 +46,44 @@
       <li>Handle correctly union classes for domains and range when parsing</li>
       <li>Protect the parser against unsupported Owl2 files</li>
       <li>Better integrate the app on Mac OS X</li>
-   </ul>   
-   
+   </ul>
+
    <title title="Version 0.6" />
    <ul>
       <li>Use MDIUtilities 1.2.60</li>
-      <li>Use MDIFramework 1.4.1</li>  
+      <li>Use MDIFramework 1.4.1</li>
       <li>Use docJGenerator 1.6.5.8</li>
       <li>Add tooltips showing the comments of elements in the ontology</li>
       <li>Show the classes associated with the selected Class in the dependencies window</li>
       <li>Parse the default annotations for elements in the model and show documented elements in the tree</li>
       <li>Parse and show all annotations in the model</li>
-   </ul>  
-   
+   </ul>
+
    <title title="Version 0.7" />
    <ul>
       <li>Add a log level for the browser</li>
-      <li>Show correctly the individuals which are parts of equivalent classes</li>  
+      <li>Show correctly the individuals which are parts of equivalent classes</li>
       <li>Fix some cases where the dependencies window would not show the dependencies on the correct element</li>
       <li>Support seeAlso and isDefinedBy annotations on elements in the Ontology</li>
       <li>Allow to specify alternate locations for imported URIs</li>
       <li>Use labels to name the elements when they are present</li>
       <li>Add a configuration option to show aliased classes in the diagram</li>
-   </ul>         
+   </ul>
+
+   <title title="Version 0.8" />
+   <ul>
+      <li>Use scriptHelper 1.6.2</li>
+      <li>Add scripting debugging functionality</li>
+      <li>Fix the log level which was impossible to set in the settings</li>
+      <li>Fix some cases where parsing some ontologies could result in a Cannot convert node xxx to OntClass: it does not have rdf:type owl:Class or equivalent</li>
+      <li>Add an option allowing to include SuperClasses in the dependencies of a Class</li>
+      <li>Add a scripting framework</li>
+      <li>Show annotations on annotations</li>
+      <li>Add a tab representing the content of the Ontology (the prefixes and the imports)</li>
+      <li>Support parent-children for properties</li>
+      <li>Show the SuperClasses and the SubClasses in the Classes dependencies</li>
+      <li>Show the SuperProperties and the SubProperties in the Properties dependencies</li>
+   </ul>
 
    <cat id="general" />
 </article>

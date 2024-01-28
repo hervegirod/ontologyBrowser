@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<images>
+   <image id="swingError" url="swing.png" />
+   <image id="debugwindow" url="debugwindow.png" />
+   <image id="stepDebug" url="step.png" />
+   <image id="continueDebug" url="continue.png" />
+   <image id="finishDebug" url="finishDebug.png" />
+   <image id="debuggutter" url="debuggutter.png" />
+   <image id="debugoutput" url="debugoutput.png" />
+   <image id="debugvariables" url="debugvariables.png" />
+   <image id="debugbroken" url="debugbroken.png" />
+   <image id="breakpointedit" url="breakpointedit.png" />
+   <image id="breakpointincorrect" url="breakpointincorrect.png" />
+   <image id="debugbreakpoint" url="debugbreakpoint.png" />
+   <image id="debugstoponbreakpoint" url="debugstoponbreakpoint.png" />
+   <image id="debugstopvariables" url="debugstopvariables.png" />
+   <image id="debugstopvariables2" url="debugstopvariables2.png" />
+</images>

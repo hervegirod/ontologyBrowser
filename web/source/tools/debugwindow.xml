@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Debugging with the Debug ScriptWindow" >
+   <altTitle desc="Debug ScriptWindow" />
+   <meta desc="This article explains how to debug with the Debug ScriptWindow" />
+   The Debug ScriptWindow is a Window which is used to debug <ref id="scripts" />.
+
+   <img id="debugwindow" border="true" />
+
+   <title title="The Debug window" />
+   The Debug window has two parts:
+   <ul>
+      <li>The top panel shows the script code</li>
+      <li>The bottom panel shows the output and the variable windows</li>
+   </ul>
+
+   The toolbar at the top of the window allows to control the execution of the script:
+   <ul>
+      <li><img id="stepDebug" />: This button allows to step over on the next instruction</li>
+      <li><img id="continueDebug" />: This button allows to continue the execution</li>
+      <li><img id="finishDebug" />: This button allows to end the debugging session</li>
+   </ul>
+
+   <title level="2" title="The top panel" />
+   The top panel shows the script. It is possible to show the line numbers by left-clicking on the left border of the window and
+   moving it to the right:
+   <img id="debuggutter" border="true" />
+
+   <title level="2" title="The bottom panel" />
+   The bottom panel shows two tabs:
+
+   The output panel presents the output of the script:
+   <img id="debugoutput" border="true" />
+
+   The variables panel  presents the values of the variables which are defined in the current step:
+   <img id="debugvariables" border="true" />
+
+   <title title="Managing the Debug session" />
+   Clicking on the <i>step</i> or the <i>continue</i> button will start the script.
+
+   <title level="2" title="Adding or removing a breakpoint" />
+   To add or remove a <ref id="breakpoint"/>, just right-click on the gutter:
+   <ul>
+      <li>The first click will add a breakpoint</li>
+      <li>A second click will remove the breakpoint</li>
+   </ul>
+   If there is no valid step at the line, a "broken" icon will be shown:
+   <img id="debugbroken" border="true"/>
+
+   <title level="2" title="Editing a breakpoint" />
+   It is possible to edit a <ref id="breakpoint"/> to set a condition for the breakpoint to be active:
+   <img id="breakpointedit" border="true"/>
+
+   <cat id="tools" />
+</article>

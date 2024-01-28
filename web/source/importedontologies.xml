@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template desc="list schemas">
+   <ul>
+      <li>The <a href="https://www.w3.org/TR/owl-time/">owl-time</a> Ontology: <code>http://www.w3.org/2006/time</code></li>
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> terms Ontology: <code>http://purl.org/dc/terms/</code></li>
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> elements Ontology: <code>http://purl.org/dc/elements/1.1/</code></li>      
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> abstract model Ontology: <code>http://purl.org/dc/dcam/</code></li>            
+      <li>The <a href="https://basic-formal-ontology.org/">Basic Formal Ontology</a>: <code>http://purl.obolibrary.org/obo/bfo.owl</code></li>
+      <li>The <a href="https://github.com/information-artifact-ontology/IAO/">IAO (Information Artifact Ontology) Ontology</a>: <code>http://purl.obolibrary.org/obo/iao.owl</code></li>
+      <li>The <a href="http://xmlns.com/foaf/spec/">FOAF</a> (Friend of a Friend) Ontology: <code>http://xmlns.com/foaf/0.1/</code></li>     
+      <li>The <a href="https://web.resource.org/cc/">CC</a> (Describing copyright in RDF) Ontology: <code>https://web.resource.org/cc/</code></li>     
+      <li>The <a href="https://lov.linkeddata.es/vocommons/voaf/v2.3/">VOAF</a> (Vocabulary of a Friend) Ontology: <code>http://purl.org/vocommons/voaf</code></li>
+      <li>The <a href="https://vocab.org/vann/">VANN</a> (vocabulary for annotating vocabulary descriptions) Ontology: <code>http://purl.org/vocab/vann/</code></li>    
+      <li>The <a href="https://www.w3.org/TR/vocab-ssn/">SOSA</a> (Sensor, Observation, Sample, and Actuator) Ontology: <code>https://www.w3.org/ns/sosa/</code></li>  
+      <li>The <a href="https://www.w3.org/TR/vocab-ssn/">SSN</a> (Semantic Sensor Network) Ontology: <code>https://www.w3.org/ns/ssn/</code></li>        
+      <li>The <a href="https://vocab.org/frbr/core">FRBR</a> ("Expression of Core FRBR Concepts in RDF) Ontology: <code>http://purl.org/vocab/frbr/core</code></li>    
+      <li>The <a href="https://www.ogc.org/standard/geosparql/">GeoSPARQL</a> Ontology: <code>http://www.opengis.net/ont/geosparql</code></li>            
+      <li>The <a href="https://www.ogc.org/standard/sfa/">OGC Simple Features</a> Ontology: <code>http://www.opengis.net/ont/sf</code></li>                  
+   </ul>
+</template>

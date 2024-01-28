@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Scripting">
+   <altTitle desc="scripts" />
+   <altTitle desc="script" dictionary="false" />
+   <altTitle desc="Scripts execution" />
+   <meta desc="This article presents the Scripting" />
+   The Tools =&gt; Execute Script action allows to execute a <ref id="Script" /> on the currently selected schema.
+
+   Scripts allow to navigate an Ontology and perform actions (for example checks) on the selected Ontology.
+
+   <title title="Script structure" />
+   A Script has the following methods (all these methods are optional):
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="start(org.girod.ontobrowser.model.OwlSchema)"/> method
+         is called at the starting of the script</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="process(org.girod.ontobrowser.model.NamedElement)"/> method
+         is called for each element in the model</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="end()"/> method is called at the end of the script</li>
+   </ul>
+
+   The elements will be visited in the following order:
+   <ul>
+      <li>The Datatypes in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlDatatype" /> class</li>
+      <li>The Classes in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlClass" /> class</li>
+      <li>The Properties in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlProperty" /> class</li>
+      <li>The Individuals in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlIndividual" /> class</li>
+   </ul>
+
+   <title title="Script errors" />
+   <moreInfo id="Script errors" />
+   Two types of errors can appear when running a script:
+   <ul>
+      <li>The script can fail to compile. In that case, if will abort before actually starting</li>
+      <li>The script can throw an exception during running. The Script may abort its execution or not depending on the state of the "End Script at First Exception" checkbox</li>
+   </ul>
+   All exceptions encountered by the scripts will lead to an error message in the console. The first error will popup a Window allowing to navigate in the
+   StackTrace of the error.
+
+   <title title="Script Context" />
+   The script always have access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptContext"/> class called <code>context</code>.
+   The user can use this object to:
+   <ul>
+      <li>Perform pre-defined complex computations on Ontology elements (Classes, Properties, Annotations, Individuals)</li>
+      <li>Print messages in the console</li>
+   </ul>
+
+   <title level="2" title="Echoing messages" />
+   <title level="3" title="Echoing simple messages" />
+   The <code>ScriptContext</code> class has several methods allowing to echo messages. The simplest way to echo a message
+   is by calling the <source syntax="java">echo(String message)</source>
+   (or <source syntax="java">echo(String message, String htmlColor)</source> for a message with a specific foreground).
+
+   For example:
+   <pre syntax="java">
+      public void process(NamedElement element) {
+      _ context.echo("element " + element.getName(), "blue");
+      }
+   </pre>
+
+   <messageBox type="info">
+      Note that you can use the <code>logger</code> instance to log more elaborately on the console, including Hypertext links.
+   </messageBox>
+
+   <title level="3" title="Tabulations" />
+   By default, all messages will appear at the beginning of each line, without tabulations. It is possible to control tabulations
+   by using the methods <source syntax="java">setTab(int)</source> and <source syntax="java">clearTab()</source>. Setting a tab to a value less or equal to zero is equivalent
+   to clear the tab.
+
+   The tabulation will be used until a new tab command is issued in the Script.
+
+   <title level="3" title="Aborting a Script" />
+   It is possible to abort the execution of a Script at any moment in the Script itself by calling the <source syntax="java">abort(String message)</source> method.
+
+   For example:
+   <pre syntax="java">
+      ElementKey annotationTODO = new ElementKey(schema, "myPrefix", "Todo");
+
+      public void process(NamedElement element) {
+      _ if (hasTODO(element)) {
+      _   context.abort("The Ontology contains an element with a TODO annotation");
+      _ }
+      }
+
+      boolean hasTODO(NamedElement element) {
+      _  if (element instanceof AnnotatedElement) {
+      _    AnnotatedElement annElt = (AnnotatedElement)element;
+      _    return annElt.hasAnnotation(annotationTODO);
+      _  } else {
+      _    return false;
+      _  }
+      }
+   </pre>
+
+   <title title="Script logger" />
+   The script always have access to a Script logger class called <code>logger</code>. The user can use this object to log messages and hypertext links
+   on the console area.
+
+   <title level="2" title="Logging simple messages" />
+   The <code>logger</code> has several methods allowing to log messages. The simplest way to log a message
+   is by calling the <source syntax="java">append(String message)</source>
+   (or <source syntax="java">append(String message, String htmlColor)</source> for a message with a specific foreground).
+
+   For example:
+   <pre syntax="java">
+      public void process(NamedElement element) {
+      _  logger.append("element " + element.getName(), "blue");
+      }
+   </pre>
+
+   <title level="2" title="Logging errors" />
+   The <code>logger</code> has several methods allowing to log exceptions:
+   <ul>
+      <li>The <source syntax="java">appendError(String message)</source> appends an error message in red</li>
+      <li>The <source syntax="java">appendError(Throwable th)</source> appends the throwable message in red</li>
+      <li>The <source syntax="java">appendStackTrace(Throwable th)</source> appends the throwable StackTrace in red</li>
+   </ul>
+
+   For example:
+   <pre syntax="java">
+      public void process(NamedElement element) {
+      _  try {
+      _    doSomething(element);
+      _  } catch (Exception e) {
+      _    logger.appendError(ex);
+      _    logger.appendStackTrace(ex);
+      _  }
+      }
+   </pre>
+
+   <title title="Script helper" />
+   The script always has access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper"/> class called <code>helper</code>.
+
+   This class has several utility methods:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDataProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Data properties associated with a Class</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDomainProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Object properties associated with a Class, for which this class is the domain of the property</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getRangeProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Object properties associated with a Class, for which this class is the range of the property</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDependentClasses(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Classes associated with a Class through Object properties</li>
+   </ul>
+
+   The <javadoc api="api" path="org.girod.ontobrowser.model.ElementFilter" /> class allows to specify when a property is added in the list:
+   <ul>
+      <li>Whether relations with Alias Classes are considered in the list</li>
+      <li>Whether relations with Parent Classes are considered in the list</li>
+   </ul>
+
+   <title title="Debugging scripts" />
+   <moreInfo id="Debugging scripts" />
+   The Tools =&gt; Debug Script action allows to debug a Script on the currently selected schema.
+
+   <see id="Debugging scripts" />
+   <see id="configuration#Scripts settings" desc="Scripts settings" />
+   <cat id="tools" />
+</article>

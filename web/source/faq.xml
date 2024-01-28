@@ -3,10 +3,14 @@
    <meta desc="Frequently Asked Questions" />
 
    <title title="What is ontologyBrowser"/>
-   The ontologyBrowser application allows to browse the content of an OWL/RDF model.
+   The ontologyBrowser application allows to browse the content of an OWL/RDF model. Note that you can't edit the ontology in the tool and must use a decicated
+   tool such as <a href="https://protege.stanford.edu/">Protege</a> to do it.
 
    <title title="Which version of Java should I use?"/>
-   The latest version of the project require Java 8.
+   The latest version of the project require Java 8 or greater.
+
+   <title title="I have strange errors in the console when generating, or the result is not as expected, can you help me?"/>
+   See <ref id="Troubleshooting" />.
 
    <cat id="general" />
 </article>

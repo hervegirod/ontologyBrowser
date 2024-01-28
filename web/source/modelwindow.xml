@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Model window">
+   <altTitle desc="content window" />
+   <meta desc="This article presents the content of the application Browser model window" />
+   This article presents the content of the application Browser model window.
+   <img id="modelwindow" width="40%" />
+   
+   After opening a diagram, a tab opens in the browser showing:
+   <ul>
+      <li>At the left the structure of the Owl model</li>
+      <li>At the right the diagram showing the model, and a window presenting the annotations on the selected
+         element on the tree</li>
+   </ul>
+
+   The structure of the Owl model is separated in six tabs:
+   <ul>
+      <li>The Ontology tab, showing the metadata on the Ontology, and its namespaces and imported ontologies</li>
+      <li>The Annotations tab, showing the Annotations definitions</li>      
+      <li>The Datatypes tab, showing the Datatypes definitions</li>            
+      <li>The Classes tab, showing the Owl Classes</li>                  
+      <li>The Properties tab, showing the Object properties and the Data properties</li>                        
+      <li>The Individuals tab, showing the Individuals</li>                              
+   </ul>
+   
+   <title title="Ontology tab" />
+   The Ontology tab shows the metadata on the Ontology, and its namespaces and imported ontologies:
+   <img id="tabontology" width="20%"/>  
+   
+   <title level="2" title="Ontology Menu" />
+   If you right click on the root ontology element in the tree, you will have the following popup menu:
+   <img id="classMenu" />
+   <ul>
+      <li>Show Ontology Imports graph in yEd in yEd: open the graph of imported ontologies in <ref id="yEd"/></li>
+   </ul>       
+   For example, with the following Ontology:
+   <img id="tabontology" width="20%"/>  
+   We will have the following diagram:
+   <img id="ontologygraph" />
+   
+   <title title="Class structure tab" />
+   The Class structure tab shows the structure of the Class hierarchy:
+   <img id="tabclasses" />
+
+   <title level="2" title="Class Menu" />
+   If you right click on a Class on this tab, you will have the following popup menu:
+   <img id="classMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Class</li>
+      <li>Copy to Clipboard: copy the Class IRI to the system Clipboard</li>
+      <li>Export Class: export the Class and its associated Classes / Individuals and Properties as a GraphML diagram</li>
+      <li>Show Class in yEd: open the Class and its associated Classes / Individuals and Properties in <ref id="yEd"/></li>
+   </ul>
+
+   <title level="2" title="Package Menu" />
+   If you right click on a Package on this tab, you will have the following popup menu:
+   <img id="packageMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Class</li>
+      <li>Copy to Clipboard: copy the Class IRI to the system Clipboard</li>
+      <li>Export Package: export the Package and its associated Classes / Individuals and Properties as a GraphML diagram</li>
+      <li>Show Package in yEd: open the Package and its associated Classes / Individuals and Properties in <ref id="yEd"/></li>
+   </ul>
+
+   <title title="Properties tab" />
+   The Properties structure tab shows the Properties, separated in data properties and object properties:
+   <img id="tabproperties" />
+
+   <title level="2" title="Property Menu" />
+   If you right click on a Property on this tab, you will have the following popup menu:
+   <img id="propertyMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Property</li>
+      <li>Copy to Clipboard: copy the Property IRI to the system Clipboard</li>
+   </ul>
+
+   <title title="Annotations tab" />
+   The Annoations tab shows the annotations tags in the model:
+   <img id="tabannotations"/>
+
+   <title level="2" title="Individuals tab" />
+   The Individuals tab shows the Individuals:
+   <img id="tabindividuals" />
+
+   <title level="2" title="Individual Menu" />
+   If you right click on an Individual on this tab, you will have the following popup menu:
+   <img id="individualMenu" />
+   <ul>
+      <li>Show Dependencies: show the <ref id="Dependencies window" desc="dependencies" /> of the Individual</li>
+      <li>Copy to Clipboard: copy the Individual IRI to the system Clipboard</li>
+   </ul>
+
+   <title title="element comments" />
+   If an element (a Class, a property, or an Individual) has comments or a description in the
+   <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> <code>terms</code> schema, then these comments will be shown as a
+   tooltip on the element. For example:
+   <img id="tooltips" />
+
+   <messageBox type="info">
+      By default the description will be shown in the tooltip, but if there is no description and comments, there comments will be shown instead.
+   </messageBox>
+
+   <see id="Browser" />
+   <see id="Usage" />
+   <cat id="general" />
+</article>

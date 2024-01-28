@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Script errors">
+   <meta desc="This article explains how to deal with errors in scripts" />
+   Two types of errors can appear when running a script:
+   <ul>
+      <li>The script can fail to compile</li>
+      <li>The script can throw an exception during running</li>
+   </ul>
+
+   The first error will popup a Window allowing to show the error line, and navigate in the StackTrace of the error in the case of runtime errors.
+
+   <title title="Compilation errors" />
+   If the script fail to compile, the script execution will abort before actually starting.
+
+   For example, for the following script:
+   <pre syntax="java">
+      void process(NamedElement element) {
+      _  execute(element);
+      }
+
+      void execute(NamedElement element) {
+      _  return 1;
+      }
+   </pre>
+
+   You will have the following error:
+   <img id="scripterrorcompile"/>
+   Clicking on the error will highlight the line responsible for the error.
+
+   <title title="Runtime errors" />
+   If  script throws an exception during running the script execution may or may not abort depending on the "End Script at First Exception" checkbox:
+   <ul>
+      <li>If the checkbox if checked, then the script execution will abort</li>
+      <li>If the checkbox if not checked, then the script execution will continue for the next Owl element. In that case, only the current <code>process</code> method will be stopped, and it will still
+         try to continue its execution after this method</li>
+   </ul>
+
+   For example, for the following script:
+   <pre syntax="java">
+      void process(NamedElement element) {
+      _  execute(element);
+      }
+
+      int execute(NamedElement element) {
+      _  int a = 0;
+      _  return 1/a;
+      }
+   </pre>
+
+   You will have the following error:
+   <img id="scripterrorruntime"/>
+
+   Clicking on the error will highlight the line responsible for the error. You will also be able to navigate in the StackTrace.
+
+   <see id="scripts" />
+   <see id="Debugging scripts" />
+   <see id="configuration#Scripts settings" desc="configuration"/>
+   <cat id="tools" />
+</article>

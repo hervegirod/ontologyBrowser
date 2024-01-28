@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Debugging scripts" >
+   <altTitle desc="debugging" />
+   <altTitle desc="debugger" />
+   <meta desc="This article is about the Scripts debugging" />
+   The Tools =&gt; Debug Script action allows to debug a <ref id="Script" /> on the currently selected schema.
+
+   <title title="overview" />
+   The debugging does not use the <wikipedia path="Java Platform Debugger Architecture" />. It works by inserting "shadow"
+   <code>step</code> instructions in the script source code before creating a debug session, allowing to execute the debugging session in the
+   context of the calling program, and even if the scripting language does not support "standard" debugging.
+
+   When the code execution steps through and instruction, the control flow is passed to the Debug session which will decide if:
+   <ul>
+      <li>The execution must <b>continue</b> through the next instruction</li>
+      <li>The execution must pause at the <b>step</b>. The values of the variables at this step can be retrieved in the debug session</li>
+   </ul>
+   It is possible to set a <ref id="breakpoint" /> at any step line, in which case the execution flow will pause, if the
+   breakpoint conditions are met.
+   
+   <title title="Debug ScriptWindow" />
+   <moreInfo id="Debug ScriptWindow" />
+   The Debug ScriptWindow is a Window which is used to debug <ref id="scripts" />.
+
+   <see id="Debug ScriptWindow" />
+   <cat id="tools" />
+</article>

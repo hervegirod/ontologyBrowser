@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<images>
+   <category desc="config">
+      <image id="configGeneral" url="configGeneral.png" />
+      <image id="configSchemas" url="configSchemas.png" />
+      <image id="configSPARQL" url="configSPARQL.png" />
+      <image id="configScripts" url="configScripts.png" />
+      <image id="configStyles" url="configStyles.png" />
+      <image id="configPackages" url="configPackages.png" />
+      <image id="configYed" url="configYed.png" />
+   </category>
+</images>

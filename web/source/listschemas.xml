@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Built-in Schemas">
+   <meta desc="This article presents the list of built-in schemas"/>
+
+   <title title="Default schemas" />
+   The tool defines several built-in schemas which can be enabled in the configuration:
+   <ul>
+      <li>The <a href="https://www.w3.org/TR/owl-time/">owl-time</a> Ontology: <code>http://www.w3.org/2006/time</code></li>
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> terms Ontology: <code>http://purl.org/dc/terms/</code></li>
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> elements Ontology: <code>http://purl.org/dc/elements/1.1/</code></li>
+      <li>The <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a> abstract model Ontology: <code>http://purl.org/dc/dcam/</code></li>
+      <li>The <a href="https://basic-formal-ontology.org/">Basic Formal Ontology</a>: <code>http://purl.obolibrary.org/obo/bfo.owl</code></li>
+      <li>The <a href="https://github.com/information-artifact-ontology/IAO/">IAO (Information Artifact Ontology) Ontology</a>: <code>http://purl.obolibrary.org/obo/iao.owl</code></li>
+      <li>The <a href="http://xmlns.com/foaf/spec/">FOAF</a> (Friend of a Friend) Ontology: <code>http://xmlns.com/foaf/0.1/</code></li>
+      <li>The <a href="https://web.resource.org/cc/">CC</a> (Describing copyright in RDF) Ontology: <code>https://web.resource.org/cc/</code></li>
+      <li>The <a href="https://lov.linkeddata.es/vocommons/voaf/v2.3/">VOAF</a> (Vocabulary of a Friend) Ontology: <code>http://purl.org/vocommons/voaf</code></li>
+      <li>The <a href="https://vocab.org/vann/">VANN</a> (vocabulary for annotating vocabulary descriptions) Ontology: <code>http://purl.org/vocab/vann/</code></li>
+      <li>The <a href="https://www.w3.org/TR/vocab-ssn/">SOSA</a> (Sensor, Observation, Sample, and Actuator) Ontology: <code>https://www.w3.org/ns/sosa/</code></li>
+      <li>The <a href="https://www.w3.org/TR/vocab-ssn/">SSN</a> (Semantic Sensor Network) Ontology: <code>https://www.w3.org/ns/ssn/</code></li>
+      <li>The <a href="https://vocab.org/frbr/core">FRBR</a> ("Expression of Core FRBR Concepts in RDF) Ontology: <code>http://purl.org/vocab/frbr/core</code></li>
+      <li>The <a href="https://www.ogc.org/standard/geosparql/">GeoSPARQL</a> Ontology: <code>http://www.opengis.net/ont/geosparql</code></li>
+      <li>The <a href="https://www.ogc.org/standard/sfa/">OGC Simple Features</a> Ontology: <code>http://www.opengis.net/ont/sf</code></li>
+   </ul>
+
+   <title title="Schemas Alternate Locations" />
+   The "Schemas Alternate Locations" setting in the <ref id="configuration" /> allow to specify these Ontologies alternate locations.
+
+   <title title="example" />
+   For example suppose the following Ontology, which uses the <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a>
+   <code>terms</code> schema:
+   <pre syntax="xml">
+      &lt;rdf:RDF xmlns="http://www.my.uri.com/myOntology#"
+      xml:base="http://www.my.uri.com/myOntology"
+      xmlns:owl="http://www.w3.org/2002/07/owl#"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:xml="http://www.w3.org/XML/1998/namespace"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+      xmlns:terms="http://purl.org/dc/terms/"&gt;
+         &lt;owl:Ontology rdf:about="http://www.my.uri.com/myOntology"&gt;
+            &lt;terms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date"&gt;2012-06-14&lt;/terms:modified&gt;
+            &lt;terms:publisher&gt;This is me&lt;/terms:publisher&gt;
+            &lt;terms:title&gt;My Ontology title&lt;/terms:title&gt;
+            &lt;rdfs:comment&gt;This is an example ontology&lt;/rdfs:comment&gt;
+         &lt;/owl:Ontology&gt;
+      ...
+      &lt;/rdf:RDF&gt;
+   </pre>
+
+   As you can see, the <code>terms</code> namespace, which is provided in <code>http://purl.org/dc/terms/</code>, is used in this Ontology.
+
+   You can provide the <resource href="dublin_core_elements.rdf">https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.rdf</resource>,
+   in this case the browser will use the local file rather that resolving it from the Web.
+
+   <cat id="configuration" />
+</article>

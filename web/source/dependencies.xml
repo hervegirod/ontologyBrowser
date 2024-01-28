@@ -3,7 +3,9 @@
    <meta desc="This article is about the libraries dependencies of ontologyBrowser" />
 
    <title title="Dependencies list" />
-   protoFramework is provided and has been tested with the specified releases of the libraries.
+   OntologyBrowser is provided and has been tested with the specified releases of the libraries.
+
+   <title level="2" title="General dependencies" />
    <table caption="Libraries dependencies">
       <tableHeader>
          <column>Library</column>
@@ -40,6 +42,26 @@
          <cell>-</cell>
       </row>
       <row>
+         <cell>scriptHelper</cell>
+         <cell>
+            <a href="https://sourceforge.net/projects/scripthelper/">sourceforge.net/projects/scripthelper/</a>
+         </cell>
+         <cell>BSD License</cell>
+         <cell>1.6.2</cell>
+         <cell>-</cell>
+      </row>
+   </table>
+
+   <title level="2" title="Jena dependencies" />
+   <table caption="Libraries dependencies">
+      <tableHeader>
+         <column>Library</column>
+         <column>Website</column>
+         <column>Licence</column>
+         <column>Release</column>
+         <column>Comment</column>
+      </tableHeader>
+      <row>
          <cell>Jena</cell>
          <cell>
             <a href="https://jena.apache.org/">jena.apache.org</a>
@@ -50,7 +72,7 @@
       </row>
    </table>
 
-   <title title="Geosparl dependencies" />
+   <title level="2" title="Geosparl dependencies" />
    The following table presents the  dependencies used specifically by the Geosparl functionality.
    <table caption="general dependencies">
       <tableHeader>

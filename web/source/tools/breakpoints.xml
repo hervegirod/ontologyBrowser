@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="breakpoints" >
+   <altTitle desc="breakpoint" />
+   <meta desc="This article is about the breakpoints" />
+   It is possible to add breakpoints in the debugged script. It is also possible to edit each breakpoint to add conditions for stopping on 
+   this breakpoint.  
+   
+   To add or remove a breakpoint, just right-click on the <ref id="Debug ScriptWindow" /> gutter:
+   <ul>
+      <li>The first click will add a breakpoint</li>
+      <li>A second click will remove the breakpoint</li>
+   </ul>     
+   
+   The script will pause at each breakpoint:
+   <ul>
+      <li>If there is no expression set for this breakpoint</li>
+      <li>Or if there is an expression set for this breakpoint, but the result of the expression is true</li>
+   </ul>
+   <title title="Editing a breakpoint" />
+   It is possible to edit a <ref id="breakpoint"/> to set a condition for the breakpoint to be active:
+   <img id="breakpointedit" border="true"/>
+   
+   Suppose that we want to edit a breakpoint. We could use for example one of these expressions:
+   <ul>
+      <li>name.length() == 3</li>   
+      <li>name.substring(1) == "toto"</li>         
+      <li>(result + name).length() &gt; 10</li> 
+      <li>o.getClass() == String.class</li>        
+      <li>value == 3</li>
+   </ul>
+   
+   <title title="breakpoint properties expressions" />
+   The following expressions are allowed:
+   <ul>
+      <li>Comparisons or equality expressions, for example: <code>value &lt; 3</code> or <code>value == 3</code>
+         or <code>value &lt;= 3</code>
+         <note>In this case <code>value</code> would be a variable</note>
+      </li>
+      <li>Boolean expressions, for example: <code>b1 || b2</code> or <code>b1 &amp;&amp; b2</code>
+         or <code>b1 ^ b2</code>
+         <note>In this case <code>b1</code> and <code>b2</code> would be variables</note>
+      </li>      
+      <li>Numeric expressions, for example: <code>(value + 1) &lt; 3</code> or <code>(value * 2) &gt; 10</code>
+         <note>In this case <code>value</code> would be a variable</note>
+      </li>            
+      <li>Using methods, for example <code>name.length() == 3</code> or <code>name.substring(1) == "toto"</code>
+         or <code>name.substring(index) == "toto"</code>
+         <note>In this case <code>name</code> and <code>index</code> would be variables</note>
+      </li>                  
+   </ul>
+   
+   <title title="incorrect properties expressions" />
+   If an expression is incorrect, the returned value will be <code>false</code> regardless of the reasons. Note that no
+   exception will be thrown, but if you edit again the expression in the <ref id="Debug ScriptWindow" />, you will see the 
+   expression in red:
+   <img id="breakpointincorrect" border="true" />
+   
+   <cat id="tools" />
+</article>

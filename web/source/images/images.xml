@@ -7,18 +7,6 @@
    <image id="graphml" url="graphml.png" />
    <image id="openWithPackages" url="openWithPackages.png" />
    <image id="openWithoutPackages" url="openWithoutPackages.png" />
-   <image id="classMenu" url="classMenu.png" />
-   <image id="packageMenu" url="packageMenu.png" />
-   <image id="propertyMenu" url="propertyMenu.png" />
-   <image id="individualMenu" url="individualMenu.png" />
-   <category desc="config">
-      <image id="configGeneral" url="configGeneral.png" />
-      <image id="configSchemas" url="configSchemas.png" />
-      <image id="configSPARQL" url="configSPARQL.png" />
-      <image id="configStyles" url="configStyles.png" />
-      <image id="configPackages" url="configPackages.png" />
-      <image id="configYed" url="configYed.png" />
-   </category>
    <image id="export1" url="export1.png" />
    <image id="export2" url="export2.png" />
    <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />
@@ -29,16 +17,25 @@
       <image id="search2" url="search2.png" />
       <image id="searchresults" url="searchresults.png" />
    </category>
+   <category desc="menus">
+      <image id="classMenu" url="classMenu.png" />
+      <image id="packageMenu" url="packageMenu.png" />
+      <image id="propertyMenu" url="propertyMenu.png" />
+      <image id="individualMenu" url="individualMenu.png" />
+      <image id="ontologymenu" url="ontologymenu.png" />
+   </category>
    <category desc="tabs">
       <image id="tabclasses" url="tabclasses.png" />
       <image id="tabproperties" url="tabproperties.png" />
       <image id="tabindividuals" url="tabindividuals.png" />
       <image id="tabannotations" url="tabannotations.png" />
+      <image id="tabontology" url="tabontology.png" />
    </category>
    <image id="modelwindow" url="modelwindow.png" />
    <image id="contentwindow" url="contentwindow.png" />
    <image id="annotationswindow" url="annotationswindow.png" />
    <image id="tooltips" url="tooltips.png" />
+   <image id="ontologygraph" url="ontologygraph.png" />
    <category desc="dependencies">
       <image id="classDependencies" url="classDependencies.png" />
       <image id="objectpropDependencies" url="objectpropDependencies.png" />
@@ -48,8 +45,11 @@
       <image id="classDependenciesDiagram" url="classDependenciesDiagram.png" />
    </category>
    <category desc="sparql">
-     <image id="sparqlquery" url="sparqlquery.png" />
-     <image id="sparqlresult" url="sparqlresult.png" />
+      <image id="sparqlquery" url="sparqlquery.png" />
+      <image id="sparqlresult" url="sparqlresult.png" />
    </category>
    <image id="treecomments" url="treecomments.png" />
+   <category desc="protege">
+      <image id="protegeexportowl" url="protegeexportowl.png" />
+   </category>
 </images>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Imported Ontologies graph">
+   <meta desc="This article explains how the Imported Ontologies graph is computed" />
+   The <ref id="content window" /> <ref id="content window#Ontology tab" desc="Ontology tab" /> allows to show the ontologies for which one
+   Ontology is depending on by right-clicking on the root of the associated tree.
+
+   For example, with the following Ontology:
+   <img id="tabontology" width="20%"/>
+   We will have the following diagram:
+   <img id="ontologygraph" />
+
+   <title title="Built-in Schemas" />
+   The tool defines several built-in schemas which can be enabled in the configuration:
+   <include id="list schemas" />
+
+   <title title="Specifying further ontologies" />
+   The "Schemas Repository" setting in the <ref id="configuration" /> allow to specify further schemas. The <resource href="ontologies.xsd">ontologies.xsd</resource>
+   specifies the structure of the file. Each <code>ontology</code> element in the file specifies one ontology and its own dependencies.
+
+   For example, the following <code>ontology</code> element specifies the Owl-Time ontology:
+   <pre syntax="xml">
+   &lt;ontology namespace="http://www.w3.org/2006/time" name="Time Ontology in OWL"
+      description="OWL-Time is an OWL-2 DL ontology of temporal concepts, for describing the temporal properties of resources in the world or described in Web pages"
+      uri="https://raw.githubusercontent.com/w3c/sdw/gh-pages/time/rdf/time.ttl" documentation="https://www.w3.org/TR/owl-time/"&gt;
+      &lt;dependsOn namespace="http://purl.org/dc/terms/"/&gt;
+   &lt;/ontology&gt;
+   </pre>
+
+   <cat id="configuration" />
+</article>

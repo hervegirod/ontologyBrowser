@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Owl support">
+   <meta desc="This article presents the Owl/RDF support in the tool" />
+   The tool does not handle Owl2 representations for the moment. If you try to open a Owl2 model, you will have the following error window:
+   <img id="owl2" />
+
+   <title title="detecting the owl version of an Owl file" />
+   Owl files with the following kind of content are Owl2 and cannot be opened in the tool:
+   <pre syntax="xml">
+      &lt;Ontology xmlns="http://www.w3.org/2002/07/owl#"
+      xml:base="http://www.semanticweb.org/emna.amdouni/ontologies/2023/0/RTEOntology"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:xml="http://www.w3.org/XML/1998/namespace"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+      ontologyIRI="..."&gt;
+         &lt;Annotation&gt;
+            &lt;AnnotationProperty IRI="#creationDate"/&gt;
+            &lt;Literal&gt;27th March 2023&lt;/Literal&gt;
+         &lt;/Annotation&gt;
+      ...
+         &lt;Declaration&gt;
+            &lt;Class IRI="#myID"/&gt;
+         &lt;/Declaration&gt;
+      ...
+      &lt;/Ontology&gt;
+   </pre>
+
+   The following kind of Owl/RDF file can be opened in the tool:
+   <pre syntax="xml">
+      &lt;rdf:RDF xmlns="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#"
+               xml:base="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11"
+               xmlns:owl="http://www.w3.org/2002/07/owl#"
+               xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+               xmlns:xml="http://www.w3.org/XML/1998/namespace"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+               xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"&gt;
+         &lt;owl:Ontology rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11"/&gt;
+
+         &lt;owl:ObjectProperty rdf:about="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#PropertyLink"&gt;
+            &lt;rdfs:domain rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class2"/&gt;
+            &lt;rdfs:range rdf:resource="http://www.semanticweb.org/herve/ontologies/2023/4/untitled-ontology-11#Class4"/&gt;
+         &lt;/owl:ObjectProperty&gt;
+         ...
+      &lt;/rdf:RDF&gt;
+   </pre>
+
+   <title title="Converting a file to a compatible Owl/RDF type" />
+   If a file can't be opeend, you can convert it to a compatible type in <a href="https://protege.stanford.edu/">Protege</a> with the "Save as" option RDF/XML syntax:
+   <img id="protegeexportowl" />
+
+   <cat id="general" />
+</article>

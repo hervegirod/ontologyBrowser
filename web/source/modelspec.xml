@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Model Specification">
+   <altTitle desc="JENA Model Specification" />
+   <meta desc="This article presents the Model Specification configuration" />
+   The following <ref id="configuration#General settings" desc="settings" /> allow to specify how the browser will load an Ontology:
+
+   <ul>
+      <li>"Strict Mode": set if the browser is currently in strict checking mode. Strict mode means that converting a common resource to a
+         particular language element, such as an ontology class, will be subject to some simple syntactic-level checks for appropriateness</li>
+      <li>"Model Specification": set the ontology model specification used to construct the Ontology model</li>
+   </ul>
+
+   <title title="Model Specification" />
+   The "Model Specification" setting configure how the ontology mmodel will be loaded. The following values are supported:
+   <ul>
+      <li>"OWL_MEM_RDFS_INF": A specification for OWL models that are stored in memory and use the RDFS inferencer for additional entailments</li>
+      <li>"OWL_DL_MEM_RDFS_INF": A specification for OWL DL models that are stored in memory and use the RDFS inferencer for additional entailments</li>
+      <li>"OWL_DL_MEM_RULE_INF": A specification for OWL DL models that are stored in memory and use the OWL rules inference engine for additional entailments</li>
+      <li>"OWL_DL_MEM_TRANS_INF": A specification for OWL DL models that are stored in memory and use the transitive inferencer for additional entailments</li>
+      <li>"OWL_LITE_MEM": A specification for OWL Lite models that are stored in memory and do no entailment additional reasoning</li>
+      <li>"OWL_LITE_MEM_RDFS_INF": A specification for OWL Lite models that are stored in memory and use the RDFS inferencer for additional entailments</li>
+      <li>"OWL_LITE_MEM_RULES_INF": A specification for OWL Lite models that are stored in memory and use the OWL rules inference engine for additional entailments</li>
+      <li>"OWL_LITE_MEM_TRANS_INF": A specification for OWL Lite models that are stored in memory and use the transitive inferencer for additional entailments</li>
+      <li>"OWL_MEM_MINI_RULE_INF": A specification for OWL models that are stored in memory and use the mini OWL rules inference engine for additional entailments</li>
+      <li>"OWL_MEM_TRANS_INF": A specification for OWL models that are stored in memory and use the transitive inferencer for additional entailments</li>
+      <li>"RDFS_MEM_RDFS_INF": A specification for RDFS ontology models that are stored in memory and use the RDFS inferencer for additional entailments</li>
+      <li>"RDFS_MEM_TRANS_INF": A specification for RDFS ontology models that are stored in memory and use the transitive reasoner for entailments</li>
+      <li>"OWL_MEM_MICRO_RULE_INF": A specification for OWL models that are stored in memory and use the micro OWL rules inference engine for additional entailments</li>
+      <li>"OWL_DL_MEM": A specification for OWL DL models that are stored in memory and do no additional entailment reasoning</li>
+      <li>"OWL_MEM": A specification for OWL models that are stored in memory and do no additional entailment reasoning</li>
+   </ul>
+
+   <title title="default configuration" />
+   The default configuration is:
+   <ul>
+      <li>"Strict Mode": set to <code>false</code></li>
+      <li>"Model Specification": set to <code>OWL_MEM</code></li>
+   </ul>
+
+   <messageBox type="warning">
+     Note that in some cases, you will need to change the values for these settings can prevent some ontologies to be loaded. For example, if you keep the "OWL_MEM" specification
+      for FOAF ontology, you will encounter some errors during the loading. 
+      
+      However, using a specification which uses inferences can take a toll on the loading time.
+   </messageBox>
+
+   <see id="configuration#General settings" desc="configuration" /> />
+   <cat id="configuration" />
+</article>

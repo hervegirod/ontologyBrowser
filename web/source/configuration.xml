@@ -8,6 +8,7 @@
       <li>The General settings</li>
       <li>The Schemas settings</li>
       <li>The SPARQL settings</li>
+      <li>The Scripts settings</li>
       <li>The Styles settings</li>
       <li>The Packages settings</li>
       <li>The yEd settings</li>
@@ -24,13 +25,22 @@
       <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
       <li>"Show Commented Elements": checked if elements which have comments must be shown with a specific icon. See also
          <ref id="elements default annotations" /> for more information</li>
+      <li>"Include Parent Relations in Dependencies": checked if the Superclass relations must be shown in the Dependencies window for a Class</li>
+      <li>"Include Alias Relations in Dependencies": checked if the Alias relations must be shown in the Dependencies window for a Class</li>
       <li>"Add Thing Class": checked if the <code>Thing</code> class should be present</li>
+      <li>"Strict Mode": set if the browser is currently in strict checking mode. Strict mode means that converting a common resource to a
+         particular language element, such as an ontology class, will be subject to some simple syntactic-level checks for appropriateness</li>
+      <li>"Model Specification": set the ontology model specification used to construct the Ontology model. See also <ref id="Model Specification" /> for
+         more information</li>
+      <li>"Log Level": specifies the Log level which will be shown in the console</li>
    </ul>
 
    <title title="Schemas settings" />
    <moreInfo id="Schemas alternate locations" />
    <img id="configSchemas" />
    <ul>
+      <li>"Schemas Repository": the repository of Schemas used for the graph of imported ontologies. See also <ref id="Imported Ontologies graph" />
+         for more information. See also <ref id="Imported Ontologies graph" /> for more information</li>
       <li>"Use built-in Schemas": checked if the browser must use built-in schemas</li>
       <li>"Schemas Alternate Locations": allow to specify alternate locations for URIs imported in your Ontologies. See also
          <ref id="Schemas alternate locations" /> for more information</li>
@@ -41,7 +51,14 @@
    <img id="configSPARQL" />
    <ul>
       <li>"Add Prefix in SPARQL Requests": checked if the prefixes for the current schema must be automatically included in the SPARQL requests</li>
-      <li>"Default Base Prefix": the default base rpefix to use in the automatically included prefix  if the base prefix of the schema is empty</li>
+      <li>"Default Base Prefix": the default base prefix to use in the automatically included prefix  if the base prefix of the schema is empty</li>
+   </ul>
+
+   <title title="Scripts settings" />
+   <moreInfo id="Scripts execution" />
+   <img id="configScripts" />
+   <ul>
+      <li>"End Script at First Exception": checked if the script is aborted at the first exception</li>
    </ul>
 
    <title title="Styles settings" />

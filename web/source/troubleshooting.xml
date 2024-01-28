@@ -4,6 +4,7 @@
    This article present possible problems and their solution.
 
    <title title="I have a Owl2 representation unsupported message"/>
+   <moreInfo id="Owl support" />
    <img id="owl2" />
    Owl2 representation is not supported for the moment, because Jena does not support Owl2 now.
 
