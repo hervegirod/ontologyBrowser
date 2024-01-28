@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/obsolete.owl" uri="obsolete.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/ontology-metadata.owl" uri="ontology-metadata.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/bfo/2.0/bfo.owl" uri="bfo.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/import-OBO.owl" uri="import-OBO.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/externalByHand.owl" uri="externalByHand.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/iao-main.owl" uri="iao-main.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/ro/annotations.owl" uri="annotations.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/ro/bfo-classes-minimal.owl" uri="bfo-classes-minimal.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/ro/bfo-axioms.owl" uri="bfo-axioms.owl"/>
+    <uri id="User Entered Import Resolution" name="http://purl.obolibrary.org/obo/iao/2017-03-24/ro/core.owl" uri="core.owl"/>
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/bfo.owl" uri="bfo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao.owl" uri="iao.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao/externalByHand.owl" uri="externalByHand.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao/iao-main.owl" uri="iao-main.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao/import-OBO.owl" uri="import-OBO.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao/obsolete.owl" uri="obsolete.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/iao/ontology-metadata.owl" uri="ontology-metadata.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/ro/annotations.owl" uri="annotations.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/ro/bfo-axioms.owl" uri="bfo-axioms.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/ro/bfo-classes-minimal.owl" uri="bfo-classes-minimal.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1705676609972" name="http://purl.obolibrary.org/obo/ro/core.owl" uri="core.owl"/>
+    </group>
+</catalog>
