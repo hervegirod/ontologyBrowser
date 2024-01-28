@@ -47,6 +47,7 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.PackageConfigType;
+import org.girod.ontobrowser.model.PackageType;
 import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 
@@ -243,10 +244,11 @@ public class PackagesExtractor {
       switch (packagesConfiguration.acceptAsPackage(theKey)) {
          case PackageConfigType.FORCE_PACKAGE:
             processedPackages.put(theKey, true);
-            theClass.setIsPackage(true);
+            theClass.setPackageType(PackageType.FORCE_PACKAGE);
             return true;
          case PackageConfigType.FORGET_PACKAGE:
             processedPackages.put(theKey, false);
+            theClass.setPackageType(PackageType.FORCE_NOT_PACKAGE);
             return false;
       }
       if (!packagesConfiguration.isAcceptingDefaults()) {

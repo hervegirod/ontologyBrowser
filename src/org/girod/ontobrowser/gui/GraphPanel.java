@@ -1135,6 +1135,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    }
 
    private void computePropertiesTree() {
+      Map<ElementKey, List<DefaultMutableTreeNode>> nodesMap = new HashMap<>();
       schema = diagram.getSchema();
       SortedMap<ElementKey, OwlProperty> sortedMap = new TreeMap<>();
       // first created a sorted map for the properties keys
@@ -1146,18 +1147,80 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       // now create the nodes
       it = sortedMap.values().iterator();
       while (it.hasNext()) {
-         OwlProperty property = it.next();
-         DefaultMutableTreeNode node = createPropertyNode(property);
-         if (property.isObjectProperty()) {
-            objectPropertiesRoot.add(node);
-         } else {
-            dataPropertiesRoot.add(node);
+         OwlProperty theProperty = it.next();
+         ElementKey key = theProperty.getKey();
+         if (!nodesMap.containsKey(key)) {
+            List<DefaultMutableTreeNode> list = new ArrayList<>();
+            nodesMap.put(key, list);
+            Map<ElementKey, OwlProperty> superProperties = theProperty.getSuperProperties();
+            if (superProperties.isEmpty()) {
+               DefaultMutableTreeNode node = createPropertyNode(theProperty);
+               if (theProperty.isObjectProperty()) {
+                  objectPropertiesRoot.add(node);
+               } else {
+                  dataPropertiesRoot.add(node);
+               }
+               list.add(node);
+            } else {
+               Iterator<ElementKey> it2 = superProperties.keySet().iterator();
+               while (it2.hasNext()) {
+                  ElementKey parentKey = it2.next();
+                  OwlProperty parentProperty = superProperties.get(parentKey);
+                  List<DefaultMutableTreeNode> nodes;
+                  if (nodesMap.containsKey(parentKey)) {
+                     nodes = nodesMap.get(parentKey);
+                  } else {
+                     nodes = computePropertyTree(parentProperty, nodesMap);
+                  }
+                  Iterator<DefaultMutableTreeNode> it3 = nodes.iterator();
+                  while (it3.hasNext()) {
+                     DefaultMutableTreeNode theNode = it3.next();
+                     DefaultMutableTreeNode node = createPropertyNode(theProperty);
+                     theNode.add(node);
+                     list.add(node);
+                  }
+               }
+            }
          }
       }
       TreePath path = new TreePath(objectPropertiesRoot.getPath());
       propertiesTree.expandPath(path);
       path = new TreePath(dataPropertiesRoot.getPath());
       propertiesTree.expandPath(path);
+   }
+
+   private List<DefaultMutableTreeNode> computePropertyTree(OwlProperty theProperty, Map<ElementKey, List<DefaultMutableTreeNode>> nodesMap) {
+      List<DefaultMutableTreeNode> nodes = new ArrayList<>();
+      ElementKey key = theProperty.getKey();
+      if (nodesMap.containsKey(key)) {
+         return nodesMap.get(key);
+      }
+      Map<ElementKey, OwlProperty> superProperties = theProperty.getSuperProperties();
+      if (superProperties.isEmpty()) {
+         DefaultMutableTreeNode node = createPropertyNode(theProperty);
+         nodes.add(node);
+         if (theProperty.isObjectProperty()) {
+            objectPropertiesRoot.add(node);
+         } else {
+            dataPropertiesRoot.add(node);
+         }
+      } else {
+         Iterator<ElementKey> it2 = superProperties.keySet().iterator();
+         while (it2.hasNext()) {
+            ElementKey parentKey = it2.next();
+            OwlProperty parentProperty = superProperties.get(parentKey);
+            List<DefaultMutableTreeNode> _nodes = computePropertyTree(parentProperty, nodesMap);
+            Iterator<DefaultMutableTreeNode> it3 = _nodes.iterator();
+            while (it3.hasNext()) {
+               DefaultMutableTreeNode theNode = it3.next();
+               DefaultMutableTreeNode node = createPropertyNode(theProperty);
+               nodes.add(node);
+               theNode.add(node);
+            }
+         }
+      }
+      nodesMap.put(key, nodes);
+      return nodes;
    }
 
    private void computeOntologyPrefixTree() {
@@ -1223,7 +1286,10 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
                }
             }
          }
-         nodesMap.put(key, list);
+         if (!nodesMap.containsKey(key)) {
+            nodesMap.put(key, list);
+            addToPackagesTree(theClass);
+         }
       }
    }
 

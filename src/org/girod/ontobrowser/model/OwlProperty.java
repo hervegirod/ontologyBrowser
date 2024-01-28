@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,8 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
    private int minCardinality = 0;
    private int maxCardinality = -1;
    private T ontProperty = null;
+   private final Map<ElementKey, OwlProperty> superProperties = new HashMap<>();
+   private final Map<ElementKey, OwlProperty> subProperties = new HashMap<>();      
    private final Map<ElementKey, OwlProperty> aliasProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> propertyFromAlias = new HashMap<>();
 
@@ -60,6 +62,62 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
    public T getProperty() {
       return ontProperty;
    }
+   
+   /**
+    * Add a super property.
+    *
+    * @param key the super property key
+    * @param owlProperty the super property
+    */
+   public void addSuperProperty(ElementKey key, OwlProperty owlProperty) {
+      superProperties.put(key, owlProperty);
+   }
+
+   /**
+    * Return the super properties of this Owl property.
+    *
+    * @return the super properties
+    */
+   public Map<ElementKey, OwlProperty> getSuperProperties() {
+      return superProperties;
+   }
+
+   /**
+    * Return true if this Owl property has super properties.
+    *
+    * @return true if this Owl property has super properties
+    */
+   public boolean hasSuperProperties() {
+      return !superProperties.isEmpty();
+   }      
+   
+   /**
+    * Add a sub-property.
+    *
+    * @param key the sub-property key
+    * @param owlProperty the subClass
+    */
+   public void addSubProperty(ElementKey key, OwlProperty owlProperty) {
+      subProperties.put(key, owlProperty);
+   }
+
+   /**
+    * Return the sub-properties of this Owl property.
+    *
+    * @return the sub-properties
+    */
+   public Map<ElementKey, OwlProperty> getSubProperties() {
+      return subProperties;
+   }
+
+   /**
+    * Return true if this Owl property has sub-properties.
+    *
+    * @return true if this Owl property has sub-properties
+    */
+   public boolean hasSubProperties() {
+      return !subProperties.isEmpty();
+   }   
 
    public void addDomain(OwlRestriction restriction) {
       domain.put(restriction.getKey(), restriction);

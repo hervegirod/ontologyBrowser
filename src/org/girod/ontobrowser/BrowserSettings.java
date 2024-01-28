@@ -46,6 +46,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import org.girod.ontobrowser.gui.errors.ErrorLevel;
+import org.girod.ontobrowser.model.OntModelSpecTypes;
 import org.mdiutil.swing.JFileSelector;
 import org.mdiutil.swing.JMultipleFileSelector;
 import org.mdiutil.swing.PropertyEditor;
@@ -76,6 +77,8 @@ public class BrowserSettings {
    private JCheckBox showCommentsCb;
    private JCheckBox includeParentRelationsCb;
    private JCheckBox includeAliasCb;
+   private JCheckBox strictModeCb;
+   private JComboBox modelSpecCb;
    private JComboBox logLevelCb;
    // Packages
    private JCheckBox showPackagesCb;
@@ -205,6 +208,8 @@ public class BrowserSettings {
       autoRefreshCb.setSelected(conf.autoRefresh);
       includeParentRelationsCb.setSelected(conf.includeParentRelations);
       includeAliasCb.setSelected(conf.includeAlias);
+      strictModeCb.setSelected(conf.strictMode);
+      modelSpecCb.setSelectedItem(conf.modelSpec);
       logLevelCb.setSelectedItem(getLogItem(conf.logLevel));
 
       // Styles
@@ -227,14 +232,14 @@ public class BrowserSettings {
 
       // yEd
       yedExeDirectoryFs.setSelectedFile(conf.getYedExeDirectory());
-      
+
       // Schemas
       if (conf.getSchemasRepositoryFile() != null) {
          schemasRepositoryFs.setSelectedFile(conf.getSchemasRepositoryFile());
       } else {
          schemasRepositoryFs.setSelectedFiles(null);
          schemasRepositoryFs.setCurrentDirectory(dir);
-      }      
+      }
       builtinSchemasCb.setSelected(conf.useBuiltinSchemas);
       if (conf.getAlternateLocations() != null) {
          schemasLocationsFs.setSelectedFiles(conf.getAlternateLocations());
@@ -387,7 +392,7 @@ public class BrowserSettings {
    private void initializeSchemasSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       File _dir = conf.getDefaultDirectory();
-      
+
       schemasRepositoryFs = new JFileSelector("Schemas Repository");
       schemasRepositoryFs.setHasOptionalFiles(true);
       schemasRepositoryFs.setCurrentDirectory(_dir);
@@ -403,7 +408,7 @@ public class BrowserSettings {
                conf.setSchemasRepository(file);
             }
          }
-      });      
+      });
 
       builtinSchemasCb = new JCheckBox("", conf.useBuiltinSchemas);
       builtinSchemasCb.setBackground(Color.WHITE);
@@ -489,13 +494,33 @@ public class BrowserSettings {
       includeParentRelationsCb.addActionListener((ActionEvent e) -> {
          conf.includeParentRelations = includeParentRelationsCb.isSelected();
       });
-      
+
       includeAliasCb = new JCheckBox("", conf.includeAlias);
       includeAliasCb.setBackground(Color.WHITE);
       includeAliasCb.addActionListener((ActionEvent e) -> {
          conf.includeAlias = includeAliasCb.isSelected();
       });
-      
+
+      strictModeCb = new JCheckBox("", conf.strictMode);
+      strictModeCb.setBackground(Color.WHITE);
+      strictModeCb.addActionListener((ActionEvent e) -> {
+         conf.strictMode = strictModeCb.isSelected();
+      });
+
+      // model spec
+      String[] modelSpecType = {OntModelSpecTypes.OWL_DL_MEM, OntModelSpecTypes.OWL_DL_MEM_RDFS_INF, OntModelSpecTypes.OWL_DL_MEM_RULE_INF, OntModelSpecTypes.OWL_DL_MEM_TRANS_INF,
+         OntModelSpecTypes.OWL_LITE_MEM, OntModelSpecTypes.OWL_LITE_MEM_RDFS_INF, OntModelSpecTypes.OWL_LITE_MEM_RULES_INF, OntModelSpecTypes.OWL_LITE_MEM_TRANS_INF,
+         OntModelSpecTypes.OWL_MEM, OntModelSpecTypes.OWL_MEM_MICRO_RULE_INF, OntModelSpecTypes.OWL_MEM_MINI_RULE_INF, OntModelSpecTypes.OWL_MEM_RDFS_INF,
+         OntModelSpecTypes.OWL_MEM_TRANS_INF, OntModelSpecTypes.RDFS_MEM_RDFS_INF, OntModelSpecTypes.RDFS_MEM_TRANS_INF};
+      modelSpecCb = new JComboBox<>(modelSpecType);
+      modelSpecCb.setSelectedItem(conf.modelSpec);
+
+      modelSpecCb.addItemListener(new ItemListener() {
+         public void itemStateChanged(ItemEvent e) {
+            conf.modelSpec = modelSpecCb.getSelectedItem().toString();
+         }
+      });
+
       // log level
       String[] logLevelType = {"No Logging", "Log All", "Log Warnings", "Log Errors"};
       logLevelCb = new JComboBox<>(logLevelType);
@@ -594,9 +619,11 @@ public class BrowserSettings {
       generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations");
       generalSettings.addProperty(showAliasCb, "", "Show Alias");
       generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
-      generalSettings.addProperty(includeParentRelationsCb, "", "Include parent Relations in Dependencies");
+      generalSettings.addProperty(includeParentRelationsCb, "", "Include Parent Relations in Dependencies");
       generalSettings.addProperty(includeAliasCb, "", "Include Alias in Dependencies");
       generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
+      generalSettings.addProperty(strictModeCb, "", "Strict Mode");
+      generalSettings.addProperty(modelSpecCb, "", "Model Specification");
       generalSettings.addProperty(logLevelCb, "", "Log Level");
       generalSettings.setVisible(true);
 

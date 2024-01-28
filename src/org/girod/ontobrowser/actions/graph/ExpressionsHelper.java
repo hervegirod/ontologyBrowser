@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.apache.jena.ontology.BooleanClassDescription;
+import org.apache.jena.ontology.ConversionException;
 import org.apache.jena.ontology.EnumeratedClass;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.IntersectionClass;
@@ -86,13 +87,18 @@ public class ExpressionsHelper {
       }
       ExtendedIterator<? extends OntProperty> it = thisProperty.listEquivalentProperties();
       while (it.hasNext()) {
-         OntProperty theProperty = it.next();
-         if (theProperty.getLocalName() == null) {
-            extractor.addError("property.noname");
-            continue;
+         try {
+            Object o = it.next();
+            OntProperty theProperty = (OntProperty) o;
+            if (theProperty.getLocalName() == null) {
+               extractor.addError("property.noname");
+               continue;
+            }
+            ElementKey otherKey = new ElementKey(theProperty.getNameSpace(), theProperty.getLocalName());
+            set.add(otherKey);
+         } catch (ConversionException ex) {
+            extractor.addError(ex);
          }
-         ElementKey otherKey = new ElementKey(theProperty.getNameSpace(), theProperty.getLocalName());
-         set.add(otherKey);
       }
    }
 
@@ -106,25 +112,29 @@ public class ExpressionsHelper {
          equivalentClasses.put(key, set);
       }
       ExtendedIterator<OntClass> it = thisClass.listEquivalentClasses();
-      while (it.hasNext()) {
-         OntClass theClass = it.next();
-         if (theClass.getLocalName() == null) {
-            if (theClass.isUnionClass()) {
-               UnionClass unionClass = theClass.asUnionClass();
-               computeBooleanExpression(owlClass, unionClass);
-            } else if (theClass.isIntersectionClass()) {
-               IntersectionClass intersectionClass = theClass.asIntersectionClass();
-               computeBooleanExpression(owlClass, intersectionClass);
-            } else if (theClass.isEnumeratedClass()) {
-               EnumeratedClass enumClass = theClass.asEnumeratedClass();
-               computeEnumeratedClass(owlClass, enumClass);
+      try {
+         while (it.hasNext()) {
+            OntClass theClass = it.next();
+            if (theClass.getLocalName() == null) {
+               if (theClass.isUnionClass()) {
+                  UnionClass unionClass = theClass.asUnionClass();
+                  computeBooleanExpression(owlClass, unionClass);
+               } else if (theClass.isIntersectionClass()) {
+                  IntersectionClass intersectionClass = theClass.asIntersectionClass();
+                  computeBooleanExpression(owlClass, intersectionClass);
+               } else if (theClass.isEnumeratedClass()) {
+                  EnumeratedClass enumClass = theClass.asEnumeratedClass();
+                  computeEnumeratedClass(owlClass, enumClass);
+               } else {
+                  extractor.addInfo("equivalentclass.nothandled", key);
+               }
             } else {
-               extractor.addInfo("equivalentclass.nothandled", key);
+               ElementKey otherKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
+               set.add(otherKey);
             }
-         } else {
-            ElementKey otherKey = new ElementKey(theClass.getNameSpace(), theClass.getLocalName());
-            set.add(otherKey);
          }
+      } catch (ConversionException ex) {
+         extractor.addError(ex);
       }
    }
 
@@ -159,14 +169,14 @@ public class ExpressionsHelper {
                } else {
                   OwlAutoIndividual owlIndividual = new OwlAutoIndividual(resource);
                   graph.addIndividual(owlIndividual);
-                     StmtIterator iterSmt = resource.listProperties();
-                     while (iterSmt.hasNext()) {
-                        Statement statement = iterSmt.next();
-                        RDFNode node2 = statement.getObject();
-                        Property predicate = statement.getPredicate();
-                        ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-                        annotationsHelper.addAnnotationValue(node2, owlIndividual, theKey);
-                     }
+                  StmtIterator iterSmt = resource.listProperties();
+                  while (iterSmt.hasNext()) {
+                     Statement statement = iterSmt.next();
+                     RDFNode node2 = statement.getObject();
+                     Property predicate = statement.getPredicate();
+                     ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
+                     annotationsHelper.addAnnotationValue(node2, owlIndividual, theKey);
+                  }
                }
             }
          }

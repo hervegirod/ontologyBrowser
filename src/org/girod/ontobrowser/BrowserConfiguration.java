@@ -42,6 +42,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.gui.errors.ErrorLevel;
+import org.girod.ontobrowser.model.OntModelSpecTypes;
 import org.girod.ontobrowser.model.PackagesConfiguration;
 import org.girod.ontobrowser.model.SchemasRepository;
 import org.girod.ontobrowser.parsers.SchemasRepositoryParser;
@@ -89,6 +90,8 @@ public class BrowserConfiguration implements Configuration {
    public boolean includeAlias = false;
    public short logLevel = ErrorLevel.WARNING;
    public boolean autoRefresh = false;
+   public boolean strictMode = false;
+   public String modelSpec = OntModelSpecTypes.OWL_MEM;
    /*
     * Schemas locations
     */
@@ -455,6 +458,8 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showComments", showComments);
       p.putBoolean("includeParentRelations", includeParentRelations);
       p.putBoolean("includeAlias", includeAlias);
+      p.putBoolean("strictMode", strictMode);
+      p.put("modelSpec", modelSpec);
       p.putInt("logLevel", (int) logLevel);
 
       // schemas
@@ -503,6 +508,8 @@ public class BrowserConfiguration implements Configuration {
       showComments = p.getBoolean("showComments", showComments);
       includeParentRelations = p.getBoolean("includeParentRelations", includeParentRelations);
       includeAlias = p.getBoolean("includeAlias", includeAlias);
+      strictMode = p.getBoolean("strictMode", strictMode);
+      modelSpec = p.get("modelSpec", modelSpec);
       logLevel = (short) p.getInt("logLevel", logLevel);
 
       // schemas

@@ -35,7 +35,7 @@ package org.girod.ontobrowser.gui.errors;
 /**
  * Represents an error.
  *
- * @since 0.7
+ * @version 0.8
  */
 public class ParserLog implements ErrorLevel {
    private final String message;
@@ -44,6 +44,12 @@ public class ParserLog implements ErrorLevel {
       MessagesLoader.load();
    }
    private final short type;
+   
+   public ParserLog(short type, Throwable th) {
+      this.type = type;
+      this.message = th.getMessage();
+   }
+   
 
    public ParserLog(short type, String key) {
       this.type = type;

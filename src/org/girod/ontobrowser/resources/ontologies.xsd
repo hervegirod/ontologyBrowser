@@ -13,7 +13,8 @@
       <xs:attribute name="name" type="xs:string" use="required"/>      
       <xs:attribute name="family" type="xs:string"/>            
       <xs:attribute name="description" type="xs:string" use="required"/>
-      <xs:attribute name="uri" type="xs:anyURI" />      
+      <xs:attribute name="uri" type="xs:anyURI" />   
+      <xs:attribute name="documentation" type="xs:anyURI" />      
    </xs:complexType>
    <xs:complexType name="dependsOnType">  
       <xs:attribute name="namespace" type="xs:string" use="required"/>     

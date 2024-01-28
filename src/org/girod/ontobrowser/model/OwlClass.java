@@ -54,7 +54,7 @@ public class OwlClass extends NamedOwlElement {
    private final Map<ElementKey, OwlClass> subClasses = new HashMap<>();
    private boolean hasDefinedSuperClass = false;
    private OntClass ontClass = null;
-   private boolean isPackage = false;
+   private char packageType = PackageType.UNDEFINED;
    private ElementKey packageKey = null;
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
@@ -93,10 +93,25 @@ public class OwlClass extends NamedOwlElement {
    /**
     * Set if this class is a package.
     *
+    * @param packageType the package type
+    */
+   public void setPackageType(char packageType) {
+      this.packageType = packageType;
+   }
+
+   /**
+    * Set if this class is a package.
+    *
     * @param isPackage true if this class is a package
     */
    public void setIsPackage(boolean isPackage) {
-      this.isPackage = isPackage;
+      if (!PackageType.isForced(packageType)) {
+         if (isPackage) {
+            this.packageType = PackageType.IS_PACKAGE;
+         } else {
+            this.packageType = PackageType.IS_NOT_PACKAGE;
+         }
+      }
    }
 
    /**
@@ -105,7 +120,7 @@ public class OwlClass extends NamedOwlElement {
     * @return true if this class is a package
     */
    public boolean isPackage() {
-      return isPackage;
+      return PackageType.isPackage(packageType);
    }
 
    /**
@@ -123,7 +138,7 @@ public class OwlClass extends NamedOwlElement {
     * @return true if this class is a package or the Owl class is in a package
     */
    public boolean isPackageOrInPackage() {
-      return isPackage || packageKey != null;
+      return PackageType.isPackage(packageType) || packageKey != null;
    }
 
    /**
@@ -136,7 +151,7 @@ public class OwlClass extends NamedOwlElement {
    }
 
    public ElementKey getPackage(boolean isStrict) {
-      if (!isStrict && isPackage) {
+      if (!isStrict && PackageType.isPackage(packageType)) {
          return getKey();
       } else {
          return packageKey;
@@ -148,7 +163,7 @@ public class OwlClass extends NamedOwlElement {
    }
 
    /**
-    * Return true if the Owl class has a defined superclass (excluxing the Thing class).
+    * Return true if the Owl class has a defined superclass (excluding the Thing class).
     *
     * @return true if the Owl class has a defined superclass
     */
@@ -214,6 +229,15 @@ public class OwlClass extends NamedOwlElement {
    public Map<ElementKey, OwlClass> getSuperClasses() {
       return superClasses;
    }
+   
+   /**
+    * Return true if this  Owl class has superclasses.
+    *
+    * @return true if this  Owl class has superclasses
+    */
+   public boolean hasSuperClasses() {
+      return !superClasses.isEmpty();
+   }   
 
    /**
     * Count the number of superclasses of this class.
@@ -400,11 +424,11 @@ public class OwlClass extends NamedOwlElement {
 
    public boolean hasFromAliasedClasses() {
       return !classFromAlias.isEmpty();
-   } 
-   
+   }
+
    public boolean hasAnyAliasedClasses() {
       return !classFromAlias.isEmpty() || !aliasClasses.isEmpty();
-   }    
+   }
 
    /**
     * Return true if this class has Owl Properties.

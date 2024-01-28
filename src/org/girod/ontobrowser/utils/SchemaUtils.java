@@ -55,11 +55,11 @@ public class SchemaUtils {
    }
 
    /**
-    * Return the classes dependant from a class.
+    * Return the classes dependent from a class.
     *
     * @param theClass the class
     * @param filter the filter
-    * @return the dependant classes
+    * @return the dependent classes
     */
    public static Map<ElementKey, OwlClass> getDependentClasses(OwlClass theClass, ElementFilter filter) {
       Map<ElementKey, OwlClass> map = new HashMap<>();
@@ -76,7 +76,7 @@ public class SchemaUtils {
             while (it2.hasNext()) {
                OwlRestriction restriction = it2.next();
                OwlClass class2 = restriction.getOwlClass();
-               if (class2 != theClass) {
+               if (class2 != theClass && class2 != null) {
                   map.put(class2.getKey(), class2);
                }
             }
@@ -92,7 +92,7 @@ public class SchemaUtils {
             while (it2.hasNext()) {
                OwlRestriction restriction = it2.next();
                OwlClass class2 = restriction.getOwlClass();
-               if (class2 != theClass) {
+               if (class2 != theClass && class2 != null) {
                   map.put(class2.getKey(), class2);
                }
             }

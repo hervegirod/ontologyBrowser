@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, Hervé Girod
+Copyright (c) 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,29 +30,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model.restriction;
-
-import org.apache.jena.ontology.MinCardinalityRestriction;
+package org.girod.ontobrowser.model;
 
 /**
- * An owl restriction which binds to a MinCardinalityRestriction.
  *
- * @version 0.8
+ * @author scdsahv
  */
-public class OwlMinCardinalityRestriction extends RestrictedOwlRestriction<MinCardinalityRestriction> {
+public interface PackageType {
+   public static char UNDEFINED = 0;
+   public static char IS_PACKAGE = 1;
+   public static char IS_NOT_PACKAGE = 2;
+   public static char FORCE_PACKAGE = 3;
+   public static char FORCE_NOT_PACKAGE = 4;
 
-   public OwlMinCardinalityRestriction(MinCardinalityRestriction restriction) {
-      super(restriction);
-      //Resource resource = restriction.getIsDefinedBy();
-      computeKey(restriction);
+   public static boolean isPackage(char type) {
+      switch (type) {
+         case IS_NOT_PACKAGE:
+         case FORCE_NOT_PACKAGE:
+            return false;
+         case IS_PACKAGE:
+         case FORCE_PACKAGE:
+            return true;
+         default:
+            return false;
+      }
    }
-
-   /**
-    * Return the min cardinality.
-    *
-    * @return the min cardinality
-    */
-   public int getMaxCardinality() {
-      return restriction.getMinCardinality();
+   
+   public static boolean isForced(char type) {
+      switch (type) {
+         case FORCE_NOT_PACKAGE:
+         case FORCE_PACKAGE:
+            return true;
+         default:
+            return false;
+      }      
    }
 }

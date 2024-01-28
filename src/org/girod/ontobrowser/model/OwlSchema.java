@@ -147,18 +147,20 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
                case "http://www.w3.org/1999/02/22-rdf-syntax-ns#":
                   break;
                default:
-                  OwlImportedSchema imported = new OwlImportedSchema(prefix, _ns);
-                  importedSchemas.put(prefix, imported);
-                  importedSchemasFromNamespace.put(_ns, imported);
+                  if (defaultNamespace == null || !ns.equals(defaultNamespace)) {
+                     OwlImportedSchema imported = new OwlImportedSchema(prefix, _ns);
+                     importedSchemas.put(prefix, imported);
+                     importedSchemasFromNamespace.put(_ns, imported);
 
-                  if (schemasRepository.hasSchemaByNamespace(_ns)) {
-                     SchemasRepository.SchemaRep schemaRep = schemasRepository.getSchemaByNamespace(_ns);
-                     imported.setSchemaRep(schemaRep);
-                  } else {
-                     SchemasRepository.SchemaRep schemaRep = new SchemasRepository.SchemaRep(_ns);
-                     imported.setSchemaRep(schemaRep);
+                     if (schemasRepository.hasSchemaByNamespace(_ns)) {
+                        SchemasRepository.SchemaRep schemaRep = schemasRepository.getSchemaByNamespace(_ns);
+                        imported.setSchemaRep(schemaRep);
+                     } else {
+                        SchemasRepository.SchemaRep schemaRep = new SchemasRepository.SchemaRep(_ns);
+                        imported.setSchemaRep(schemaRep);
+                     }
+                     declaredSchemasFromNamespace.put(ns, imported.getSchemaRep());
                   }
-                  declaredSchemasFromNamespace.put(ns, imported.getSchemaRep());
                   break;
             }
          }
@@ -208,6 +210,24 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    }
 
    /**
+    * Set the default namespace. It will only be perfoemd if it is not previously defined.
+    *
+    * @param defaultPrefix the default prefix
+    * @param defaultNamespace the default namespace
+    */
+   public void setDefaultNamespace(String defaultPrefix, String defaultNamespace) {
+      if (this.defaultNamespace == null) {
+         this.defaultNamespace = defaultNamespace;
+         this.defaultPrefix = defaultPrefix;
+         if (importedSchemas.containsKey(defaultPrefix)) {
+            importedSchemas.remove(defaultPrefix);
+            importedSchemasFromNamespace.remove(defaultNamespace);
+            declaredSchemasFromNamespace.remove(defaultNamespace);
+         }
+      }
+   }
+
+   /**
     * Return the default namespace.
     *
     * @return the default namespace
@@ -217,12 +237,30 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    }
 
    /**
+    * Return true if there is a default namespace.
+    *
+    * @return true if there is a default namespace
+    */
+   public boolean hasDefaultNamespace() {
+      return defaultNamespace != null;
+   }
+
+   /**
     * Return the prefix for the default namespace.
     *
     * @return the prefix for the default namespace
     */
    public String getDefaultPrefix() {
       return defaultPrefix;
+   }
+
+   /**
+    * Return true if there is a default prefix.
+    *
+    * @return true if there is a default prefix
+    */
+   public boolean hasDefaultPrefix() {
+      return defaultPrefix != null;
    }
 
    /**

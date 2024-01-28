@@ -41,7 +41,7 @@ import org.girod.ontobrowser.gui.errors.ParserLog;
 /**
  * Represents an action which can emit an information, an error or a warning.
  *
- * @since 0.7
+ * @version 0.8
  */
 public abstract class AbstractWarningAction {
    private short logLevel = ErrorLevel.NO_LOGGING;
@@ -83,6 +83,16 @@ public abstract class AbstractWarningAction {
          }
       }
    }
+   
+   public void addError(Throwable th) {
+      if (ErrorLevel.ERROR >= logLevel) {
+         ParserLog error = new ParserLog(ErrorLevel.ERROR, th);
+         errors.add(error);
+         if (currentLevel < ErrorLevel.ERROR) {
+            currentLevel = ErrorLevel.ERROR;
+         }
+      }
+   }   
 
    public void addError(String key) {
       addLog(ErrorLevel.ERROR, key);

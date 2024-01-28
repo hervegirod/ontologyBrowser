@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import org.girod.ontobrowser.actions.graph.GraphExtractor;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -65,10 +64,12 @@ import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.util.FileManager;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.actions.graph.GraphExtractor;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.errors.SwingErrorLogger;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.OntModelSpecTypes;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
@@ -87,7 +88,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.7
+ * @version 0.8
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -97,6 +98,7 @@ public class OpenModelAction extends AbstractMDIAction {
    private SwingFileProperties prop = null;
    private GraphPanel graphPanel = null;
    private Map<ElementKey, mxCell> cell4Class = null;
+   private Map<ElementKey, mxCell> cell4Property = null;
    private static final String FONT_FAMILY = "Dialog";
    private static final int FONT_SIZE = 11;
    private boolean showAlias = false;
@@ -197,6 +199,7 @@ public class OpenModelAction extends AbstractMDIAction {
    }
 
    private void parseImpl(short owlType) {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       URI uri = file.toURI();
       OntoErrorHandler errorHandler = new OntoErrorHandler((GUIApplication) app);
       ErrorHandlerFactory.setDefaultErrorHandler(errorHandler);
@@ -215,9 +218,9 @@ public class OpenModelAction extends AbstractMDIAction {
          // very long time
          // see https://stackoverflow.com/questions/27645110/method-listindividual-takes-more-than-15-mins-with-dbpedia-2014-owl-2mb-siz
          Model _model = model.getRawModel();
-         model = new OntModelImpl(OntModelSpec.OWL_MEM, _model);
+         model = new OntModelImpl(OntModelSpecTypes.getOntModelSpec(conf.modelSpec), _model);
+         model.setStrictMode(conf.strictMode);
 
-         BrowserConfiguration conf = BrowserConfiguration.getInstance();
          boolean addThingClass = conf.addThingClass;
          boolean showPackages = conf.showPackages;
          GraphExtractor extractor = new GraphExtractor(file, model, addThingClass, showPackages);
@@ -361,6 +364,7 @@ public class OpenModelAction extends AbstractMDIAction {
       Map<ElementKey, OwlClass> owlClasses = schema.getOwlClasses();
       Map<ElementKey, OwlDatatypeProperty> owlDatatypeProperties = schema.getOwlDatatypeProperties();
       cell4Class = new HashMap<>();
+      cell4Property = new HashMap<>();
       Map<ElementKey, mxCell> cell4Dataproperty = new HashMap<>();
       List<mxCell> allCells = new ArrayList<>();
 
@@ -410,7 +414,7 @@ public class OpenModelAction extends AbstractMDIAction {
                ElementKey keyAlias = it4.next();
                mxCell theAliasCell = cell4Class.get(keyAlias);
                mxCell edge = (mxCell) graph.insertEdge(parent, null, "", theCell, theAliasCell);
-               edge.setStyle("alias");               
+               edge.setStyle("alias");
             }
          }
       }
@@ -425,10 +429,11 @@ public class OpenModelAction extends AbstractMDIAction {
          propertyCell.setStyle("dataProperty");
          ElementKey key = datatypeProperty.getKey();
          cell4Dataproperty.put(key, propertyCell);
+         cell4Property.put(key, propertyCell);
       }
 
       Map<EdgeKey, EdgeValue> edges = new HashMap<>();
-      // properties
+      // object properties
       it2 = owlClasses.keySet().iterator();
       while (it2.hasNext()) {
          ElementKey key = it2.next();
@@ -456,10 +461,26 @@ public class OpenModelAction extends AbstractMDIAction {
                   mxCell edge = (mxCell) graph.insertEdge(parent, null, datatypeProp.getDisplayedName(), theCell, rangeCell);
                   edge.setStyle("property");
                }
-
             }
          }
       }
+      
+      // parent properties
+      it2 = owlDatatypeProperties.keySet().iterator();
+      while (it2.hasNext()) {
+         ElementKey key = it2.next();
+         mxCell theCell = cell4Property.get(key);
+         OwlDatatypeProperty property = owlDatatypeProperties.get(key);
+         Iterator<ElementKey> it4 = property.getSuperProperties().keySet().iterator();
+         while (it4.hasNext()) {
+            ElementKey parentKey = it4.next();
+            if (owlDatatypeProperties.containsKey(parentKey)) {
+               mxCell parentCell = cell4Property.get(parentKey);
+               mxCell edge = (mxCell) graph.insertEdge(parent, null, "", theCell, parentCell);
+               edge.setStyle("parent");
+            }
+         }
+      }     
 
       mxOrganicLayout layout = new mxOrganicLayout(graph);
       layout.setMinMoveRadius(100);

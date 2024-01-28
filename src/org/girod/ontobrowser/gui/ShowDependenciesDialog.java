@@ -218,6 +218,27 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
                model.addElement(new PropertyBridge(property, true));
             }
          }
+         if (theClass.hasSuperClasses()) {
+            // super Classes
+            model.addElement("Super-Classes");
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getSuperClasses());
+            Iterator<OwlClass> itc = mapc.values().iterator();
+            while (itc.hasNext()) {
+               OwlClass parentClass = itc.next();
+               model.addElement(parentClass);
+            }
+         }
+         if (theClass.hasSubClasses()) {
+            // sub Classes
+            model.addElement("Sub-Classes");
+            SortedMap<ElementKey, OwlClass> mapc = new TreeMap<>(theClass.getSubClasses());
+            Iterator<OwlClass> itc = mapc.values().iterator();
+            while (itc.hasNext()) {
+               OwlClass childClass = itc.next();
+               model.addElement(childClass);
+            }
+         }         
+
          // equivalent classes
          if (theClass.hasAliasClasses()) {
             model.addElement("Alias Classes");
@@ -276,6 +297,27 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }
       } else if (element instanceof OwlProperty) {
          OwlProperty theProperty = (OwlProperty) element;
+         
+         if (theProperty.hasSuperProperties()) {
+            // super properties
+            model.addElement("Super-Properties");
+            SortedMap<ElementKey, OwlProperty> mapp = new TreeMap<>(theProperty.getSuperProperties());
+            Iterator<OwlProperty> itc = mapp.values().iterator();
+            while (itc.hasNext()) {
+               OwlProperty parentProperty = itc.next();
+               model.addElement(parentProperty);
+            }
+         }
+         if (theProperty.hasSubProperties()) {
+            // sub properties
+            model.addElement("Sub-Properties");
+            SortedMap<ElementKey, OwlProperty> mapp = new TreeMap<>(theProperty.getSubProperties());
+            Iterator<OwlProperty> itc = mapp.values().iterator();
+            while (itc.hasNext()) {
+               OwlProperty childProperty = itc.next();
+               model.addElement(childProperty);
+            }
+         }           
 
          // equivalent properties
          if (theProperty.hasEquivalentProperties()) {
