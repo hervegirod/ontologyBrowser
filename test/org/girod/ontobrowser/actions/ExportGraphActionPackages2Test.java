@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @version 0.5
+ * @version 0.9
  */
 @RunWith(OrderedRunner.class)
 public class ExportGraphActionPackages2Test {
@@ -179,13 +179,14 @@ public class ExportGraphActionPackages2Test {
       assertNotNull("graph must not be null", graph);
 
       Map<String, IGraphMLNode> nodes = GraphMLUtils.getChildrenFromLabel(graph);
-      assertEquals("Must have 6 root level nodes", 6, nodes.size());
+      assertEquals("Must have 7 root level nodes", 7, nodes.size());
       assertTrue("Must have Class6 root level node", nodes.containsKey("Class6"));
       assertTrue("Must have Class2 root level node", nodes.containsKey("Class2"));
       assertTrue("Must have Class3 root level node", nodes.containsKey("Class3"));
       assertTrue("Must have Class1 root level node", nodes.containsKey("Class1"));
       assertTrue("Must have Name root level node", nodes.containsKey("Name"));
       assertTrue("Must have Class4 root level node", nodes.containsKey("Class4\nfrom Package2"));
+      assertTrue("Must have Class7 root level node", nodes.containsKey("Class7\nfrom Package3"));
    }
 
    /**

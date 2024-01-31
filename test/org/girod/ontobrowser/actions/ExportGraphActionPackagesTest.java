@@ -205,9 +205,10 @@ public class ExportGraphActionPackagesTest {
       assertNotNull("graph must not be null", graph);
 
       Map<String, IGraphMLNode> nodes = GraphMLUtils.getChildrenFromLabel(graph);
-      assertEquals("Must have 3 root level nodes", 3, nodes.size());
+      assertEquals("Must have 4 root level nodes", 4, nodes.size());
       assertTrue("Must have Class5 root level node", nodes.containsKey("Class5"));
       assertTrue("Must have Class4 root level node", nodes.containsKey("Class4"));
+      assertTrue("Must have Class2 root level node", nodes.containsKey("Class2\nfrom Package1"));
       assertTrue("Must have Package3 root level node", nodes.containsKey("Package3"));
 
       IGraphMLNode theNode = nodes.get("Package3");
