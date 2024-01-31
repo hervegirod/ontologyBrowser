@@ -64,3 +64,11 @@
  - Support parent-children for properties
  - Show the SuperClasses and the SubClasses in the Classes dependencies
  - Show the SuperProperties and the SubProperties in the Properties dependencies
+
+# 0.9
+ - Use jGraphml 1.2.6
+ - Fix the package export in yEd not always putting some range classes correctly
+ - Fix the Class dependencies for domain and range object properties in the dependencies dialog
+ - Show the Functional and InverseFunctional characteristics of Properties
+ - Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes
+ - Show equivalent properties in the export
