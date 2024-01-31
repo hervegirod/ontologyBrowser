@@ -87,6 +87,10 @@
       <li>The Individuals tab, showing the Individuals</li>
    </ul>
 
+   <title title="Exporting the content of the ontology " />
+   <moreInfo id="diagrams content" />
+   It is possible to export the content of the ontology as GraphML diagrams which can be opened in the <ref id="yEd" /> tool.
+
    <title title="content window" />
    <img id="contentwindow"/>
    The content window presents a diagram showing the model, and a window presenting the annotations on the selected

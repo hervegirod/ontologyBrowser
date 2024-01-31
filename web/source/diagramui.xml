@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="diagrams content">
+   <meta desc="This article presents the diagrams content" />
+   The <ref id="yEd" /> diagrams produced by the tool show the structure of the Owl/RDF ontology. It presents:
+   <ul>
+      <li>The Classes</li>
+      <li>The Object properties</li>
+      <li>The Data properties</li>
+      <li>The Individuals</li>
+   </ul>
+
+   <messageBox type="info">
+      All the colors which are presented here are the default colors. it is possible to customize the colors (see <ref id="custom styles" /> for more information.
+   </messageBox>
+
+   <title title="Classes" />
+   Classes are presented in a grey background:
+   <img id="diagramclass"/>
+
+   Sub-classes are presented with an inheritance UML sign:
+   <img id="diagramsuperclass"/>
+
+   <title title="Object properties" />
+   The relationships between Classes through Object properties is represented by an arrow from the Domain to the Range:
+   <ul>
+      <li>The text alongside the arrow is the name of the Object property</li>
+      <li>If the "Show Relation Constraints" configuration property is selected, the cardinality is also presented near the Range Class if it is defined</li>
+   </ul>
+   <img id="diagramclass"/>
+
+   <title title="Data properties" />
+   A Data property is presented on a cyan blackground. The relationship between the Classes and this Data property is presented with an arrow
+   by an arrow from the Class to the Data property:
+   <img id="diagramdataproperty"/>
+
+   <ul>
+      <li>If the "Show Relation Constraints" configuration property is selected, the cardinality is also presented near the Data property if it is defined</li>
+   </ul>
+
+   If the "Show DataProperties types" configuration property is selected, the datatype of the Data property is also presented:
+   <img id="diagramdataproperty2"/>
+
+   <title title="Individuals" />
+   An Individual is presented on a magenta background. The relationship between the Classes and this Individual is presented with an arrow
+   by an arrow from the Class to the Individual:
+   <img id="diagramindividual"/>
+
+   <title title="Alias" />
+   Alias Classes and Data properties are presented with a dotted line between the equivalent elements:
+   <img id="diagramalias" />
+
+   <see id="custom styles" />
+   <see id="configuration" />
+   <cat id="general" />
+</article>

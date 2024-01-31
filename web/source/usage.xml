@@ -2,9 +2,9 @@
 <article desc="Usage">
    <meta desc="This article presents the usage of the application" />
    This application allows to open a OWL/RDF model, and generate a GraphML diagram compatible with the popular yEd editor.
-   
-   The tool present the class hierarchy, and also the relations between classes and Data properties.    
-   
+
+   The tool present the class hierarchy, and also the relations between classes and Data properties.
+
    <title title="interface" />
    <moreInfo id="Browser" />
    <img id="browser" width="60%"/>
@@ -34,9 +34,13 @@
       <li>Center the selected graph</li>
    </ul>
 
+   <title title="Exporting the content of the ontology " />
+   <moreInfo id="diagrams content" />
+   It is possible to export the content of the ontology as GraphML diagrams which can be opened in the <ref id="yEd" /> tool.
+
    <title title="configuration" />
    <moreInfo id="configuration" />
-   The Options =&gt; Settings action allows to edit the configuration of the tool.  
+   The Options =&gt; Settings action allows to edit the configuration of the tool.
 
    <see id="Browser" />
    <cat id="general" />

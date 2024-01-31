@@ -14,7 +14,7 @@
       <li>The <code>package</code> is used for the representation of a <ref id="packages" desc="package" /></li>
       <li>The <code>individual</code> is used for the representation of an Individual</li>
       <li>The <code>property</code> is used for the representation of a Data property</li>
-      <li>The <code>externalPackage</code> is used for the representation of an external packahe when exporting the content of a package</li>
+      <li>The <code>externalPackage</code> is used for the representation of an external package when exporting the content of a package</li>
    </ul>
    Under each of this element:
    <ul>
@@ -43,5 +43,6 @@
    </pre>
 
    <see id="configuration#Styles settings" desc="Styles settings" />
+   <see id="diagrams content" />
    <cat id="general" />
 </article>

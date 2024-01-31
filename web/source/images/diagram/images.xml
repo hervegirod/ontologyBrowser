@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<images>
+   <image id="diagramclass" url="diagramclass.png" />
+   <image id="diagramsuperclass" url="diagramsuperclass.png" />
+   <image id="diagramdataproperty" url="diagramdataproperty.png" />
+   <image id="diagramdataproperty2" url="diagramdataproperty2.png" />
+   <image id="diagramindividual" url="diagramindividual.png" />
+   <image id="diagramalias" url="diagramalias.png" />
+</images>

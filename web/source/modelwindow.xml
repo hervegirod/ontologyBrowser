@@ -4,7 +4,7 @@
    <meta desc="This article presents the content of the application Browser model window" />
    This article presents the content of the application Browser model window.
    <img id="modelwindow" width="40%" />
-   
+
    After opening a diagram, a tab opens in the browser showing:
    <ul>
       <li>At the left the structure of the Owl model</li>
@@ -15,28 +15,28 @@
    The structure of the Owl model is separated in six tabs:
    <ul>
       <li>The Ontology tab, showing the metadata on the Ontology, and its namespaces and imported ontologies</li>
-      <li>The Annotations tab, showing the Annotations definitions</li>      
-      <li>The Datatypes tab, showing the Datatypes definitions</li>            
-      <li>The Classes tab, showing the Owl Classes</li>                  
-      <li>The Properties tab, showing the Object properties and the Data properties</li>                        
-      <li>The Individuals tab, showing the Individuals</li>                              
+      <li>The Annotations tab, showing the Annotations definitions</li>
+      <li>The Datatypes tab, showing the Datatypes definitions</li>
+      <li>The Classes tab, showing the Owl Classes</li>
+      <li>The Properties tab, showing the Object properties and the Data properties</li>
+      <li>The Individuals tab, showing the Individuals</li>
    </ul>
-   
+
    <title title="Ontology tab" />
    The Ontology tab shows the metadata on the Ontology, and its namespaces and imported ontologies:
-   <img id="tabontology" width="20%"/>  
-   
+   <img id="tabontology" width="20%"/>
+
    <title level="2" title="Ontology Menu" />
    If you right click on the root ontology element in the tree, you will have the following popup menu:
    <img id="classMenu" />
    <ul>
       <li>Show Ontology Imports graph in yEd in yEd: open the graph of imported ontologies in <ref id="yEd"/></li>
-   </ul>       
+   </ul>
    For example, with the following Ontology:
-   <img id="tabontology" width="20%"/>  
+   <img id="tabontology" width="20%"/>
    We will have the following diagram:
    <img id="ontologygraph" />
-   
+
    <title title="Class structure tab" />
    The Class structure tab shows the structure of the Class hierarchy:
    <img id="tabclasses" />
@@ -100,6 +100,7 @@
    </messageBox>
 
    <see id="Browser" />
+   <see id="diagrams content" />
    <see id="Usage" />
    <cat id="general" />
 </article>

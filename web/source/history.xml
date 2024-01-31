@@ -84,6 +84,15 @@
       <li>Show the SuperClasses and the SubClasses in the Classes dependencies</li>
       <li>Show the SuperProperties and the SubProperties in the Properties dependencies</li>
    </ul>
+   
+   <title title="Version 0.9" />
+   <ul>
+      <li>Use jGraphml 1.2.6</li>
+      <li>Fix the package export in yEd not always putting some range classes correctly</li>
+      <li>Fix the Class dependencies for domain and range object properties in the dependencies dialog</li>
+      <li>Show the Functional and InverseFunctional characteristics of Properties</li>
+      <li>Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes</li>        
+   </ul>    
 
    <cat id="general" />
 </article>
