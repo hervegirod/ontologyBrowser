@@ -7,6 +7,7 @@
       <li>The Object properties</li>
       <li>The Data properties</li>
       <li>The Individuals</li>
+      <li>The <ref id="packages" /></li>
    </ul>
 
    <messageBox type="info">
@@ -48,6 +49,13 @@
    <title title="Alias" />
    Alias Classes and Data properties are presented with a dotted line between the equivalent elements:
    <img id="diagramalias" />
+
+   <title title="Packages" />
+   <ref id="Packages" /> are group nodes which are presented on a green background:
+   <img id="diagrampackages" />
+
+   It is possible to open the content of the package to see the Classes in the package:
+   <img id="diagrampackages2" />
 
    <see id="custom styles" />
    <see id="configuration" />
