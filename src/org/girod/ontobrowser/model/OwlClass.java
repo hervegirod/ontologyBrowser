@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,9 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Represents an Owl class.
  *
- * @version 0.
+ * @version 0.9
  */
-public class OwlClass extends NamedOwlElement {
+public class OwlClass extends NamedOwlElement<OwlClass> {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();
    private final Map<ElementKey, Set<PropertyClassRef>> toRange = new HashMap<>();
    private final Map<ElementKey, OwlClass> superClasses = new HashMap<>();
@@ -56,6 +56,7 @@ public class OwlClass extends NamedOwlElement {
    private OntClass ontClass = null;
    private char packageType = PackageType.UNDEFINED;
    private ElementKey packageKey = null;
+   private Set<ElementKey> packageList = null;
    private final Map<ElementKey, OwlIndividual> individuals = new HashMap<>();
    private final Map<ElementKey, OwlProperty> properties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> toProperties = new HashMap<>();
@@ -142,12 +143,21 @@ public class OwlClass extends NamedOwlElement {
    }
 
    /**
+    * Return true if the Owl class is in an unique package.
+    *
+    * @return true if the Owl class is in an unique package
+    */
+   public boolean isInUniquePackage() {
+      return packageKey != null;
+   }
+
+   /**
     * Return true if the Owl class is in a package.
     *
     * @return true if the Owl class is in a package
     */
    public boolean isInPackage() {
-      return packageKey != null;
+      return packageKey != null || packageList != null;
    }
 
    public ElementKey getPackage(boolean isStrict) {
@@ -160,6 +170,18 @@ public class OwlClass extends NamedOwlElement {
 
    public ElementKey getPackage() {
       return getPackage(true);
+   }
+
+   public void setPackageList(Set<ElementKey> packageList) {
+      this.packageList = packageList;
+   }
+
+   public Set<ElementKey> getPackageList() {
+      if (packageList == null && packageKey != null) {
+         packageList = new HashSet<>();
+         packageList.add(packageKey);
+      }
+      return packageList;
    }
 
    /**
@@ -177,6 +199,11 @@ public class OwlClass extends NamedOwlElement {
       return (OwlClass) o;
    }
 
+   /**
+    * Add an Individual for this Class.
+    *
+    * @param individual the Individual
+    */
    public void addIndividual(OwlIndividual individual) {
       individuals.put(individual.getKey(), individual);
    }
@@ -210,12 +237,12 @@ public class OwlClass extends NamedOwlElement {
       superClasses.put(superClassKey, owlClass);
       if (thingKey == null) {
          hasDefinedSuperClass = true;
-         if (owlClass.isInPackage()) {
+         if (owlClass.isInUniquePackage()) {
             packageKey = owlClass.getPackage();
          }
       } else {
          hasDefinedSuperClass = !superClassKey.equals(thingKey);
-         if (hasDefinedSuperClass && owlClass.isInPackage()) {
+         if (hasDefinedSuperClass && owlClass.isInUniquePackage()) {
             packageKey = owlClass.getPackage();
          }
       }
@@ -229,15 +256,15 @@ public class OwlClass extends NamedOwlElement {
    public Map<ElementKey, OwlClass> getSuperClasses() {
       return superClasses;
    }
-   
+
    /**
-    * Return true if this  Owl class has superclasses.
+    * Return true if this Owl class has superclasses.
     *
-    * @return true if this  Owl class has superclasses
+    * @return true if this Owl class has superclasses
     */
    public boolean hasSuperClasses() {
       return !superClasses.isEmpty();
-   }   
+   }
 
    /**
     * Count the number of superclasses of this class.
@@ -289,6 +316,11 @@ public class OwlClass extends NamedOwlElement {
       return !subClasses.isEmpty();
    }
 
+   /**
+    * Add an Object property for which this Class is a Domain.
+    *
+    * @param ref the the Object property reference
+    */
    public void addFromDomain(PropertyClassRef ref) {
       Set<PropertyClassRef> set;
       ElementKey domainKey = ref.getDomainKey();
@@ -301,6 +333,11 @@ public class OwlClass extends NamedOwlElement {
       set.add(ref);
    }
 
+   /**
+    * Add an Object property for which this Class is a Range.
+    *
+    * @param ref the the Object property reference
+    */
    public void addToRange(PropertyClassRef ref) {
       Set<PropertyClassRef> set;
       ElementKey domainKey = ref.getDomainKey();
@@ -313,10 +350,20 @@ public class OwlClass extends NamedOwlElement {
       set.add(ref);
    }
 
+   /**
+    * Return the properties or which this Class is the Domain.
+    *
+    * @return the properties or which this Class is the Domain
+    */
    public Map<ElementKey, Set<PropertyClassRef>> fromDomain() {
       return fromDomain;
    }
 
+   /**
+    * Return the properties or which this Class is the Range.
+    *
+    * @return the properties or which this Class is the Range
+    */
    public Map<ElementKey, Set<PropertyClassRef>> toRange() {
       return toRange;
    }
@@ -409,6 +456,11 @@ public class OwlClass extends NamedOwlElement {
       return aliasClasses;
    }
 
+   /**
+    * Return true if this Class has Aliases.
+    *
+    * @return true if this Class has Aliases
+    */
    public boolean hasAliasClasses() {
       return !aliasClasses.isEmpty();
    }
@@ -422,10 +474,20 @@ public class OwlClass extends NamedOwlElement {
       return classFromAlias;
    }
 
+   /**
+    * Return true if this Class has from Aliases. This ùmeans that this Class is an Alias to another one.
+    *
+    * @return true if this Class has from Aliases
+    */
    public boolean hasFromAliasedClasses() {
       return !classFromAlias.isEmpty();
    }
 
+   /**
+    * Return true if this Class has any Aliases.
+    *
+    * @return true if this Class has any Aliases
+    */
    public boolean hasAnyAliasedClasses() {
       return !classFromAlias.isEmpty() || !aliasClasses.isEmpty();
    }
@@ -477,6 +539,32 @@ public class OwlClass extends NamedOwlElement {
     */
    public boolean isEquivalentClass() {
       return !aliasClasses.isEmpty() || !classFromAlias.isEmpty() || !equivalentExpressions.isEmpty();
+   }
+
+   /**
+    * Return this element alias elements. This does not take into account erquivalent expressions.
+    *
+    * @return this element alias elements
+    */
+   @Override
+   public boolean hasAliasElements() {
+      return !aliasClasses.isEmpty() || !classFromAlias.isEmpty();
+   }
+
+   /**
+    * Return true if this element has alias elements. This does not take into account erquivalent expressions.
+    *
+    * @return true if this element has alias elements
+    */
+   @Override
+   public Map<ElementKey, OwlClass> getAliasElements() {
+      if (!hasAliasElements()) {
+         return null;
+      }
+      Map<ElementKey, OwlClass> map = new HashMap<>();
+      map.putAll(aliasClasses);
+      map.putAll(classFromAlias);
+      return map;
    }
 
 }

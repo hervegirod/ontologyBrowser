@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,10 @@ import java.util.Map;
 /**
  * Represents a named Owl element.
  *
- * @version 0.8
+ * @version 0.9
+ * @param <T> the element type
  */
-public abstract class NamedOwlElement extends AnnotatedElement implements NamedElement, Cloneable {
+public abstract class NamedOwlElement<T extends NamedOwlElement> extends AnnotatedElement implements NamedElement, Cloneable {
    /**
     * The element namespace.
     */
@@ -97,6 +98,24 @@ public abstract class NamedOwlElement extends AnnotatedElement implements NamedE
    @Override
    public URI toURI() {
       return getKey().toURI();
+   }
+
+   /**
+    * Return this element alias elements. This does not take into account erquivalent expressions. Return false by default.
+    *
+    * @return this element alias elements
+    */
+   public boolean hasAliasElements() {
+      return false;
+   }
+
+   /**
+    * Return the alias elements. Return null by default.
+    *
+    * @return the alias elements
+    */
+   public Map<ElementKey, T> getAliasElements() {
+      return null;
    }
 
    @Override

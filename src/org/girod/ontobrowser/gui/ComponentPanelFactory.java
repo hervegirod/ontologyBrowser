@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -56,6 +57,7 @@ import org.girod.ontobrowser.model.AnnotationValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlImportedSchema;
+import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.SchemasRepository;
 
@@ -91,7 +93,11 @@ public class ComponentPanelFactory {
          return new JPanel();
       }
       NamedOwlElement namedElement = selectedElement.getOwlElement();
-      return getOwlClassPanel(namedElement);
+      if (namedElement instanceof OwlProperty) {
+         return getOwlPropertyPanel((OwlProperty) namedElement);
+      } else {
+         return getDefaultElementPanel(namedElement);
+      }
    }
 
    private JComponent getOwlImportedSchemaPanel(OwlImportedSchema schema) {
@@ -189,9 +195,34 @@ public class ComponentPanelFactory {
       return new JScrollPane(thePanel);
    }
 
-   private JComponent getOwlClassPanel(NamedOwlElement theElement) {
+   private JComponent getOwlPropertyPanel(OwlProperty property) {
       JPanel thePanel = new JPanel();
       thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
+      addElementPanelHeader(thePanel, property);
+      
+      JPanel funcPanel = new JPanel();
+      funcPanel.setLayout(new BoxLayout(funcPanel, BoxLayout.X_AXIS));
+      JCheckBox funcCb = new JCheckBox("Functional");
+      funcCb.setEnabled(false);
+      funcCb.setSelected(property.isFunctionalProperty());
+      funcPanel.add(funcCb);
+      funcPanel.add(Box.createHorizontalStrut(5));
+      funcCb = new JCheckBox("Inverse Functional");
+      funcCb.setEnabled(false);
+      funcCb.setSelected(property.isInverseFunctionalProperty());
+      funcPanel.add(funcCb);
+      funcPanel.add(Box.createHorizontalStrut(5));            
+      funcPanel.add(Box.createHorizontalGlue());
+      thePanel.add(funcPanel);
+      
+      thePanel.add(Box.createVerticalStrut(5));         
+      
+      addElementPanelAnnotations(thePanel, property);
+      thePanel.add(Box.createVerticalGlue());
+      return new JScrollPane(thePanel);
+   }
+   
+   private void addElementPanelHeader(JPanel parentPanel, NamedOwlElement theElement) {
       StringBuilder html = new StringBuilder();
       html.append("<html>");
       String title = theElement.getKey().getPrefixedName(schema);
@@ -200,10 +231,17 @@ public class ComponentPanelFactory {
       html.append(theElement.getNamespace()).append(theElement.getDisplayedName());
       html.append("</i>");
       html.append("</html>");
+      JPanel headerpanel = new JPanel();
+      headerpanel.setLayout(new BoxLayout(headerpanel, BoxLayout.X_AXIS));
       JLabel label = new JLabel(html.toString());
-      thePanel.add(label);
-      thePanel.add(Box.createVerticalStrut(5));
-
+      headerpanel.add((Box.createHorizontalStrut(5)));
+      headerpanel.add(label);
+      headerpanel.add((Box.createHorizontalGlue()));
+      parentPanel.add(headerpanel);
+      parentPanel.add(Box.createVerticalStrut(5));      
+   }
+   
+   private void addElementPanelAnnotations(JPanel parentPanel, NamedOwlElement theElement) {
       final DefaultTableModel tablemodel = new UneditableTableModel();
       final JTable table = new JTable();
       tablemodel.addColumn("Annotation");
@@ -250,7 +288,14 @@ public class ComponentPanelFactory {
             }
          }
       });
-      thePanel.add(new JScrollPane(table));
+      parentPanel.add(new JScrollPane(table));      
+   }
+
+   private JComponent getDefaultElementPanel(NamedOwlElement theElement) {
+      JPanel thePanel = new JPanel();
+      thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
+      addElementPanelHeader(thePanel, theElement);
+      addElementPanelAnnotations(thePanel, theElement);
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);
    }

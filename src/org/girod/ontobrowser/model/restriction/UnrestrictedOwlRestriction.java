@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, Hervé Girod
+Copyright (c) 2021, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,15 @@ import org.apache.jena.ontology.OntClass;
 import org.girod.ontobrowser.model.ElementKey;
 
 /**
- * An unrestricted owl restriction.
+ * An unrestricted owl restriction. This allows to use the {@link OwlRestriction} signature for a range or a domain which has no restiction.
  *
- * @since 0.1
+ * @version 0.9
  */
 public class UnrestrictedOwlRestriction extends OwlRestriction {
    public UnrestrictedOwlRestriction(OntClass clazz) {
       super(clazz);
-   }   
-   
+   }
+
    public UnrestrictedOwlRestriction(ElementKey key) {
       super(key);
    }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * A property bridge used in the class properties window.
  *
- * @since 0.5
+ * @version 0.9
  */
 public class PropertyBridge {
    private final OwlProperty property;
@@ -68,7 +68,7 @@ public class PropertyBridge {
          Map<ElementKey, OwlRestriction> restrictions;
          if (fromDomain) {
             buf.append(": to ");
-            restrictions = objectProperty.getRange();
+            restrictions = objectProperty.getRange();            
          } else {
             buf.append(": from ");
             restrictions = objectProperty.getDomain();

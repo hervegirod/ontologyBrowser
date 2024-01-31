@@ -42,15 +42,15 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.8
+ * @version 0.9
  */
-public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement {
+public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement<OwlProperty> {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
    private int minCardinality = 0;
    private int maxCardinality = -1;
    private T ontProperty = null;
    private final Map<ElementKey, OwlProperty> superProperties = new HashMap<>();
-   private final Map<ElementKey, OwlProperty> subProperties = new HashMap<>();      
+   private final Map<ElementKey, OwlProperty> subProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> aliasProperties = new HashMap<>();
    private final Map<ElementKey, OwlProperty> propertyFromAlias = new HashMap<>();
 
@@ -59,10 +59,33 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
       this.ontProperty = ontProperty;
    }
 
+   /**
+    * Return the underlying property.
+    *
+    * @return the underlying property
+    */
    public T getProperty() {
       return ontProperty;
    }
-   
+
+   /**
+    * Return true if the property is a Funtional property.
+    *
+    * @return true if the property is a Funtional property
+    */
+   public boolean isFunctionalProperty() {
+      return ontProperty.isFunctionalProperty();
+   }
+
+   /**
+    * Return true if the property is an inverse Funtional property.
+    *
+    * @return true if the property is an inverse Funtional property
+    */
+   public boolean isInverseFunctionalProperty() {
+      return ontProperty.isInverseFunctionalProperty();
+   }
+
    /**
     * Add a super property.
     *
@@ -89,8 +112,8 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
     */
    public boolean hasSuperProperties() {
       return !superProperties.isEmpty();
-   }      
-   
+   }
+
    /**
     * Add a sub-property.
     *
@@ -117,7 +140,7 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
     */
    public boolean hasSubProperties() {
       return !subProperties.isEmpty();
-   }   
+   }
 
    public void addDomain(OwlRestriction restriction) {
       domain.put(restriction.getKey(), restriction);
@@ -171,6 +194,15 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
    }
 
    /**
+    * Return true if this class has equivalent properties.
+    *
+    * @return true if this class has equivalent properties.
+    */
+   public boolean isEquivalentProperty() {
+      return !aliasProperties.isEmpty() || !propertyFromAlias.isEmpty();
+   }
+
+   /**
     * Return the map of equivalent (alias) properties.
     *
     * @return the equivalent properties
@@ -181,6 +213,32 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
 
    public boolean hasFromAliasedProperties() {
       return !propertyFromAlias.isEmpty();
+   }
+
+   /**
+    * Return this element alias elements.
+    *
+    * @return this element alias elements
+    */
+   @Override
+   public boolean hasAliasElements() {
+      return !aliasProperties.isEmpty() || !propertyFromAlias.isEmpty();
+   }
+
+   /**
+    * Return the alias elements.
+    *
+    * @return the alias elements
+    */
+   @Override
+   public Map<ElementKey, OwlProperty> getAliasElements() {
+      if (!hasAliasElements()) {
+         return null;
+      }
+      Map<ElementKey, OwlProperty> map = new HashMap<>();
+      map.putAll(aliasProperties);
+      map.putAll(propertyFromAlias);
+      return map;
    }
 
    @Override

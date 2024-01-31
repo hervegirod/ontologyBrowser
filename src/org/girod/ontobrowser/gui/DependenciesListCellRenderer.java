@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * The renderer for the dependencies window.
  *
- * @version 0.6
+ * @version 0.9
  */
 public class DependenciesListCellRenderer extends DefaultListCellRenderer {
    private static final Icon CLASS_ICON;
@@ -124,10 +124,10 @@ public class DependenciesListCellRenderer extends DefaultListCellRenderer {
          buf.append("<b>").append(property.getDisplayedName());
          Map<ElementKey, OwlRestriction> restrictions;
          if (from) {
-            buf.append(" <font color=\"blue\">from Domain</font></b> <i>");
+            buf.append(" <font color=\"blue\">to Range</font></b> <i>");
             restrictions = objectProperty.getRange();
          } else {
-            buf.append(" <font color=\"blue\">to Range</font></b> <i>");
+            buf.append(" <font color=\"blue\">fromDomain</font></b> <i>");
             restrictions = objectProperty.getDomain();
          }
          Iterator<ElementKey> it = restrictions.keySet().iterator();

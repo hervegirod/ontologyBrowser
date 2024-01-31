@@ -205,7 +205,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          while (itp.hasNext()) {
             OwlProperty property = itp.next();
             if (property instanceof OwlObjectProperty) {
-               model.addElement(new PropertyBridge(property, false));
+               model.addElement(new PropertyBridge(property, true));
             }
          }
          // range properties of the Class
@@ -215,7 +215,7 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          while (itp.hasNext()) {
             OwlProperty property = itp.next();
             if (property instanceof OwlObjectProperty) {
-               model.addElement(new PropertyBridge(property, true));
+               model.addElement(new PropertyBridge(property, false));
             }
          }
          if (theClass.hasSuperClasses()) {

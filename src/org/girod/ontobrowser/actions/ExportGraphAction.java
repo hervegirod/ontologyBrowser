@@ -43,9 +43,9 @@ import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
 import org.girod.jgraphml.model.IGraphMLNode;
+import org.girod.jgraphml.model.LineStyle;
 import org.girod.jgraphml.model.NodeLabel;
 import org.girod.jgraphml.model.ShapeType;
-import org.girod.jgraphml.model.LineStyle;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
@@ -60,7 +60,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.8
+ * @version 0.9
  */
 public class ExportGraphAction extends AbstractExportGraphAction {
    private boolean showPackages = false;
@@ -118,7 +118,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
    }
 
    private GraphMLGroupNode getGroupParent(ElementKey key, OwlClass owlClass) {
-      if (packagesNodes == null || !owlClass.isInPackage()) {
+      if (packagesNodes == null || !owlClass.isInUniquePackage()) {
          return null;
       } else {
          ElementKey thePackageKey = owlClass.getPackage();
@@ -149,27 +149,32 @@ public class ExportGraphAction extends AbstractExportGraphAction {
 
    private GraphMLNode addDataProperty(OwlClass owlClass, OwlDatatypeProperty dataProperty) {
       GraphMLNode propertyNode;
-      if (owlClass.isPackageOrInPackage()) {
-         ElementKey packageKey = owlClass.getPackage(false);
-         GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
-         propertyNode = groupNode.addNode();
+      if (elementToNode.containsKey(dataProperty.getKey())) {
+         propertyNode = (GraphMLNode) elementToNode.get(dataProperty.getKey());
       } else {
-         propertyNode = graph.addNode();
-      }
-      propertyNode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-      propertyNode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.PROPERTY));
-      NodeLabel label = propertyNode.createLabel(true);
-      label.setFontSize(11);
-      if (showDataPropertiesTypes) {
-         String typeS = getType(dataProperty);
-         if (typeS != null) {
-            label.setLabel(dataProperty.getDisplayedName() + "\n" + typeS);
-            propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
+         if (owlClass.isPackageOrInPackage()) {
+            ElementKey packageKey = owlClass.getPackage(false);
+            GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
+            propertyNode = groupNode.addNode();
+         } else {
+            propertyNode = graph.addNode();
+         }
+         elementToNode.put(dataProperty.getKey(), propertyNode);
+         propertyNode.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+         propertyNode.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.PROPERTY));
+         NodeLabel label = propertyNode.createLabel(true);
+         label.setFontSize(11);
+         if (showDataPropertiesTypes) {
+            String typeS = getType(dataProperty);
+            if (typeS != null) {
+               label.setLabel(dataProperty.getDisplayedName() + "\n" + typeS);
+               propertyNode.setHeight(propertyNode.getHeight() * 1.5f);
+            } else {
+               label.setLabel(dataProperty.getDisplayedName());
+            }
          } else {
             label.setLabel(dataProperty.getDisplayedName());
          }
-      } else {
-         label.setLabel(dataProperty.getDisplayedName());
       }
       return propertyNode;
    }
@@ -220,6 +225,88 @@ public class ExportGraphAction extends AbstractExportGraphAction {
          addPackages();
       }
 
+      exportClasses(owlClasses);
+      exportProperties(owlClasses);
+   }
+
+   private void exportProperties(Map<ElementKey, OwlClass> owlClasses) {
+      // properties
+      Iterator<ElementKey> it = owlClasses.keySet().iterator();
+      while (it.hasNext()) {
+         ElementKey key = it.next();
+         OwlClass theClass = owlClasses.get(key);
+         IGraphMLNode theNode = elementToNode.get(key);
+         Iterator<OwlProperty> it3 = theClass.getOwlProperties().values().iterator();
+         while (it3.hasNext()) {
+            OwlProperty property = it3.next();
+            if (property instanceof OwlObjectProperty) {
+               OwlObjectProperty objectProp = (OwlObjectProperty) property;
+               Iterator<ElementKey> it4 = objectProp.getRange().keySet().iterator();
+               while (it4.hasNext()) {
+                  ElementKey propKey = it4.next();
+                  if (owlClasses.containsKey(propKey)) {
+                     IGraphMLNode rangeNode = elementToNode.get(propKey);
+                     GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
+                     EdgeLabel label = edge.createLabel(true);
+                     label.setLabel(property.getDisplayedName());
+                     Arrows arrows = edge.getArrows();
+                     arrows.setSource(Arrows.STANDARD);
+                     arrows.setTarget(Arrows.NONE);
+                     if (showRelationsConstraints) {
+                        if (property.hasCardinalityRestriction()) {
+                           addCardinalityRestriction(property, edge);
+                        } else {
+                           addDefaultCardinalityRestriction(edge);
+                        }
+                     }
+                  }
+               }
+            } else {
+               OwlDatatypeProperty dataProperty = (OwlDatatypeProperty) property;
+               ElementKey propertyKey = dataProperty.getKey();
+               IGraphMLNode propertyNode;
+               if (elementToNode.containsKey(propertyKey)) {
+                  propertyNode = elementToNode.get(propertyKey);
+               } else {
+                  propertyNode = addDataProperty(theClass, dataProperty);
+                  elementToNode.put(dataProperty.getKey(), propertyNode);
+               }
+               GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
+               Arrows arrows = edge.getArrows();
+               arrows.setSource(Arrows.STANDARD);
+               arrows.setTarget(Arrows.NONE);
+            }
+         }
+      }
+      if (showAlias) {
+         Map<ElementKey, OwlProperty> owlProperties = schema.getOwlProperties();
+         Iterator<OwlProperty> it2 = owlProperties.values().iterator();
+         while (it2.hasNext()) {
+            OwlProperty property = it2.next();
+            if (property instanceof OwlDatatypeProperty && property.hasEquivalentProperties()) {
+               exportPropertyAlias(property);
+            }
+         }
+      }
+   }
+
+   private void exportPropertyAlias(OwlProperty theProperty) {
+      Iterator<ElementKey> it3 = theProperty.getEquivalentProperties().keySet().iterator();
+      while (it3.hasNext()) {
+         ElementKey keyAlias = it3.next();
+         IGraphMLNode source = elementToNode.get(theProperty.getKey());
+         IGraphMLNode target = elementToNode.get(keyAlias);
+         GraphMLEdge edge = graph.addEdge(source, target);
+         Arrows arrows = edge.getArrows();
+         arrows.setSource(Arrows.NONE);
+         arrows.setTarget(Arrows.NONE);
+         LineStyle lineStyle = new LineStyle();
+         lineStyle.setLineStyle(LineStyle.DASHED);
+         edge.setLineStyle(lineStyle);
+      }
+   }
+
+   private void exportClasses(Map<ElementKey, OwlClass> owlClasses) {
       Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
       while (it.hasNext()) {
          Entry<ElementKey, OwlClass> entry = it.next();
@@ -253,65 +340,24 @@ public class ExportGraphAction extends AbstractExportGraphAction {
             }
          }
          if (showAlias && theClass.hasAliasClasses()) {
-            Iterator<ElementKey> it3 = theClass.getAliasClasses().keySet().iterator();
-            while (it3.hasNext()) {
-               ElementKey keyAlias = it3.next();
-               IGraphMLNode source = elementToNode.get(theClass.getKey());
-               IGraphMLNode target = elementToNode.get(keyAlias);
-               GraphMLEdge edge = graph.addEdge(source, target);
-               Arrows arrows = edge.getArrows();
-               arrows.setSource(Arrows.NONE);
-               arrows.setTarget(Arrows.NONE);
-               LineStyle lineStyle = new LineStyle();
-               lineStyle.setLineStyle(LineStyle.DASHED);
-               edge.setLineStyle(lineStyle);
-            }
+            exportClassAlias(theClass);
          }
       }
+   }
 
-      // properties
-      it2 = owlClasses.keySet().iterator();
-      while (it2.hasNext()) {
-         ElementKey key = it2.next();
-         OwlClass theClass = owlClasses.get(key);
-         IGraphMLNode theNode = elementToNode.get(key);
-         Iterator<OwlProperty> it3 = theClass.getOwlProperties().values().iterator();
-         while (it3.hasNext()) {
-            OwlProperty property = it3.next();
-            if (property instanceof OwlObjectProperty) {
-               OwlObjectProperty objectProp = (OwlObjectProperty) property;
-               Iterator<ElementKey> it4 = objectProp.getRange().keySet().iterator();
-               while (it4.hasNext()) {
-                  ElementKey propKey = it4.next();
-                  if (owlClasses.containsKey(propKey)) {
-                     IGraphMLNode rangeNode = elementToNode.get(propKey);
-                     GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
-                     EdgeLabel label = edge.createLabel(true);
-                     label.setLabel(property.getDisplayedName());
-                     Arrows arrows = edge.getArrows();
-                     arrows.setSource(Arrows.STANDARD);
-                     arrows.setTarget(Arrows.NONE);
-                     if (showRelationsConstraints) {
-                        if (property.hasCardinalityRestriction()) {
-                           addCardinalityRestriction(property, edge);
-                        } else {
-                           addDefaultCardinalityRestriction(edge);
-                        }
-                     }
-                  }
-               }
-            } else {
-               OwlDatatypeProperty dataProperty = (OwlDatatypeProperty) property;
-               GraphMLNode propertyNode = addDataProperty(theClass, dataProperty);
-
-               GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
-               EdgeLabel elabel = edge.createLabel(true);
-               elabel.setLabel(property.getDisplayedName());
-               Arrows arrows = edge.getArrows();
-               arrows.setSource(Arrows.STANDARD);
-               arrows.setTarget(Arrows.NONE);
-            }
-         }
+   private void exportClassAlias(OwlClass theClass) {
+      Iterator<ElementKey> it3 = theClass.getAliasClasses().keySet().iterator();
+      while (it3.hasNext()) {
+         ElementKey keyAlias = it3.next();
+         IGraphMLNode source = elementToNode.get(theClass.getKey());
+         IGraphMLNode target = elementToNode.get(keyAlias);
+         GraphMLEdge edge = graph.addEdge(source, target);
+         Arrows arrows = edge.getArrows();
+         arrows.setSource(Arrows.NONE);
+         arrows.setTarget(Arrows.NONE);
+         LineStyle lineStyle = new LineStyle();
+         lineStyle.setLineStyle(LineStyle.DASHED);
+         edge.setLineStyle(lineStyle);
       }
    }
 

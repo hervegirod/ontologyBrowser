@@ -91,7 +91,7 @@ public class PackagesExtractor {
          Iterator<OwlClass> it2 = theClass.getSubClasses().values().iterator();
          while (it2.hasNext()) {
             OwlClass subclass = it2.next();
-            if (subclass.isInPackage() && subclass.getPackage().equals(key)) {
+            if (subclass.isInUniquePackage() && subclass.getPackage().equals(key)) {
                hasChildren = true;
                break;
             }
@@ -121,44 +121,58 @@ public class PackagesExtractor {
       return notAddedClasses;
    }
 
-   private void extractPackagesContent2(Map<ElementKey, OwlClass> notAddedClasses) {
-      Iterator<OwlClass> it = notAddedClasses.values().iterator();
-      while (it.hasNext()) {
-         OwlClass theClass = it.next();
-         PackagesList packListFromSuperClass = getPackagesListFromSuperClass(theClass);
-         PackagesList packListFromProperties = getPackagesListFromProperties(theClass);
-         if (!packListFromSuperClass.hasUndefinedPackage) {
-            Set<ElementKey> set = new HashSet<>(packListFromSuperClass.packages);
-            Iterator<ElementKey> it2 = packListFromSuperClass.packages.iterator();
-            while (it2.hasNext()) {
-               ElementKey key = it2.next();
-               if (!packListFromProperties.packages.contains(key)) {
-                  set.remove(key);
+   private void addToPossiblePackage(OwlClass theClass) {
+      PackagesList packListFromSuperClass = getPackagesListFromSuperClass(theClass);
+      PackagesList packListFromProperties = getPackagesListFromProperties(theClass);
+      if (!packListFromSuperClass.hasUndefinedPackage) {
+         Set<ElementKey> set = new HashSet<>(packListFromSuperClass.packages);
+         Iterator<ElementKey> it2 = packListFromSuperClass.packages.iterator();
+         while (it2.hasNext()) {
+            ElementKey key = it2.next();
+            if (!packListFromProperties.packages.contains(key)) {
+               set.remove(key);
+            }
+         }
+         if (set.size() == 1) {
+            ElementKey key = set.iterator().next();
+            theClass.setPackage(key);
+         } else {
+            Set<ElementKey> possiblePackages = new HashSet<>();
+            Iterator<OwlClass> it3 = theClass.getSuperClasses().values().iterator();
+            while (it3.hasNext()) {
+               OwlClass superClass = it3.next();
+               if (superClass.isPackage()) {
+                  possiblePackages.add(superClass.getKey());
                }
             }
-            if (set.size() == 1) {
-               ElementKey key = set.iterator().next();
-               theClass.setPackage(key);
+            if (possiblePackages.size() == 1) {
+               theClass.setPackage(possiblePackages.iterator().next());
             } else {
-               Set<ElementKey> possiblePackages = new HashSet<>();
-               Iterator<OwlClass> it3 = theClass.getSuperClasses().values().iterator();
-               while (it3.hasNext()) {
-                  OwlClass superClass = it3.next();
-                  if (superClass.isPackage()) {
-                     possiblePackages.add(superClass.getKey());
-                  }
-               }
-               if (possiblePackages.size() == 1) {
-                  theClass.setPackage(possiblePackages.iterator().next());
-               } else {
-                  theClass.setPackage(null);
-               }
+               theClass.setPackage(null);
+            }
+         }
+      }
+      if (theClass.hasSubClasses()) {
+         Iterator<OwlClass> it = theClass.getSubClasses().values().iterator();
+         while (it.hasNext()) {
+            OwlClass subClass = it.next();
+            if (! subClass.isPackageOrInPackage()) {
+               addToPossiblePackage(subClass);
             }
          }
       }
    }
 
-   private void extractPackagesContent(ElementKey packageKey, OwlClass theClass, Map<ElementKey, OwlClass> notAddedClasses) {
+   private void extractPackagesContent2(Map<ElementKey, OwlClass> notAddedClasses) {
+      Iterator<OwlClass> it = notAddedClasses.values().iterator();
+      while (it.hasNext()) {
+         OwlClass theClass = it.next();
+         addToPossiblePackage(theClass);
+      }
+   }
+
+   private void extractPackagesContent(ElementKey packageKey, OwlClass theClass,
+      Map<ElementKey, OwlClass> notAddedClasses) {
       boolean isPackage = theClass.isPackage();
       if (isPackage) {
          Map<ElementKey, OwlClass> subClasses = theClass.getSubClasses();
@@ -169,6 +183,9 @@ public class PackagesExtractor {
                PackagesList packList = getPackagesListFromSuperClass(theClass2);
                if (packList.hasUniquePackage()) {
                   theClass2.setPackage(packageKey);
+                  extractPackagesContent(packageKey, theClass2, notAddedClasses);
+               } else if (!packList.packages.isEmpty()) {
+                  theClass2.setPackageList(packList.packages);
                   extractPackagesContent(packageKey, theClass2, notAddedClasses);
                } else {
                   notAddedClasses.put(theClass2.getKey(), theClass2);
@@ -187,6 +204,9 @@ public class PackagesExtractor {
                if (packList.hasUniquePackage()) {
                   theClass2.setPackage(packageKey);
                   extractPackagesContent(packageKey, theClass2, notAddedClasses);
+               } else if (!packList.packages.isEmpty()) {
+                  theClass2.setPackageList(packList.packages);
+                  extractPackagesContent(packageKey, theClass2, notAddedClasses);                  
                } else {
                   notAddedClasses.put(theClass2.getKey(), theClass2);
                }

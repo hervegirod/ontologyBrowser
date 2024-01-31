@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.girod.jgraphml.model.Arrows;
 import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLEdge;
@@ -60,9 +62,9 @@ import org.girod.ontobrowser.model.OwlProperty;
 import org.mdi.bootstrap.MDIApplication;
 
 /**
- * The Action that save schemas as yEd diagrams.
+ * The Action that save packages as yEd diagrams.
  *
- * @version 0.5
+ * @version 0.9
  */
 public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private final OwlClass thePackage;
@@ -139,7 +141,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
             ElementKey key = entry.getKey();
             if (!key.equals(thePackageKey)) {
                OwlClass theClass = entry.getValue();
-               if (theClass.isInPackage()) {
+               if (theClass.isInUniquePackage()) {
                   ElementKey parentPackageKey = theClass.getPackage();
                   boolean isInPackage = checkForPackage(parentPackageKey);
                   if (isInPackage) {
@@ -158,7 +160,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
          OwlClass theClass = schema.getOwlClass(key);
          if (!theClass.isPackage()) {
             return false;
-         } else if (!theClass.isInPackage()) {
+         } else if (!theClass.isInUniquePackage()) {
             return false;
          } else {
             ElementKey packageKey = theClass.getPackage(true);
@@ -186,7 +188,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
    }
 
    private GraphMLGroupNode getGroupParent(ElementKey key, OwlClass owlClass) {
-      if (owlClass.isInPackage()) {
+      if (owlClass.isInUniquePackage()) {
          ElementKey _thePackageKey = owlClass.getPackage();
          return packagesNodes.get(_thePackageKey);
       } else {
@@ -196,7 +198,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
 
    private GraphMLNode addIndividualInPackage(OwlClass owlClass, IGraphMLNode node, OwlIndividual individual) {
       GraphMLNode inode;
-      if (owlClass.isInPackage()) {
+      if (owlClass.isInUniquePackage()) {
          ElementKey packageKey = owlClass.getPackage();
          GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
          if (groupNode != null) {
@@ -314,21 +316,21 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
    }
 
    private boolean acceptTarget(OwlClass originClass, OwlClass targetClass) {
-      if (targetClass.isInPackage()) {
+      if (targetClass.isInUniquePackage()) {
          if (targetClass.getPackage().equals(thePackageKey)) {
             return true;
          }
-         if (originClass.isInPackage()) {
+         if (originClass.isInUniquePackage()) {
             if (originClass.getPackage().equals(thePackageKey)) {
                return true;
             }
          }
       } else {
-         if (originClass.isInPackage()) {
+         if (originClass.isInUniquePackage()) {
             if (originClass.getPackage().equals(thePackageKey)) {
                return true;
             }
-         }         
+         }
       }
       return false;
    }
@@ -353,7 +355,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                OwlClass targetClass = schema.getOwlClass(propDomainKey);
                if (targetClass != null) {
                   IGraphMLNode node;
-                  if (targetClass.isInPackage() && acceptTarget(theClass, targetClass)) {
+                  if (targetClass.isInUniquePackage() && acceptTarget(theClass, targetClass)) {
                      ElementKey packageKey = targetClass.getPackage();
                      if (showPackagesInPackageView) {
                         if (hasNodeForClass) {
@@ -398,7 +400,20 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                         elementToNode.put(targetClass.getKey(), node);
                         node.getOpenedShapeNode().setType(ShapeType.ROUNDRECTANGLE);
                         node.getOpenedShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.EXTERNAL_PACKAGE));
-                        NodeLabel label = node.setLabel(targetClass.getDisplayedName());
+                        NodeLabel label;
+                        if (targetClass.isInPackage()) {
+                           StringBuilder buf = new StringBuilder();
+                           buf.append(targetClass.getDisplayedName());
+                           SortedSet<ElementKey> set = new TreeSet<>(targetClass.getPackageList());
+                           Iterator<ElementKey> it = set.iterator();
+                           while (it.hasNext()) {
+                              ElementKey key2 = it.next();
+                              buf.append("\nfrom ").append(key2.getName());
+                           }
+                           label = node.setLabel(buf.toString());
+                        } else {
+                           label = node.setLabel(targetClass.getDisplayedName());
+                        }
                         label.setFontSize(11);
                      }
                   }
@@ -456,7 +471,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                      OwlClass targetClass = schema.getOwlClass(rangeClassKey);
                      if (targetClass != null) {
                         GraphMLNode node;
-                        if (targetClass.isInPackage() && acceptTarget(theClass, targetClass)) {
+                        if (targetClass.isInUniquePackage() && acceptTarget(theClass, targetClass)) {
                            ElementKey packageKey = targetClass.getPackage();
                            if (showPackagesInPackageView) {
                               GraphMLGroupNode packageNode;
@@ -484,7 +499,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                               label.setLabel(targetClass.getDisplayedName() + "\nfrom " + packageKey.getName());
                               node.setHeight(node.getHeight() * 1.5f);
                            }
-                           elementToNode.put(entry.getKey(), node);
+                           elementToNode.put(rangeClassKey, node);
                         } else {
                            node = graph.addNode();
                            node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
@@ -492,7 +507,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                            NodeLabel label = node.createLabel(true);
                            label.setFontSize(11);
                            label.setLabel(targetClass.getDisplayedName());
-                           elementToNode.put(entry.getKey(), node);
+                           elementToNode.put(rangeClassKey, node);
                         }
 
                         GraphMLEdge edge = graph.addEdge(node, theNode);

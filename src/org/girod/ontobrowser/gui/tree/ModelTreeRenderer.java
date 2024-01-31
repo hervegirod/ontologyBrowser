@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -52,21 +52,25 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 /**
  * A tree cell renderer.
  *
- * @version 0.7
+ * @version 0.9
  */
 public class ModelTreeRenderer extends DefaultTreeCellRenderer {
    private static final Icon PACKAGE_ICON;
    private static final Icon CLASS_ICON;
    private static final Icon CLASS_EQUIV_ICON;
    private static final Icon DATAPROPERTY_ICON;
+   private static final Icon DATAPROPERTY_EQUIV_ICON;
    private static final Icon OBJECTPROPERTY_ICON;
+   private static final Icon OBJECTPROPERTY_EQUIV_ICON;
    private static final Icon INDIVIDUAL_ICON;
    private static final Icon UNDEF_ICON;
    private static final Icon PACKAGE_COMMENTS_ICON;
    private static final Icon CLASS_COMMENTS_ICON;
    private static final Icon CLASS_EQUIV_COMMENTS_ICON;
    private static final Icon DATAPROPERTY_COMMENTS_ICON;
+   private static final Icon DATAPROPERTY_EQUIV_COMMENTS_ICON;
    private static final Icon OBJECTPROPERTY_COMMENTS_ICON;
+   private static final Icon OBJECTPROPERTY_EQUIV_COMMENTS_ICON;
    private static final Icon INDIVIDUAL_COMMENTS_ICON;
    private static final Icon ANNOTATION_ICON;
    private static final Icon DATATYPE_ICON;
@@ -77,13 +81,17 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
       CLASS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("class.gif"));
       CLASS_EQUIV_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classequiv.png"));
       DATAPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydata.png"));
+      DATAPROPERTY_EQUIV_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydataequiv.png"));
       OBJECTPROPERTY_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobject.png"));
+      OBJECTPROPERTY_EQUIV_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobjectequiv.png"));
       INDIVIDUAL_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individual.png"));
       PACKAGE_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("packagedoc.png"));
       CLASS_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classdoc.png"));
       CLASS_EQUIV_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("classequivdoc.png"));
       DATAPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydatadoc.png"));
+      DATAPROPERTY_EQUIV_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertydataequivdoc.png"));
       OBJECTPROPERTY_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobjectdoc.png"));
+      OBJECTPROPERTY_EQUIV_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("propertyobjectequivdoc.png"));
       INDIVIDUAL_COMMENTS_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("individualdoc.png"));
       ANNOTATION_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("annotation.png"));
       DATATYPE_ICON = new ImageIcon(ModelTreeRenderer.class.getResource("datatype.png"));
@@ -168,12 +176,10 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
                   } else {
                      return CLASS_EQUIV_ICON;
                   }
+               } else if (showComments) {
+                  return CLASS_COMMENTS_ICON;
                } else {
-                  if (showComments) {
-                     return CLASS_COMMENTS_ICON;
-                  } else {
-                     return CLASS_ICON;
-                  }
+                  return CLASS_ICON;
                }
             } else if (elt instanceof OwlIndividual) {
                if (showComments) {
@@ -182,13 +188,27 @@ public class ModelTreeRenderer extends DefaultTreeCellRenderer {
                   return INDIVIDUAL_ICON;
                }
             } else if (elt instanceof OwlDatatypeProperty) {
-               if (showComments) {
+               OwlDatatypeProperty theProperty = (OwlDatatypeProperty) elt;
+               if (theProperty.isEquivalentProperty()) {
+                  if (showComments) {
+                     return DATAPROPERTY_EQUIV_COMMENTS_ICON;
+                  } else {
+                     return DATAPROPERTY_EQUIV_ICON;
+                  }
+               } else if (showComments) {
                   return DATAPROPERTY_COMMENTS_ICON;
                } else {
                   return DATAPROPERTY_ICON;
                }
             } else if (elt instanceof OwlObjectProperty) {
-               if (showComments) {
+               OwlObjectProperty theProperty = (OwlObjectProperty) elt;
+               if (theProperty.isEquivalentProperty()) {
+                  if (showComments) {
+                     return OBJECTPROPERTY_EQUIV_COMMENTS_ICON;
+                  } else {
+                     return OBJECTPROPERTY_EQUIV_ICON;
+                  }
+               } else if (showComments) {
                   return OBJECTPROPERTY_COMMENTS_ICON;
                } else {
                   return OBJECTPROPERTY_ICON;

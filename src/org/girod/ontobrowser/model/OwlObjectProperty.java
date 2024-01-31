@@ -41,7 +41,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 /**
  * Represents an Owl Object property.
  *
- * @version 0.8
+ * @version 0.9
  */
 public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
    private final Map<ElementKey, OwlRestriction> range = new HashMap<>();
@@ -51,6 +51,11 @@ public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
       super(ontProperty, namespace, name);
    }
 
+   /**
+    * Set the Inverse property for this property.
+    *
+    * @param inverse the Inverse property
+    */
    public void setInverseProperty(OwlObjectProperty inverse) {
       this.inverse = inverse;
       if (inverse.getInverseProperty() == null) {
@@ -58,18 +63,39 @@ public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
       }
    }
 
+   /**
+    * Return the Inverse property for this property.
+    *
+    * @return the Inverse property
+    */
    public OwlObjectProperty getInverseProperty() {
       return inverse;
    }
 
+   /**
+    * Return true if there is an Inverse property for this property.
+    *
+    * @return true if there is an Inverse property for this property
+    */
    public boolean hasInverseProperty() {
       return inverse != null;
    }
 
+   /**
+    * Add a Range restriction for this property.
+    *
+    * @param restriction the restriction
+    */
    public void addRange(OwlRestriction restriction) {
       range.put(restriction.getKey(), restriction);
    }
 
+   /**
+    * Add an unrestricted range for this property.
+    *
+    * @param key the range key
+    * @return the associated unrestricted restriction
+    */
    public UnrestrictedOwlRestriction addRange(ElementKey key) {
       UnrestrictedOwlRestriction restriction = new UnrestrictedOwlRestriction(key);
       range.put(key, restriction);

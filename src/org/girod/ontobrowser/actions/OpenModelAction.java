@@ -88,7 +88,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.8
+ * @version 0.9
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -408,10 +408,18 @@ public class OpenModelAction extends AbstractMDIAction {
                edge.setStyle("parent");
             }
          }
+
+      }
+      // alias classes
+      it2 = owlClasses.keySet().iterator();
+      while (it2.hasNext()) {
+         ElementKey key = it2.next();
+         OwlClass theClass = owlClasses.get(key);
          if (showAlias && theClass.hasAliasClasses()) {
             Iterator<ElementKey> it4 = theClass.getAliasClasses().keySet().iterator();
             while (it4.hasNext()) {
                ElementKey keyAlias = it4.next();
+               mxCell theCell = cell4Class.get(key);
                mxCell theAliasCell = cell4Class.get(keyAlias);
                mxCell edge = (mxCell) graph.insertEdge(parent, null, "", theCell, theAliasCell);
                edge.setStyle("alias");
@@ -464,7 +472,24 @@ public class OpenModelAction extends AbstractMDIAction {
             }
          }
       }
-      
+
+      // alias properties
+      it2 = owlDatatypeProperties.keySet().iterator();
+      while (it2.hasNext()) {
+         ElementKey key = it2.next();
+         OwlDatatypeProperty theProperty = owlDatatypeProperties.get(key);
+         if (showAlias && theProperty.hasEquivalentProperties()) {
+            Iterator<ElementKey> it4 = theProperty.getEquivalentProperties().keySet().iterator();
+            while (it4.hasNext()) {
+               ElementKey keyAlias = it4.next();
+               mxCell theCell = cell4Property.get(key);
+               mxCell theAliasCell = cell4Property.get(keyAlias);
+               mxCell edge = (mxCell) graph.insertEdge(parent, null, "", theCell, theAliasCell);
+               edge.setStyle("alias");
+            }
+         }
+      }
+
       // parent properties
       it2 = owlDatatypeProperties.keySet().iterator();
       while (it2.hasNext()) {
@@ -480,7 +505,7 @@ public class OpenModelAction extends AbstractMDIAction {
                edge.setStyle("parent");
             }
          }
-      }     
+      }
 
       mxOrganicLayout layout = new mxOrganicLayout(graph);
       layout.setMinMoveRadius(100);

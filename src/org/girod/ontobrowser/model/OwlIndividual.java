@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,10 @@ import org.apache.jena.rdf.model.Resource;
 /**
  * Represents an Individual.
  *
- * @version 0.7
+ * @version 0.9
  * @param <I> the type of the underlying class
  */
-public class OwlIndividual<I extends Resource> extends NamedOwlElement {
+public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndividual> {
    private final I individual;
    private final Map<ElementKey, OwlClass> parentClasses;
    private final Map<ElementKey, ObjectPropertyValue> objectPropertyValues = new HashMap<>();
@@ -91,6 +91,11 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement {
       }
    }
 
+   /**
+    * Return the Classes associated with this Individual.
+    *
+    * @return the Classes
+    */
    public Map<ElementKey, OwlClass> getParentClasses() {
       return parentClasses;
    }
@@ -104,7 +109,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement {
       ElementKey theKey = value.getKey();
       objectPropertyValues.put(theKey, value);
    }
-   
+
    /**
     * Return true if this class has property values.
     *
@@ -112,7 +117,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement {
     */
    public boolean hasPropertyValues() {
       return !objectPropertyValues.isEmpty() || !datatypePropertyValues.isEmpty();
-   }   
+   }
 
    /**
     * Return the object property values.

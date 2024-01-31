@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ package org.girod.ontobrowser.model;
 /**
  * Represents an Owl datatype.
  *
- * @version 0.8
+ * @version 0.9
  */
-public class OwlDatatype extends NamedOwlElement {
+public class OwlDatatype extends NamedOwlElement<OwlDatatype> {
    public static final short CUSTOM = -1;
    public static final short INT = 0;
    public static final short FLOAT = 1;
@@ -106,9 +106,9 @@ public class OwlDatatype extends NamedOwlElement {
       Object o = super.clone();
       return (OwlDatatype) o;
    }
-   
+
    @Override
    public void accept(ElementVisitor visitor) {
       visitor.visit(this);
-   }    
+   }
 }

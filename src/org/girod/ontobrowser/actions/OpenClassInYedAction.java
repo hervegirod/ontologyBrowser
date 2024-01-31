@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,33 +30,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.actions;
 
-import org.apache.jena.ontology.AnnotationProperty;
-import org.apache.jena.rdf.model.Resource;
+import java.io.File;
+import java.io.IOException;
+import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.model.OwlClass;
+import org.mdi.bootstrap.MDIApplication;
+import org.mdi.bootstrap.swing.GUIApplication;
 
 /**
- * Represents an Owl annotation.
+ * The Action that save Classes as yEd diagrams an open them in yEd.
  *
- * @since 0.6
+ * @since 0.9
  */
-public class OwlAnnotation extends NamedOwlElement<OwlAnnotation> {
+public class OpenClassInYedAction extends ExportClassGraphAction {
 
-   public OwlAnnotation(AnnotationProperty annotation) {
-      super(annotation.getNameSpace(), annotation.getLocalName());
-   }
-
-   public OwlAnnotation(Resource resource) {
-      super(resource.getNameSpace(), resource.getLocalName());
-   }
-
-   public OwlAnnotation(String namespace, String name) {
-      super(namespace, name);
+   /**
+    * Create the export File Action.
+    *
+    * @param app the Application
+    * @param desc the short description of the action
+    * @param longDesc the long description of the action
+    * @param diagram the diagram
+    * @param thePackage the package
+    * @param file the file to open
+    */
+   public OpenClassInYedAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, OwlClass thePackage, File file) {
+      super(app, desc, longDesc, diagram, thePackage, file);
    }
 
    @Override
-   public OwlAnnotation clone() {
-      Object o = super.clone();
-      return (OwlAnnotation) o;
+   public void run() throws Exception {
+      super.run();
+      File yEdDirectory = BrowserConfiguration.getInstance().getYedExeDirectory();
+      File yEdFile = new File(yEdDirectory, "yEd.exe");
+      String[] cmdArray = {yEdFile.getAbsolutePath(), file.getCanonicalPath()};
+
+      try {
+         ProcessBuilder pb = new ProcessBuilder(cmdArray);
+         pb.directory(yEdDirectory);
+         pb.start();
+      } catch (IOException e) {
+         ((GUIApplication) app).getMessageArea().append("Impossible to launch yed exexutable", "red");
+      }
    }
 }

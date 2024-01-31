@@ -76,8 +76,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.actions.ExportClassGraphAction;
 import org.girod.ontobrowser.actions.ExportImportGraphAction;
 import org.girod.ontobrowser.actions.ExportPackageGraphAction;
+import org.girod.ontobrowser.actions.OpenClassInYedAction;
 import org.girod.ontobrowser.actions.OpenPackageInYedAction;
 import org.girod.ontobrowser.gui.tree.ModelTreeRenderer;
 import org.girod.ontobrowser.gui.tree.OntologyTreeRenderer;
@@ -952,7 +954,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               exportModelInYed(false);
+               exportClassInYed();
             }
          });
          menu.add(item);
@@ -1001,6 +1003,16 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       NamedOwlElement element = (NamedOwlElement) selectedElement.getOwlElement();
       ShowDependenciesDialog dialog = new ShowDependenciesDialog(element, this, browser.getApplicationWindow(), conf.autoRefresh);
       browser.showDialog(dialog, MDIDialogType.UNLIMITED);
+   }
+
+   private void exportClassInYed() {
+      OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
+      try {
+         File tempFile = File.createTempFile("yEd", ".graphml");
+         ExportClassGraphAction action = new OpenClassInYedAction(browser, "Show Class graph", "Show Class graph", diagram, theClass, tempFile);
+         browser.executeAction(action);
+      } catch (IOException ex) {
+      }
    }
 
    private void exportModelInYed(boolean isPackage) {

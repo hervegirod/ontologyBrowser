@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.gui.tree;
 
+import java.util.Iterator;
+import java.util.Map;
+import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -39,7 +42,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * Represents an Owl element represented in its tree.
  *
- * @version 0.7
+ * @version 0.9
  */
 public class OwlElementRep {
    private final NamedOwlElement element;
@@ -62,6 +65,26 @@ public class OwlElementRep {
 
    @Override
    public String toString() {
+      if (element.hasAliasElements()) {
+         Map<ElementKey, ? extends NamedOwlElement> map = element.getAliasElements();
+         StringBuilder buf = new StringBuilder();
+         buf.append(getDefaultStringName());
+         int max = map.size();
+         if (max > 2) {
+            max = 2;
+         }
+         Iterator<? extends NamedOwlElement> it = map.values().iterator();
+         while (it.hasNext()) {
+            NamedOwlElement element = it.next();
+            buf.append(" \u2263 ").append(element.getPrefixedDisplayedName());
+         }
+         return buf.toString();
+      } else {
+         return getDefaultStringName();
+      }
+   }
+
+   public String getDefaultStringName() {
       if (prefix == null || prefix.isEmpty()) {
          return name;
       } else {
