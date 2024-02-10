@@ -62,9 +62,9 @@ import org.girod.ontobrowser.model.OwlProperty;
 import org.mdi.bootstrap.MDIApplication;
 
 /**
- * The Action that save packages as yEd diagrams.
+ * The Action that save schemas as yEd diagrams.
  *
- * @version 0.9
+ * @version 0.10
  */
 public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private final OwlClass thePackage;
@@ -424,11 +424,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                   arrows.setSource(Arrows.NONE);
                   arrows.setTarget(Arrows.STANDARD);
                   if (showRelationsConstraints) {
-                     if (objectProp.hasCardinalityRestriction()) {
-                        addCardinalityRestriction(objectProp, edge);
-                     } else {
-                        addDefaultCardinalityRestriction(edge);
-                     }
+                     addCardinalityRestriction(objectProp, edge);
                   }
                }
             }
@@ -461,11 +457,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                      arrows.setSource(Arrows.STANDARD);
                      arrows.setTarget(Arrows.NONE);
                      if (showRelationsConstraints) {
-                        if (property.hasCardinalityRestriction()) {
-                           addCardinalityRestriction(property, edge);
-                        } else {
-                           addDefaultCardinalityRestriction(edge);
-                        }
+                        addCardinalityRestriction(objectProp, edge);
                      }
                   } else {
                      OwlClass targetClass = schema.getOwlClass(rangeClassKey);
@@ -517,11 +509,7 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
                         arrows.setSource(Arrows.STANDARD);
                         arrows.setTarget(Arrows.NONE);
                         if (showRelationsConstraints) {
-                           if (property.hasCardinalityRestriction()) {
-                              addCardinalityRestriction(property, edge);
-                           } else {
-                              addDefaultCardinalityRestriction(edge);
-                           }
+                           addCardinalityRestriction(objectProp, edge);
                         }
                      }
                   }

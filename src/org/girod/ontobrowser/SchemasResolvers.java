@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.mdiutil.lang.ResourceLoader;
 /**
  * The schemas resolver.
  *
- * @version 0.8
+ * @version 0.10
  */
 public class SchemasResolvers {
    private static SchemasResolvers resolvers = null;
@@ -91,31 +91,31 @@ public class SchemasResolvers {
          URL url = loader.getURL("owl-time.owl");
          mapper.altMapping(url.toURI().toString());
          url = loader.getURL("dublin_core_terms.rdf");
-         mapper.altMapping(url.toURI().toString()); 
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("dublin_core_abstract_model.rdf");
-         mapper.altMapping(url.toURI().toString());          
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("dublin_core_elements.rdf");
-         mapper.altMapping(url.toURI().toString());         
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("geo.ttl");
          mapper.altMapping(url.toURI().toString());
          url = loader.getURL("bfo.owl");
          mapper.altMapping(url.toURI().toString());
          url = loader.getURL("cc.rdf");
-         mapper.altMapping(url.toURI().toString());    
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("foaf.rdf");
-         mapper.altMapping(url.toURI().toString());         
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("sosa.ttl");
-         mapper.altMapping(url.toURI().toString());      
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("ssn.ttl");
-         mapper.altMapping(url.toURI().toString()); 
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("vann-vocab-20100607.rdf");
-         mapper.altMapping(url.toURI().toString());          
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("voaf_v2.3.rdf");
-         mapper.altMapping(url.toURI().toString());   
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("wot.rdf");
-         mapper.altMapping(url.toURI().toString());          
+         mapper.altMapping(url.toURI().toString());
          url = loader.getURL("frbr-core-20050810.rdf");
-         mapper.altMapping(url.toURI().toString());                   
+         mapper.altMapping(url.toURI().toString());
       } catch (URISyntaxException ex) {
       }
    }

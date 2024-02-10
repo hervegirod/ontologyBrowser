@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -82,7 +83,7 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This class creates the Menus for the application.
  *
- * @version 0.8
+ * @version 0.10
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
@@ -253,6 +254,8 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       settingsAction.getSettingsComponent().setPreferredSize(new Dimension(700, 500));
       settingsAction.initialize();
       settingsAction.addNode(null, "General", settings.getGeneralSettings(), null);
+      settingsAction.addNode(null, "Diagrams", settings.getDiagramsSettings(), null);
+      settingsAction.addNode(null, "Parsing", settings.getParsingSettings(), null);
       settingsAction.addNode(null, "Schemas", settings.getSchemasSettings(), null);
       settingsAction.addNode(null, "SPARQL", settings.getSPARQLSettings(), null);
       settingsAction.addNode(null, "Scripts", settings.getScriptsSettings(), null);
@@ -277,6 +280,18 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       Mbar.add(toolsmenu);
       Mbar.add(viewmenu);
       Mbar.add(helpmenu);
+   }
+
+   /**
+    * Update the tree selection mode for all opened diagrams.
+    */
+   public void updateTreeSelectionMode() {
+      Iterator<SwingFileProperties> it = ((OntoBrowserGUI) appli).getTabPropertiesList().values().iterator();
+      while (it.hasNext()) {
+         SwingFileProperties properties = it.next();
+         GraphPanel panel = (GraphPanel) properties.getComponent();
+         panel.updateTreeSelectionMode();
+      }
    }
 
    @Override

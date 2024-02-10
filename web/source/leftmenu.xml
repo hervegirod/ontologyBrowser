@@ -3,9 +3,6 @@
    <menuItem desc="FAQ" >
       <itemInternalRef id="FAQ" />
    </menuItem>
-   <menuItem desc="FAQ" >
-      <itemInternalRef id="FAQ" />
-   </menuItem>
    <menuItem desc="License" >
       <itemInternalRef id="License" />
    </menuItem>

@@ -2,6 +2,8 @@
 <images>
    <category desc="config">
       <image id="configGeneral" url="configGeneral.png" />
+      <image id="configDiagrams" url="configDiagrams.png" />
+      <image id="configParsing" url="configParsing.png" />
       <image id="configSchemas" url="configSchemas.png" />
       <image id="configSPARQL" url="configSPARQL.png" />
       <image id="configScripts" url="configScripts.png" />

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -74,8 +74,10 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.actions.AbstractExportGraphAction;
 import org.girod.ontobrowser.actions.ExportClassGraphAction;
 import org.girod.ontobrowser.actions.ExportImportGraphAction;
 import org.girod.ontobrowser.actions.ExportPackageGraphAction;
@@ -104,7 +106,7 @@ import org.mdiutil.io.FileUtilities;
 /**
  * The panel for one ontology graph.
  *
- * @version 0.7
+ * @version 0.10
  */
 public class GraphPanel extends JSplitPane implements GUITabTypes {
    private final GUIApplication browser;
@@ -621,6 +623,20 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       );
    }
 
+   private List<OwlElementRep> getSelectedElements(TreePath[] paths) {
+      List<OwlElementRep> selectedElements = new ArrayList<>();
+      for (int i = 0; i < paths.length; i++) {
+         TreePath path = paths[i];
+         Object o = path.getLastPathComponent();
+         o = ((DefaultMutableTreeNode) o).getUserObject();
+         if (o instanceof OwlElementRep) {
+            OwlElementRep elementRep = (OwlElementRep) o;
+            selectedElements.add(elementRep);
+         }
+      }
+      return selectedElements;
+   }
+
    private void addClassTreeListeners() {
       classTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
          @Override
@@ -1004,14 +1020,39 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       ShowDependenciesDialog dialog = new ShowDependenciesDialog(element, this, browser.getApplicationWindow(), conf.autoRefresh);
       browser.showDialog(dialog, MDIDialogType.UNLIMITED);
    }
+   
+   private List<OwlClass> getSelectedClasses(TreePath[] paths) {
+         List<OwlElementRep> selectedElements = getSelectedElements(paths);
+         List<OwlClass> theClasses = new ArrayList<>();
+         Iterator<OwlElementRep> it = selectedElements.iterator();
+         while (it.hasNext()) {
+            OwlElementRep rep = it.next();
+            NamedOwlElement element = rep.getOwlElement();
+            if (element instanceof OwlClass) {
+               theClasses.add((OwlClass) element);
+            }
+         }    
+         return theClasses;
+   }
 
    private void exportClassInYed() {
-      OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
-      try {
-         File tempFile = File.createTempFile("yEd", ".graphml");
-         ExportClassGraphAction action = new OpenClassInYedAction(browser, "Show Class graph", "Show Class graph", diagram, theClass, tempFile);
-         browser.executeAction(action);
-      } catch (IOException ex) {
+      TreePath[] paths = classTree.getSelectionModel().getSelectionPaths();
+      if (paths == null || paths.length < 2) {
+         OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
+         try {
+            File tempFile = File.createTempFile("yEd", ".graphml");
+            ExportClassGraphAction action = new OpenClassInYedAction(browser, "Show Class graph", "Show Class graph", diagram, theClass, tempFile);
+            browser.executeAction(action);
+         } catch (IOException ex) {
+         }
+      } else {
+         List<OwlClass> theClasses = getSelectedClasses(paths);
+         try {
+            File tempFile = File.createTempFile("yEd", ".graphml");
+            ExportClassGraphAction action = new OpenClassInYedAction(browser, "Show Class graph", "Show Class graph", diagram, theClasses, tempFile);
+            browser.executeAction(action);
+         } catch (IOException ex) {
+         }
       }
    }
 
@@ -1052,11 +1093,17 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          File file = chooser.getSelectedFile();
          file = FileUtilities.getCompatibleFile(file, "graphml");
          OwlClass theClass = (OwlClass) selectedElement.getOwlElement();
-         ExportPackageGraphAction action;
+         AbstractExportGraphAction action;
          if (isPackage) {
             action = new ExportPackageGraphAction(browser, "Export Package graph", "Export Package graph", diagram, theClass, file);
          } else {
-            action = new ExportPackageGraphAction(browser, "Export Class graph", "Export Class graph", diagram, theClass, file);
+            TreePath[] paths = classTree.getSelectionModel().getSelectionPaths();
+            if (paths == null || paths.length < 2) {
+               action = new ExportClassGraphAction(browser, "Export Class graph", "Export Class graph", diagram, theClass, file);
+            } else {
+               List<OwlClass> theClasses = getSelectedClasses(paths);
+               action = new ExportClassGraphAction(browser, "Export Class graph", "Export Class graph", diagram, theClasses, file);
+            }
          }
          browser.executeAction(action);
          conf.setDefaultDirectory(file.getParentFile());
@@ -1239,7 +1286,21 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       OntologyTreeHelper.computeOntologyPrefixTree(diagram, prefixTree, prefixRoot);
    }
 
+   /**
+    * Update the tree selection model.
+    */
+   public void updateTreeSelectionMode() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      if (conf.multiSelection) {
+         classTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+      } else {
+         classTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+      }
+   }
+
    private void computeClassTree() {
+      updateTreeSelectionMode();
+
       Map<ElementKey, List<DefaultMutableTreeNode>> nodesMap = new HashMap<>();
       SortedMap<ElementKey, OwlClass> sortedMap = new TreeMap<>();
       schema = diagram.getSchema();

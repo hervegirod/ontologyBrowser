@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.mdi.bootstrap.swing.AbstractMDIAction;
 /**
  * An abstract class which exports a doiagram as a GraphML graoh.
  *
- * @version 0.8
+ * @version 0.10
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
@@ -213,17 +213,6 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    }
 
    /**
-    * Add a default cardinality restriction.
-    *
-    * @param edge the edge
-    */
-   protected void addDefaultCardinalityRestriction(GraphMLEdge edge) {
-      EdgeLabel label = edge.createAdditionalLabel("0..n", 0.02f);
-      label.setAutoFlip(false);
-      label.setAutoRotate(false);
-   }
-
-   /**
     * Add a cardinality restriction.
     *
     * @param property the property
@@ -231,26 +220,15 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
     */
    protected void addCardinalityRestriction(OwlProperty property, GraphMLEdge edge) {
       StringBuilder buf = new StringBuilder();
-      boolean isUniqueCardinality = false;
-      if (property.hasMinCardinality()) {
-         int minCardinality = property.getMinCardinality();
-         int maxCardinality = property.getMaxCardinality();
-         if (minCardinality == maxCardinality) {
-            isUniqueCardinality = true;
-            buf.append(minCardinality);
-         } else {
-            buf.append(minCardinality);
-         }
-      } else {
-         buf.append(0);
-      }
-      if (!isUniqueCardinality) {
+      int minCardinality = property.computeMinCardinality();
+      int maxCardinality = property.computeMaxCardinality();   
+      buf.append(Integer.toString(minCardinality));
+      if (minCardinality != maxCardinality) {
          buf.append("...");
-         if (property.hasMaxCardinality()) {
-            int maxCardinality = property.getMaxCardinality();
-            buf.append(maxCardinality);
-         } else {
+         if (maxCardinality == -1) {
             buf.append("n");
+         } else {
+            buf.append(Integer.toString(maxCardinality));
          }
       }
       EdgeLabel label = edge.createAdditionalLabel(buf.toString(), 0.02f);

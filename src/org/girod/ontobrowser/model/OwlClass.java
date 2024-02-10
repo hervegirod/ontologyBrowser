@@ -45,7 +45,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Represents an Owl class.
  *
- * @version 0.9
+ * @version 0.10
  */
 public class OwlClass extends NamedOwlElement<OwlClass> {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();

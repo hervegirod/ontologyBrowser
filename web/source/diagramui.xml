@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="diagrams content">
    <meta desc="This article presents the diagrams content" />
-   The <ref id="yEd" /> diagrams produced by the tool show the structure of the Owl/RDF ontology. It presents:
+   The <ref id="yEd" /> diagrams <ref id="Exporting diagrams" desc="exported" /> by the tool show the structure of the OWL/RDF ontology. They present:
    <ul>
       <li>The Classes</li>
       <li>The Object properties</li>
@@ -9,6 +9,10 @@
       <li>The Individuals</li>
       <li>The <ref id="packages" /></li>
    </ul>
+
+   <messageBox type="warning">
+      Note that there are several kind of exports showing different elements. See  <ref id="Exporting diagrams" /> for more information.
+   </messageBox>
 
    <messageBox type="info">
       All the colors which are presented here are the default colors. it is possible to customize the colors (see <ref id="custom styles" /> for more information.
@@ -57,6 +61,7 @@
    It is possible to open the content of the package to see the Classes in the package:
    <img id="diagrampackages2" />
 
+   <see id="Exporting diagrams" />
    <see id="custom styles" />
    <see id="configuration" />
    <cat id="general" />

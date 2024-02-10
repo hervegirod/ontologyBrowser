@@ -3,40 +3,59 @@
    <meta desc="This article presents the configuration of the application" />
    The Options =&gt; Settings action allows to edit the configuration of the tool.
 
-   The configuration of the tool has two types of settings:
+   The configuration of the tool has the following categories of settings:
    <ul>
       <li>The General settings</li>
-      <li>The Schemas settings</li>
-      <li>The SPARQL settings</li>
-      <li>The Scripts settings</li>
-      <li>The Styles settings</li>
-      <li>The Packages settings</li>
-      <li>The yEd settings</li>
+      <li>The Diagrams settings: settings about the presentation and export of diagrams</li>
+      <li>The Parsing settings: settings about the parsing of OWL/RDF models</li>
+      <li>The Schemas settings: settings about the built-in schemas and schemas resolution</li>
+      <li>The SPARQL settings: settings about the SPARQL execution</li>
+      <li>The Scripts settings: settings about the scripting</li>
+      <li>The Styles settings: settings about the diagrams style</li>
+      <li>The Packages settings: settings about the packages</li>
+      <li>The yEd settings: settings about the yEd tool location</li>
    </ul>
 
    <title title="General settings" />
    <img id="configGeneral" />
    <ul>
       <li>"Auto Refresh": checked if the <ref id="Dependencies window" /> is refreshed when selecting an element</li>
-      <li>"Include Individuals": checked if individuals must be included in the result</li>
-      <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
-      <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
+      <li>"Multi Selection": checked if Multi Selection is allowed in the Classes tree<note>It will allow to select more than one Class, and export the
+            content of the selected Classes and their associated Classes / Individuals and Properties.
+         </note>
+      </li>
       <li>"Show Indirect Relations": checked if the indirect relations are shown in the <ref id="Dependencies window" /></li>
-      <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
       <li>"Show Commented Elements": checked if elements which have comments must be shown with a specific icon. See also
          <ref id="elements default annotations" /> for more information</li>
       <li>"Include Parent Relations in Dependencies": checked if the Superclass relations must be shown in the Dependencies window for a Class</li>
       <li>"Include Alias Relations in Dependencies": checked if the Alias relations must be shown in the Dependencies window for a Class</li>
-      <li>"Add Thing Class": checked if the <code>Thing</code> class should be present</li>
+      <li>"Log Level": specifies the Log level which will be shown in the console</li>
+   </ul>
+
+   <title title="Diagrams settings" />
+   These settings are about the presentation and export of diagrams.
+   <img id="configDiagrams" />
+   <ul>
+      <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
+      <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
+      <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
+      <li>"Layout super-classes on top": checked if the exported diagram will try to put super-classes on top of their sub-classes</li>
+   </ul>
+
+   <title title="Parsing settings" />
+   These settings are about the parsing of OWL/RDF models.
+   <img id="configParsing" />
+   <ul>
+      <li>"Include Individuals": checked if individuals must be included in the result</li>
       <li>"Strict Mode": set if the browser is currently in strict checking mode. Strict mode means that converting a common resource to a
          particular language element, such as an ontology class, will be subject to some simple syntactic-level checks for appropriateness</li>
       <li>"Model Specification": set the ontology model specification used to construct the Ontology model. See also <ref id="Model Specification" /> for
          more information</li>
-      <li>"Log Level": specifies the Log level which will be shown in the console</li>
    </ul>
 
    <title title="Schemas settings" />
    <moreInfo id="Schemas alternate locations" />
+   These settings are about the built-in schemas and schemas resolution.
    <img id="configSchemas" />
    <ul>
       <li>"Schemas Repository": the repository of Schemas used for the graph of imported ontologies. See also <ref id="Imported Ontologies graph" />
@@ -48,6 +67,7 @@
 
    <title title="SPARQL settings" />
    <moreInfo id="SPARQL execution" />
+   These settings are about the SPARQL execution.
    <img id="configSPARQL" />
    <ul>
       <li>"Add Prefix in SPARQL Requests": checked if the prefixes for the current schema must be automatically included in the SPARQL requests</li>
@@ -56,6 +76,7 @@
 
    <title title="Scripts settings" />
    <moreInfo id="Scripts execution" />
+   These settings are about the scripting.
    <img id="configScripts" />
    <ul>
       <li>"End Script at First Exception": checked if the script is aborted at the first exception</li>
@@ -63,6 +84,7 @@
 
    <title title="Styles settings" />
    <moreInfo id="custom styles" />
+   These settings are about the diagrams style.
    <img id="configStyles" />
    <ul>
       <li>"Width Padding" : the padding for the boxes widths</li>
@@ -73,6 +95,7 @@
 
    <title title="Packages settings" />
    <moreInfo id="packages" />
+   These settings are about the <ref id="Packages" />.
    <img id="configPackages" />
    <ul>
       <li>"Show Packages": show <ref id="Packages" /> when opening an OWL/RDF diagram</li>
@@ -83,6 +106,7 @@
    </ul>
 
    <title title="yEd settings" keepCase="true" />
+   These settings are about the <ref id="yEd" /> tool location.
    <img id="configYed" />
    <ul>
       <li>"Has yEd exe directory": checked to set the directory of the <ref id="yEd" /> graph tool</li>

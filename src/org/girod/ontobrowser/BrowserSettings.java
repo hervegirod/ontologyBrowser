@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2023 Hervé Girod
+Copyright (c) 2021, 2022, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,32 +54,40 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.8
+ * @version 0.10
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
    private File dir = new File(System.getProperty("user.dir"));
    private MenuFactory factory = null;
    private final PropertyEditor generalSettings = new PropertyEditor();
+   private final PropertyEditor diagramsSettings = new PropertyEditor();
+   private final PropertyEditor parsingSettings = new PropertyEditor();
    private final PropertyEditor schemasSettings = new PropertyEditor();
    private final PropertyEditor sparqlSettings = new PropertyEditor();
    private final PropertyEditor scriptsSettings = new PropertyEditor();
    private final PropertyEditor styleSettings = new PropertyEditor();
    private final PropertyEditor packageSettings = new PropertyEditor();
    private final PropertyEditor yEdSettings = new PropertyEditor();
-   private JCheckBox includeIndividualsCb;
-   private JCheckBox showRelationsConstraintsCb;
-   private JCheckBox showDataPropertiesTypesCb;
-   private JCheckBox addThingClassCb;
+   // general
+
    private JCheckBox showIndirectRelationsCb;
-   private JCheckBox showAliasCb;
    private JCheckBox autoRefreshCb;
+   private JCheckBox multiSelectionCb;
    private JCheckBox showCommentsCb;
    private JCheckBox includeParentRelationsCb;
    private JCheckBox includeAliasCb;
+   private JComboBox logLevelCb;  
+   // parsing
+   private JCheckBox includeIndividualsCb;
+   private JCheckBox addThingClassCb;
    private JCheckBox strictModeCb;
-   private JComboBox modelSpecCb;
-   private JComboBox logLevelCb;
+   private JComboBox modelSpecCb;    
+   // diagrams
+   private JCheckBox showAliasCb;
+   private JCheckBox showRelationsConstraintsCb;
+   private JCheckBox showDataPropertiesTypesCb;   
+   private JCheckBox superClassesOnTopCb;   
    // Packages
    private JCheckBox showPackagesCb;
    private JCheckBox showPackagesAsClosedCb;
@@ -130,6 +138,24 @@ public class BrowserSettings {
     */
    public PropertyEditor getGeneralSettings() {
       return generalSettings;
+   }
+
+   /**
+    * Return the diagrams Settings.
+    *
+    * @return the diagrams Settings
+    */
+   public PropertyEditor getDiagramsSettings() {
+      return diagramsSettings;
+   }
+
+   /**
+    * Return the parsing Settings.
+    *
+    * @return the parsing Settings
+    */
+   public PropertyEditor getParsingSettings() {
+      return parsingSettings;
    }
 
    /**
@@ -195,22 +221,29 @@ public class BrowserSettings {
          this.dir = conf.getDefaultDirectory();
       }
       // General
-      includeIndividualsCb.setSelected(conf.includeIndividuals);
-      showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
-      showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
+
       showCommentsCb.setSelected(conf.showComments);
       showPackagesCb.setSelected(conf.showPackages);
       showPackagesAsClosedCb.setSelected(conf.showPackagesAsClosed);
       showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
-      addThingClassCb.setSelected(conf.addThingClass);
       showIndirectRelationsCb.setSelected(conf.showIndirectRelations);
-      showAliasCb.setSelected(conf.showAlias);
       autoRefreshCb.setSelected(conf.autoRefresh);
+      multiSelectionCb.setSelected(conf.multiSelection);
       includeParentRelationsCb.setSelected(conf.includeParentRelations);
       includeAliasCb.setSelected(conf.includeAlias);
+      logLevelCb.setSelectedItem(getLogItem(conf.logLevel));
+
+      // diagrams
+      showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
+      showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
+      showAliasCb.setSelected(conf.showAlias);
+      superClassesOnTopCb.setSelected(conf.superClassesOnTop);
+
+      // parsing
+      includeIndividualsCb.setSelected(conf.includeIndividuals);
+      addThingClassCb.setSelected(conf.addThingClass);
       strictModeCb.setSelected(conf.strictMode);
       modelSpecCb.setSelectedItem(conf.modelSpec);
-      logLevelCb.setSelectedItem(getLogItem(conf.logLevel));
 
       // Styles
       padWidthSpinner.setValue(conf.padWidth);
@@ -261,6 +294,8 @@ public class BrowserSettings {
     */
    public void initialize() {
       initializeGeneralSettings();
+      initializeDiagramSettings();
+      initializeParsingSettings();
       initializeSchemasSettings();
       initializeSPARQLSettings();
       initializeScriptsSettings();
@@ -436,27 +471,15 @@ public class BrowserSettings {
    }
 
    /**
-    * Initialize the general Settings.
+    * Initialize the diagram Settings.
     */
-   private void initializeGeneralSettings() {
+   private void initializeDiagramSettings() {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
 
-      autoRefreshCb = new JCheckBox("", conf.autoRefresh);
-      autoRefreshCb.setBackground(Color.WHITE);
-      autoRefreshCb.addActionListener((ActionEvent e) -> {
-         conf.autoRefresh = autoRefreshCb.isSelected();
-      });
-
-      showCommentsCb = new JCheckBox("", conf.showComments);
-      showCommentsCb.setBackground(Color.WHITE);
-      showCommentsCb.addActionListener((ActionEvent e) -> {
-         conf.showComments = showCommentsCb.isSelected();
-      });
-
-      includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
-      includeIndividualsCb.setBackground(Color.WHITE);
-      includeIndividualsCb.addActionListener((ActionEvent e) -> {
-         conf.includeIndividuals = includeIndividualsCb.isSelected();
+      showAliasCb = new JCheckBox("", conf.showAlias);
+      showAliasCb.setBackground(Color.WHITE);
+      showAliasCb.addActionListener((ActionEvent e) -> {
+         conf.showAlias = showAliasCb.isSelected();
       });
 
       showRelationsConstraintsCb = new JCheckBox("", conf.showRelationsConstraints);
@@ -470,35 +493,30 @@ public class BrowserSettings {
       showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
          conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
       });
+      
+      superClassesOnTopCb = new JCheckBox("", conf.superClassesOnTop);
+      superClassesOnTopCb.setBackground(Color.WHITE);
+      superClassesOnTopCb.addActionListener((ActionEvent e) -> {
+         conf.superClassesOnTop = superClassesOnTopCb.isSelected();
+      });
+   }
+
+   /**
+    * Initialize the parsing Settings.
+    */
+   private void initializeParsingSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      includeIndividualsCb = new JCheckBox("", conf.includeIndividuals);
+      includeIndividualsCb.setBackground(Color.WHITE);
+      includeIndividualsCb.addActionListener((ActionEvent e) -> {
+         conf.includeIndividuals = includeIndividualsCb.isSelected();
+      });
 
       addThingClassCb = new JCheckBox("", conf.addThingClass);
       addThingClassCb.setBackground(Color.WHITE);
       addThingClassCb.addActionListener((ActionEvent e) -> {
          conf.addThingClass = addThingClassCb.isSelected();
-      });
-
-      showIndirectRelationsCb = new JCheckBox("", conf.showIndirectRelations);
-      showIndirectRelationsCb.setBackground(Color.WHITE);
-      showIndirectRelationsCb.addActionListener((ActionEvent e) -> {
-         conf.showIndirectRelations = showIndirectRelationsCb.isSelected();
-      });
-
-      showAliasCb = new JCheckBox("", conf.showAlias);
-      showAliasCb.setBackground(Color.WHITE);
-      showAliasCb.addActionListener((ActionEvent e) -> {
-         conf.showAlias = showAliasCb.isSelected();
-      });
-
-      includeParentRelationsCb = new JCheckBox("", conf.includeParentRelations);
-      includeParentRelationsCb.setBackground(Color.WHITE);
-      includeParentRelationsCb.addActionListener((ActionEvent e) -> {
-         conf.includeParentRelations = includeParentRelationsCb.isSelected();
-      });
-
-      includeAliasCb = new JCheckBox("", conf.includeAlias);
-      includeAliasCb.setBackground(Color.WHITE);
-      includeAliasCb.addActionListener((ActionEvent e) -> {
-         conf.includeAlias = includeAliasCb.isSelected();
       });
 
       strictModeCb = new JCheckBox("", conf.strictMode);
@@ -519,6 +537,50 @@ public class BrowserSettings {
          public void itemStateChanged(ItemEvent e) {
             conf.modelSpec = modelSpecCb.getSelectedItem().toString();
          }
+      });
+   }
+
+   /**
+    * Initialize the general Settings.
+    */
+   private void initializeGeneralSettings() {
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+
+      autoRefreshCb = new JCheckBox("", conf.autoRefresh);
+      autoRefreshCb.setBackground(Color.WHITE);
+      autoRefreshCb.addActionListener((ActionEvent e) -> {
+         conf.autoRefresh = autoRefreshCb.isSelected();
+      });
+
+      multiSelectionCb = new JCheckBox("", conf.multiSelection);
+      multiSelectionCb.setBackground(Color.WHITE);
+      multiSelectionCb.addActionListener((ActionEvent e) -> {
+         conf.multiSelection = multiSelectionCb.isSelected();
+         factory.updateTreeSelectionMode();
+      });
+
+      showCommentsCb = new JCheckBox("", conf.showComments);
+      showCommentsCb.setBackground(Color.WHITE);
+      showCommentsCb.addActionListener((ActionEvent e) -> {
+         conf.showComments = showCommentsCb.isSelected();
+      });
+
+      showIndirectRelationsCb = new JCheckBox("", conf.showIndirectRelations);
+      showIndirectRelationsCb.setBackground(Color.WHITE);
+      showIndirectRelationsCb.addActionListener((ActionEvent e) -> {
+         conf.showIndirectRelations = showIndirectRelationsCb.isSelected();
+      });
+
+      includeParentRelationsCb = new JCheckBox("", conf.includeParentRelations);
+      includeParentRelationsCb.setBackground(Color.WHITE);
+      includeParentRelationsCb.addActionListener((ActionEvent e) -> {
+         conf.includeParentRelations = includeParentRelationsCb.isSelected();
+      });
+
+      includeAliasCb = new JCheckBox("", conf.includeAlias);
+      includeAliasCb.setBackground(Color.WHITE);
+      includeAliasCb.addActionListener((ActionEvent e) -> {
+         conf.includeAlias = includeAliasCb.isSelected();
       });
 
       // log level
@@ -613,19 +675,25 @@ public class BrowserSettings {
       resetSettings();
 
       generalSettings.addProperty(autoRefreshCb, "", "Auto Refresh");
-      generalSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
-      generalSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
-      generalSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
-      generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations");
-      generalSettings.addProperty(showAliasCb, "", "Show Alias");
+      generalSettings.addProperty(multiSelectionCb, "", "Multi Selection");
+      generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations in Dependencies");
       generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
       generalSettings.addProperty(includeParentRelationsCb, "", "Include Parent Relations in Dependencies");
-      generalSettings.addProperty(includeAliasCb, "", "Include Alias in Dependencies");
-      generalSettings.addProperty(addThingClassCb, "", "Add Thing Class");
-      generalSettings.addProperty(strictModeCb, "", "Strict Mode");
-      generalSettings.addProperty(modelSpecCb, "", "Model Specification");
+      generalSettings.addProperty(includeAliasCb, "", "Include Alias Relations in Dependencies");
       generalSettings.addProperty(logLevelCb, "", "Log Level");
       generalSettings.setVisible(true);
+
+      diagramsSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
+      diagramsSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
+      diagramsSettings.addProperty(showAliasCb, "", "Show Alias");
+      diagramsSettings.addProperty(superClassesOnTopCb, "", "Layout super-classes on top");
+      diagramsSettings.setVisible(true);
+
+      parsingSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
+      parsingSettings.addProperty(addThingClassCb, "", "Add Thing Class");
+      parsingSettings.addProperty(strictModeCb, "", "Strict Mode");
+      parsingSettings.addProperty(modelSpecCb, "", "Model Specification");
+      parsingSettings.setVisible(true);
 
       schemasSettings.addProperty(schemasRepositoryFs, "", "Schemas Repository");
       schemasSettings.addProperty(builtinSchemasCb, "", "Use Built-in Schemas");

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2023 Hervé Girod
+Copyright (c) 2021, 2022, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.8
+ * @version 0.10
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -79,19 +79,29 @@ public class BrowserConfiguration implements Configuration {
    /*
     * General configuration
     */
-   public boolean includeIndividuals = false;
-   public boolean showRelationsConstraints = false;
-   public boolean showDataPropertiesTypes = false;
-   public boolean addThingClass = true;
    public boolean showIndirectRelations = false;
-   public boolean showAlias = false;
+
    public boolean showComments = false;
    public boolean includeParentRelations = false;
    public boolean includeAlias = false;
    public short logLevel = ErrorLevel.WARNING;
    public boolean autoRefresh = false;
+   public boolean multiSelection = false;
+   /*
+    * Diagrams configuration
+    */
+   public boolean showAlias = false;
+   public boolean showRelationsConstraints = false;
+   public boolean showDataPropertiesTypes = false;
+   public boolean superClassesOnTop = false;
+   /*
+    * Parsing configuration
+    */
+   public boolean includeIndividuals = false;
+   public boolean addThingClass = true;
    public boolean strictMode = false;
    public String modelSpec = OntModelSpecTypes.OWL_MEM;
+
    /*
     * Schemas locations
     */
@@ -155,8 +165,8 @@ public class BrowserConfiguration implements Configuration {
       ResourceUILoader loader = new ResourceUILoader("org/girod/ontobrowser/resources");
       graphStylesXSD = loader.getURL("customGraphStyles.xsd");
       packagesConfigurationXSD = loader.getURL("packagesConfiguration.xsd");
-      schemasRepositoryXSD  = loader.getURL("ontologies.xsd");
-      defaultSchemasRepository  = loader.getURL("ontologies.xml");
+      schemasRepositoryXSD = loader.getURL("ontologies.xsd");
+      defaultSchemasRepository = loader.getURL("ontologies.xml");
 
       PropertyResourceBundle prb = loader.getPropertyResourceBundle("browser.properties");
 
@@ -397,7 +407,7 @@ public class BrowserConfiguration implements Configuration {
    public URL getSchemasRepositorySchema() {
       return schemasRepositoryXSD;
    }
-   
+
    /**
     * Return the default schemas repository.
     *
@@ -405,7 +415,7 @@ public class BrowserConfiguration implements Configuration {
     */
    public URL getDefaultSchemasRepository() {
       return defaultSchemasRepository;
-   }   
+   }
 
    /**
     * Return the schemas repository.
@@ -449,18 +459,25 @@ public class BrowserConfiguration implements Configuration {
    public void putConfiguration(Preferences p, File dir) {
       // general
       PreferencesHelper.putFile(p, "defaultDir", defaultDir);
-      p.putBoolean("includeIndividuals", includeIndividuals);
-      p.putBoolean("showRelationsConstraints", showRelationsConstraints);
-      p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
-      p.putBoolean("addThingClass", addThingClass);
-      p.putBoolean("showIndirectRelations", showIndirectRelations);
-      p.putBoolean("showAlias", showAlias);
+      p.putBoolean("autoRefresh", autoRefresh);
+      p.putBoolean("multiSelection", multiSelection);
+      p.putBoolean("showIndirectRelations", showIndirectRelations);      
       p.putBoolean("showComments", showComments);
       p.putBoolean("includeParentRelations", includeParentRelations);
       p.putBoolean("includeAlias", includeAlias);
+      p.putInt("logLevel", (int) logLevel);
+      
+      // diagrams
+      p.putBoolean("showRelationsConstraints", showRelationsConstraints);
+      p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);  
+      p.putBoolean("showAlias", showAlias);
+      p.putBoolean("superClassesOnTop", superClassesOnTop);
+
+      // parsing
+      p.putBoolean("includeIndividuals", includeIndividuals);
+      p.putBoolean("addThingClass", addThingClass);
       p.putBoolean("strictMode", strictMode);
       p.put("modelSpec", modelSpec);
-      p.putInt("logLevel", (int) logLevel);
 
       // schemas
       PreferencesHelper.putFile(p, "schemasRepository", schemasRepositoryFile);
@@ -477,7 +494,6 @@ public class BrowserConfiguration implements Configuration {
       // styles
       p.putInt("padWidth", padWidth);
       p.putInt("padHeight", padHeight);
-      p.putBoolean("autoRefresh", autoRefresh);
       p.putBoolean("hasCustomStyles", hasCustomStyles);
       PreferencesHelper.putFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       p.putBoolean("hasCustomStyles", hasCustomStyles);
@@ -499,18 +515,25 @@ public class BrowserConfiguration implements Configuration {
    public void getConfiguration(Preferences p, File dir) {
       // general
       defaultDir = PreferencesHelper.getFile(p, "defaultDir", defaultDir);
-      includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
-      showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
-      showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
-      addThingClass = p.getBoolean("addThingClass", addThingClass);
+      autoRefresh = p.getBoolean("autoRefresh", autoRefresh);
+      multiSelection = p.getBoolean("multiSelection", multiSelection);
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
-      showAlias = p.getBoolean("showAlias", showAlias);
       showComments = p.getBoolean("showComments", showComments);
       includeParentRelations = p.getBoolean("includeParentRelations", includeParentRelations);
       includeAlias = p.getBoolean("includeAlias", includeAlias);
+      logLevel = (short) p.getInt("logLevel", logLevel);
+
+      // diagrams
+      showAlias = p.getBoolean("showAlias", showAlias);
+      showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
+      showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
+      superClassesOnTop = p.getBoolean("superClassesOnTop", superClassesOnTop);
+
+      // parsing
+      includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);
+      addThingClass = p.getBoolean("addThingClass", addThingClass);
       strictMode = p.getBoolean("strictMode", strictMode);
       modelSpec = p.get("modelSpec", modelSpec);
-      logLevel = (short) p.getInt("logLevel", logLevel);
 
       // schemas
       schemasRepositoryFile = PreferencesHelper.getFile(p, "schemasRepository", schemasRepositoryFile);
@@ -531,7 +554,6 @@ public class BrowserConfiguration implements Configuration {
       padHeight = p.getInt("padHeight", padHeight);
       customGraphStylesFile = PreferencesHelper.getFileRelativeTo(p, "customGraphStyles", customGraphStylesFile, dir);
       hasCustomStyles = p.getBoolean("hasCustomStyles", hasCustomStyles);
-      autoRefresh = p.getBoolean("autoRefresh", autoRefresh);
       if (customGraphStylesFile != null && customGraphStylesFile.exists()) {
          setCustomStylesConfiguration(customGraphStylesFile);
       } else {

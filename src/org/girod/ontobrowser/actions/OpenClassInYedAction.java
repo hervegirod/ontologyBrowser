@@ -34,6 +34,7 @@ package org.girod.ontobrowser.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.OwlClass;
@@ -43,7 +44,7 @@ import org.mdi.bootstrap.swing.GUIApplication;
 /**
  * The Action that save Classes as yEd diagrams an open them in yEd.
  *
- * @since 0.9
+ * @version 0.10
  */
 public class OpenClassInYedAction extends ExportClassGraphAction {
 
@@ -60,6 +61,20 @@ public class OpenClassInYedAction extends ExportClassGraphAction {
    public OpenClassInYedAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, OwlClass thePackage, File file) {
       super(app, desc, longDesc, diagram, thePackage, file);
    }
+   
+   /**
+    * Create the export File Action.
+    *
+    * @param app the Application
+    * @param desc the short description of the action
+    * @param longDesc the long description of the action
+    * @param diagram the diagram
+    * @param theClasses the classes
+    * @param file the file to open
+    */
+   public OpenClassInYedAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, List<OwlClass> theClasses, File file) {
+      super(app, desc, longDesc, diagram, theClasses, file);
+   }   
 
    @Override
    public void run() throws Exception {

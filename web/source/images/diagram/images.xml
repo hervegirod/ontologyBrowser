@@ -8,4 +8,7 @@
    <image id="diagramalias" url="diagramalias.png" />
    <image id="diagrampackages" url="diagrampackages.png" />
    <image id="diagrampackages2" url="diagrampackages2.png" />
+   <image id="diagramexample" url="diagramexample.png" />
+   <image id="diagramexampleexport1class" url="diagramexampleexport1class.png" />
+   <image id="diagramexampleexport2class" url="diagramexampleexport2class.png" />
 </images>

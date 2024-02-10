@@ -32,10 +32,15 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.girod.jgraphml.model.Arrows;
 import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLEdge;
@@ -44,6 +49,7 @@ import org.girod.jgraphml.model.GraphMLNode;
 import org.girod.jgraphml.model.IGraphMLNode;
 import org.girod.jgraphml.model.LineStyle;
 import org.girod.jgraphml.model.NodeLabel;
+import org.girod.jgraphml.model.PortConstraints;
 import org.girod.jgraphml.model.ShapeType;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
@@ -59,15 +65,15 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save Classes as yEd diagrams.
  *
- * @since 0.9
+ * @version 0.10
  */
 public class ExportClassGraphAction extends AbstractExportGraphAction {
-   private final OwlClass theClass;
-   private final ElementKey theClassKey;
+   private final List<OwlClass> selectedClasses;
+   private final Set<ElementKey> selectedClassesKeys;
    private boolean showAlias = false;
    private Map<ElementKey, OwlProperty> owlProperties = null;
    private Map<ElementKey, OwlClass> owlClasses = null;
-   private GraphMLNode theRootNode = null;
+   private BrowserConfiguration conf = BrowserConfiguration.getInstance();
 
    /**
     * Create the export File Action.
@@ -81,8 +87,31 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
     */
    public ExportClassGraphAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, OwlClass theClass, File file) {
       super(app, desc, longDesc, diagram, file);
-      this.theClass = theClass;
-      this.theClassKey = theClass.getKey();
+      this.selectedClasses = new ArrayList<>();
+      this.selectedClasses.add(theClass);
+      this.selectedClassesKeys = new HashSet<>();
+      this.selectedClassesKeys.add(theClass.getKey());
+   }
+
+   /**
+    * Create the export File Action.
+    *
+    * @param app the Application
+    * @param desc the short description of the action
+    * @param longDesc the long description of the action
+    * @param diagram the diagram
+    * @param theClasses the Classes list
+    * @param file the file to open
+    */
+   public ExportClassGraphAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, List<OwlClass> theClasses, File file) {
+      super(app, desc, longDesc, diagram, file);
+      this.selectedClasses = theClasses;
+      this.selectedClassesKeys = new HashSet<>();
+      Iterator<OwlClass> it = theClasses.iterator();
+      while (it.hasNext()) {
+         OwlClass theClass = it.next();
+         this.selectedClassesKeys.add(theClass.getKey());
+      }
    }
 
    @Override
@@ -111,14 +140,26 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       return inode;
    }
 
-   private GraphMLNode addRootNode() {
-      GraphMLNode node = graph.addNode();
-      node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
-      node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
-      NodeLabel label = node.createLabel(true);
-      label.setFontSize(11);
-      label.setLabel(theClass.getDisplayedName());
-      elementToNode.put(theClassKey, node);
+   private GraphMLNode addRootNode(OwlClass theClass) {
+      GraphMLNode node;
+      ElementKey theKey = theClass.getKey();
+      if (elementToNode.containsKey(theKey)) {
+         node = (GraphMLNode) elementToNode.get(theKey);
+      } else {
+         node = graph.addNode();
+         node.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
+         node.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
+         LineStyle style = new LineStyle();
+         style.setWidth(3);
+         style.setColor(Color.BLUE);
+         node.getShapeNode().setBorderStyle(style);
+         NodeLabel label = node.createLabel(true);
+         label.setTextColor(Color.BLUE);
+         label.setFontStyle(NodeLabel.STYLE_BOLD);
+         label.setFontSize(11);
+         label.setLabel(theClass.getDisplayedName());
+         elementToNode.put(theClass.getKey(), node);
+      }
 
       // individuals
       if (theClass.hasIndividuals()) {
@@ -136,10 +177,10 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       owlClasses = schema.getOwlClasses();
       owlProperties = schema.getOwlProperties();
 
-      exportClass();
+      exportClasses();
    }
 
-   private void exportClassProperties() {
+   private void exportClassProperties(OwlClass theClass, GraphMLNode theRootNode) {
       Map<ElementKey, OwlProperty> processedProperties = new HashMap<>();
       Iterator<OwlProperty> it3 = theClass.getOwlProperties().values().iterator();
       while (it3.hasNext()) {
@@ -159,11 +200,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                   arrows.setSource(Arrows.STANDARD);
                   arrows.setTarget(Arrows.NONE);
                   if (showRelationsConstraints) {
-                     if (property.hasCardinalityRestriction()) {
-                        addCardinalityRestriction(property, edge);
-                     } else {
-                        addDefaultCardinalityRestriction(edge);
-                     }
+                     addCardinalityRestriction(property, edge);
                   }
                }
             }
@@ -195,11 +232,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                   arrows.setSource(Arrows.NONE);
                   arrows.setTarget(Arrows.STANDARD);
                   if (showRelationsConstraints) {
-                     if (property.hasCardinalityRestriction()) {
-                        addCardinalityRestriction(property, edge);
-                     } else {
-                        addDefaultCardinalityRestriction(edge);
-                     }
+                     addCardinalityRestriction(property, edge);
                   }
                }
             }
@@ -259,8 +292,16 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       }
    }
 
-   private void exportClass() {
-      theRootNode = addRootNode();
+   private void exportClasses() {
+      Iterator<OwlClass> it = selectedClasses.iterator();
+      while (it.hasNext()) {
+         OwlClass theClass = it.next();
+         exportClass(theClass);
+      }
+   }
+
+   private void exportClass(OwlClass theClass) {
+      GraphMLNode theRootNode = addRootNode(theClass);
 
       // parent classes
       Iterator<ElementKey> it3 = theClass.getSuperClasses().keySet().iterator();
@@ -270,15 +311,36 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
             OwlClass parentClass = owlClasses.get(parentKey);
             IGraphMLNode theNode = createClassNode(parentClass);
             GraphMLEdge edge = graph.addEdge(theRootNode, theNode);
+            if (conf.superClassesOnTop) {
+               edge.setPortConstraint(PortConstraints.TARGET, PortConstraints.POSITION_SOUTH);
+               edge.setPortConstraint(PortConstraints.SOURCE, PortConstraints.POSITION_NORTH);
+            }
+            Arrows arrows = edge.getArrows();
+            arrows.setSource(Arrows.NONE);
+            arrows.setTarget(Arrows.WHITE_DELTA);
+         }
+      }
+      // sub classes
+      it3 = theClass.getSubClasses().keySet().iterator();
+      while (it3.hasNext()) {
+         ElementKey parentKey = it3.next();
+         if (owlClasses.containsKey(parentKey)) {
+            OwlClass parentClass = owlClasses.get(parentKey);
+            IGraphMLNode theNode = createClassNode(parentClass);
+            GraphMLEdge edge = graph.addEdge(theRootNode, theNode);
+            if (conf.superClassesOnTop) {
+               edge.setPortConstraint(PortConstraints.SOURCE, PortConstraints.POSITION_SOUTH);
+               edge.setPortConstraint(PortConstraints.TARGET, PortConstraints.POSITION_NORTH);
+            }
             Arrows arrows = edge.getArrows();
             arrows.setSource(Arrows.WHITE_DELTA);
             arrows.setTarget(Arrows.NONE);
          }
       }
       if (showAlias && theClass.hasAliasClasses()) {
-         exportClassAlias();
+         exportClassAlias(theClass, theRootNode);
       }
-      this.exportClassProperties();
+      this.exportClassProperties(theClass, theRootNode);
    }
 
    private GraphMLNode createClassNode(OwlClass owlClass) {
@@ -289,6 +351,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       } else {
          GraphMLNode theNode1 = graph.addNode();
          theNode = theNode1;
+         elementToNode.put(key, theNode);
          theNode1.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
          theNode1.getShapeNode().setFillColor(customStyles.getBackgroundColor(CustomGraphStyles.CLASS));
          NodeLabel label = theNode1.createLabel(true);
@@ -298,7 +361,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       return theNode;
    }
 
-   private void exportClassAlias() {
+   private void exportClassAlias(OwlClass theClass, GraphMLNode theRootNode) {
       Iterator<ElementKey> it3 = theClass.getAliasClasses().keySet().iterator();
       while (it3.hasNext()) {
          ElementKey keyAlias = it3.next();

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="Model window">
    <altTitle desc="content window" />
+   <altTitle desc="content tree" />
    <meta desc="This article presents the content of the application Browser model window" />
    This article presents the content of the application Browser model window.
    <img id="modelwindow" width="40%" />
@@ -50,6 +51,11 @@
       <li>Export Class: export the Class and its associated Classes / Individuals and Properties as a GraphML diagram</li>
       <li>Show Class in yEd: open the Class and its associated Classes / Individuals and Properties in <ref id="yEd"/></li>
    </ul>
+
+   <messageBox type="info">
+      If  the "Multi Selection" <ref id="configuration" /> setting is selected, it is possible to select more than one Class in the Classes tree. The
+      "Export Class" an "Show Class in yEd" actions will export the content of the selected Classes and their associated Classes / Individuals and Properties.
+   </messageBox>
 
    <title level="2" title="Package Menu" />
    If you right click on a Package on this tab, you will have the following popup menu:

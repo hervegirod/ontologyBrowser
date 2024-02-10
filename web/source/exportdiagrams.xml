@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Exporting diagrams">
+   <meta desc="This article explains the export of diagrams in yEd" />
+   It is possible to export the content of the ontology as GraphML diagrams which can be opened in the <ref id="yEd" /> tool.
+
+   The diagrams can be exported with the following content:
+   <ul>
+      <li>Export the complete ontology</li>
+      <li>Export the content of one <ref id="packages" desc="package" /></li>
+      <li>Export one or several classes selected in the <ref id="Model window#Class structure tab" desc="Classes tree" /> and the elements which are associated to this or these classes</li>
+   </ul>
+
+   <title title="export the complete ontology" />
+   The File =&gt; "Export as GraphML" action export the complete Ontology as a GraphML file, which can be opened in the <ref id="yEd" /> tool.
+   The File =&gt; "Open in yEd" action will directly open the yEd tool on the exported Ontology graph.
+
+   For example:
+   <img id="diagramexample" />
+
+   <title level="2" title="export with packages" />
+
+   <title title="reading the exported diagram content" />
+   <moreInfo id="diagrams content" />
+
+   <see id="yEd"/>
+   <see id="diagrams content" />
+   <see id="Model window" />
+   <cat id="browser" />
+</article>

@@ -88,7 +88,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.9
+ * @version 0.10
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;

@@ -93,6 +93,12 @@
       <li>Show the Functional and InverseFunctional characteristics of Properties</li>
       <li>Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes</li>        
    </ul>    
+   
+   <title title="Version 0.10" />
+   <ul>
+      <li>Use jGraphml 1.2.7</li>    
+      <li>Use MDIUtilities 1.2.62</li>      
+   </ul>    
 
    <cat id="general" />
 </article>

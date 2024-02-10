@@ -12,6 +12,10 @@
    </moreInfo>
    This application allows to open a OWL/RDF model, and generate a graphML diagram compatible with the popular yEd editor.
 
+   <title title="configuration"/>
+   <moreInfo id="configuration" />
+   The Options =&gt; Settings action allows to edit the configuration of the tool.
+
    <title title="License"/>
    <moreInfo id="License" />
 

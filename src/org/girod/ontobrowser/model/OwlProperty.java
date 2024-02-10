@@ -42,7 +42,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.9
+ * @version 0.10
  */
 public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement<OwlProperty> {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
@@ -267,6 +267,26 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
       return minCardinality > 0;
    }
 
+   /**
+    * Compute the minimum cardinality of the property.
+    *
+    * @return the cardinality
+    */
+   public int computeMinCardinality() {
+      if (isFunctionalProperty() || isInverseFunctionalProperty()) {
+         return 0;
+      } else if (!hasMinCardinality()) {
+         return 0;
+      } else {
+         return getMinCardinality();
+      }
+   }
+
+   /**
+    * Return the minimum cardinality of the property.
+    *
+    * @return the cardinality
+    */       
    public int getMinCardinality() {
       return minCardinality;
    }
@@ -279,6 +299,26 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
       return maxCardinality != -1;
    }
 
+   /**
+    * Compute the maximum cardinality of the property. Note that if the property is functional or inverse functional, then the maximum cardinality will be 1.
+    *
+    * @return the cardinality
+    */   
+   public int computeMaxCardinality() {
+      if (isFunctionalProperty() || isInverseFunctionalProperty()) {
+         return 1;
+      } else if (!hasMaxCardinality()) {
+         return -1;
+      } else {
+         return getMaxCardinality();
+      }
+   }
+
+   /**
+    * Return the maximum cardinality of the property, not taking into account if the property is functional or inverse functional.
+    *
+    * @return the cardinality
+    */    
    public int getMaxCardinality() {
       return maxCardinality;
    }
