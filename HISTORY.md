@@ -56,7 +56,7 @@
  - Use scriptHelper 1.6.2
  - Add scripting debugging functionality
  - Fix the log level which was impossible to set in the settings
- - Fix some cases where parsing some ontologies could result in a Cannot convert node xxx to OntClass: it does not have rdf:type owl:Class or equivalent 
+ - Fix some cases where parsing some ontologies could result in a Cannot convert node xxx to OntClass: it does not have rdf:type owl:Class or equivalent
  - Add an option allowing to include SuperClasses in the dependencies of a Class
  - Add a scripting framework
  - Show annotations on annotations
@@ -72,3 +72,9 @@
  - Show the Functional and InverseFunctional characteristics of Properties
  - Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes
  - Show equivalent properties in the export
+
+# 0.10
+ - Use jGraphml 1.2.8   
+ - Use MDIUtilities 1.2.63
+ - Take into account functional properties when computing the cardinalities of properties
+ - Allow multi-selection on elements for the export
