@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="configuration">
    <meta desc="This article presents the configuration of the application" />
-   The Options =&gt; Settings action allows to edit the configuration of the tool.
+   The Options &rArr; Settings action allows to edit the configuration of the tool.
 
    The configuration of the tool has the following categories of settings:
    <ul>
@@ -90,7 +90,6 @@
       <li>"Width Padding" : the padding for the boxes widths</li>
       <li>"Height Padding" : the padding for the boxes height</li>
       <li>"Has Custom Styles": checked if the style of diagrams is customized</li>
-      <li>"Custom Styles": the file specifying the custom style of diagrams</li>
    </ul>
 
    <title title="Packages settings" />
@@ -101,7 +100,6 @@
       <li>"Show Packages": show <ref id="Packages" /> when opening an OWL/RDF diagram</li>
       <li>"Show Packages as Closed": show Packages as closed when opening an OWL/RDF diagram</li>
       <li>"Show Packages in Packages View": show Packages in Packages View when opening an OWL/RDF diagram</li>
-      <li>"Has Packages Configuration": checked if there is a customized Packages configuration</li>
       <li>"Packages Configuration": the file specifying the customized Packages configuration, see <ref id="Packages Configuration" /></li>
    </ul>
 
@@ -109,7 +107,6 @@
    These settings are about the <ref id="yEd" /> tool location.
    <img id="configYed" />
    <ul>
-      <li>"Has yEd exe directory": checked to set the directory of the <ref id="yEd" /> graph tool</li>
       <li>"yEd exe directory": the directory of the <ref id="yEd" /> graph tool</li>
    </ul>
 

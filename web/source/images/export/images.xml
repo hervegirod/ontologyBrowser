@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<images>
+   <image id="export1" url="export1.png" />
+   <image id="export2" url="export2.png" />
+   <image id="exportTreeLayout" url="exportTreeLayout.png" />
+   <image id="exportResult" url="exportResult.png" />
+   <image id="edgerouting" url="edgerouting.png" />
+   <image id="edgeroutingResult" url="edgeroutingResult.png" />
+   <image id="diagramafternodemove" url="diagramafternodemove.png" />
+   <image id="diagramafternodemoveedgerouting" url="diagramafternodemoveedgerouting.png" />
+   <image id="exportpackages" url="exportpackages.png" />
+   <image id="exportpackages2" url="exportpackages2.png" />
+   <image id="exportpackages3" url="exportpackages3.png" />
+   <image id="exportselectclass" url="exportselectclass.png" />
+   <image id="exportselectclass2" url="exportselectclass2.png" />
+</images>

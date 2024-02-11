@@ -3,7 +3,7 @@
    <altTitle desc="debugging" />
    <altTitle desc="debugger" />
    <meta desc="This article is about the Scripts debugging" />
-   The Tools =&gt; Debug Script action allows to debug a <ref id="Script" /> on the currently selected schema.
+   The Tools &rArr; Debug Script action allows to debug a <ref id="Script" /> on the currently selected schema.
 
    <title title="overview" />
    The debugging does not use the <wikipedia path="Java Platform Debugger Architecture" />. It works by inserting "shadow"
@@ -17,7 +17,7 @@
    </ul>
    It is possible to set a <ref id="breakpoint" /> at any step line, in which case the execution flow will pause, if the
    breakpoint conditions are met.
-   
+
    <title title="Debug ScriptWindow" />
    <moreInfo id="Debug ScriptWindow" />
    The Debug ScriptWindow is a Window which is used to debug <ref id="scripts" />.

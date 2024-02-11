@@ -11,13 +11,40 @@
    </ul>
 
    <title title="export the complete ontology" />
-   The File =&gt; "Export as GraphML" action export the complete Ontology as a GraphML file, which can be opened in the <ref id="yEd" /> tool.
-   The File =&gt; "Open in yEd" action will directly open the yEd tool on the exported Ontology graph.
+   The File &rArr; "Export as GraphML" action export the complete Ontology as a GraphML file, which can be opened in the <ref id="yEd" /> tool.
+   The File &rArr; "Open in yEd" action will directly open the yEd tool on the exported Ontology graph.
 
    For example:
    <img id="diagramexample" />
 
    <title level="2" title="export with packages" />
+   It is possible to export the complete content of an ontology with <ref id="packages" />.
+
+   For example suppose the following ontology:
+   <img id="exportpackages" />
+
+   The result of the export will be:
+   <img id="exportpackages2" />
+
+   After having opened the packages nodes, we will have:
+   <img id="exportpackages3" />
+
+   <title level="2" title="export  one or several classes" />
+   If we select one or several classes selected in the <ref id="Model window#Class structure tab" desc="Classes tree" />, the export will show:
+   <ul>
+      <li>These highlighted classes</li>
+      <li>The super-classes and the sub-classes of these classes</li>
+      <li>The aliases of these classes</li>
+      <li>The classes which are in the domain or the range of object properties associated with these classes</li>
+      <li>The data properties of these classes</li>
+      <li>The Individuals of these classes</li>
+   </ul>
+
+   For example, if we select <code>Class1</code> and <code>Class2</code> in the following ontology:
+   <img id="exportselectclass" />
+
+   We will have the following diagram:
+   <img id="exportselectclass2" />
 
    <title title="reading the exported diagram content" />
    <moreInfo id="diagrams content" />

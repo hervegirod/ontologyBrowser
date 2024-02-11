@@ -7,10 +7,6 @@
    <image id="graphml" url="graphml.png" />
    <image id="openWithPackages" url="openWithPackages.png" />
    <image id="openWithoutPackages" url="openWithoutPackages.png" />
-   <image id="export1" url="export1.png" />
-   <image id="export2" url="export2.png" />
-   <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />
-   <image id="exportResult" url="exportResult.png" />
    <image id="owl2" url="owl2.png" />
    <category desc="search">
       <image id="search" url="search.png" />

@@ -5,27 +5,53 @@
    The diagrams exported by the tool use the GraphML format, compatible with the <a href="https://www.yworks.com/products/yed">yEd</a> free editor.
 
    <title title="overview" />
-   The yEd tool is a free diagram editor allowing to show, export and manipulate diagrams in the <a href="http://graphml.graphdrawing.org/">GraphML</a> format.
+   The yEd tool is a free diagram editor allowing to show, export and manipulate diagrams in the <a href="http://graphml.graphdrawing.org/">GraphML</a> format<note>To download the
+      yEd tool, go to the <a href="https://www.yworks.com/products/yed/download#download">www.yworks.com/products/yed/download</a> page</note>
 
    The export feature of the tool produce graphML files wich are compatible with the yEd tool.
 
    <messageBox type="warning">
-      Note that the exported diagrams have to layout, you will need to use the layout features of yEd to obtain a readable diagram.
+      Note that the exported diagrams have no layout, you will need to use the layout features of yEd to obtain a readable diagram.
    </messageBox>
 
-   <title title="apply a layout"/>
-   The exported diagrams have to layout, you will need to use the layout features of yEd to obtain a readable diagram. For example, suppose the
-   following Owl/RDF diagram:
+   <title title="layout"/>
+   <title level="2" title="apply a full layout"/>
+   The exported diagrams have no layout, you will need to use the layout features of yEd to obtain a readable diagram.
+
+   For example, suppose the following Owl/RDF diagram:
    <img id="export1" width="60%" />
 
    The result of the export is the following, when opened with yEd:
    <img id="export2" width="60%" />
 
-   You can apply the Hierarchical layout:
-   <img id="exportHierarchicalLayout" />
+   You can apply a Tree layout:
+   <img id="exportTreeLayout" />
+
+   <messageBox type="warning">
+      The Hierarchical Layout does not keep edge labels alongside the edges, which the reason why we advise to use the tree layout.
+   </messageBox>
 
    The result will be:
    <img id="exportResult" width="60%" />
+
+   You can apply an edge routing:
+   <img id="edgerouting" />
+
+   The result will be:
+   <img id="exportResult" width="60%" />
+
+   <title level="2" title="apply edges routing"/>
+   It is mpossible to apply edges oouting without moving the nodes, which can be useful if you moved node after applying a full layout, and you only want
+   to fix the edged paths.
+
+   For example, suppose the follwing diagram, after we moved the <code>Class3</code> node:
+   <img id="diagramafternodemove" width="60%" />
+
+   You can apply edges routing:
+   <img id="edgerouting" />
+
+   The result will be:
+   <img id="diagramafternodemoveedgerouting" width="60%" />
 
    <title title="GraphML format"/>
    The yEd tool is compatible with the standardized GraphML format which is the graph output format of the Ontology browser tool.

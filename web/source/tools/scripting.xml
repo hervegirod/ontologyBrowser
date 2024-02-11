@@ -4,7 +4,7 @@
    <altTitle desc="script" dictionary="false" />
    <altTitle desc="Scripts execution" />
    <meta desc="This article presents the Scripting" />
-   The Tools =&gt; Execute Script action allows to execute a <ref id="Script" /> on the currently selected schema.
+   The Tools &rArr; Execute Script action allows to execute a <ref id="Script" /> on the currently selected schema.
 
    Scripts allow to navigate an Ontology and perform actions (for example checks) on the selected Ontology.
 
@@ -150,7 +150,7 @@
 
    <title title="Debugging scripts" />
    <moreInfo id="Debugging scripts" />
-   The Tools =&gt; Debug Script action allows to debug a Script on the currently selected schema.
+   The Tools &rArr; Debug Script action allows to debug a Script on the currently selected schema.
 
    <see id="Debugging scripts" />
    <see id="configuration#Scripts settings" desc="Scripts settings" />

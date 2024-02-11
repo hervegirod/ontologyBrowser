@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="SPARQL execution">
    <meta desc="This article presents the SPARQL execution tool" />
-   The Tools =&gt; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema.
+   The Tools &rArr; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema.
 
    <title title="configuration" />
    <moreInfo id="configuration#SPARQL settings" desc="SPARQL settings" />
@@ -26,7 +26,7 @@
    </pre>
 
    <title title="execute a query" />
-   The Tools =&gt; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema:
+   The Tools &rArr; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema:
    <img id="sparqlquery" />
 
    If the query executes correctly, we will have the folowing result window:

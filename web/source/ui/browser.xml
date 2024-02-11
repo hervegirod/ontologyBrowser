@@ -50,7 +50,7 @@
 
    <title level="2" title="Options menu" />
    <moreInfo id="configuration" />
-   The Options =&gt; Settings action allows to edit the configuration of the tool.
+   The Options &rArr; Settings action allows to edit the configuration of the tool.
 
    <title level="2" title="Tools menu" />
    <moreInfo>
@@ -65,7 +65,7 @@
    </ul>
 
    <title level="2" title="View menu" />
-   The Tools =&gt; Layout action allows to change the layout of the current diagram.
+   The Tools &rArr; Layout action allows to change the layout of the current diagram.
 
    <title title="model window" />
    <moreInfo id="Model window" />
@@ -101,7 +101,7 @@
 
    <title title="configuration" />
    <moreInfo id="configuration" />
-   The Options =&gt; Settings action allows to edit the configuration of the tool.
+   The Options &rArr; Settings action allows to edit the configuration of the tool.
 
    <title title="Elements colors" />
    <moreInfo id="custom styles "/>
