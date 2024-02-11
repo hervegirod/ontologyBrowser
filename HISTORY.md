@@ -74,7 +74,8 @@
  - Show equivalent properties in the export
 
 # 0.10
- - Use jGraphml 1.2.8   
+ - Use docJGenerator 1.6.6.1
+ - Use jGraphml 1.2.8
  - Use MDIUtilities 1.2.63
  - Take into account functional properties when computing the cardinalities of properties
  - Allow multi-selection on elements for the export
