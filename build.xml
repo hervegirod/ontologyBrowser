@@ -32,7 +32,7 @@
          <available file="${javadocAPIOut}" type="dir"/>
       </condition>
       <property name="docGeneratorDirURL" value="https://downloads.sourceforge.net/project/docjgenerator/" />
-      <property name="docGeneratorVersion" value="1.6.5.8" />
+      <property name="docGeneratorVersion" value="1.6.6.1" />
       <property name="docGeneratorURL" value="${docGeneratorDirURL}/Version%20${docGeneratorVersion}/docGenerator-bin-${docGeneratorVersion}.zip" />
       <property name="docGeneratorDir" value="web/soft/"/>
       <condition property="docgenerator-doc.notexists">
@@ -325,7 +325,7 @@
          <arg value="-checkHTTPLinks=false"/>
          <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
-         <arg value="-config=web/source/config.properties"/>         
+         <arg value="-config=web/source/config.properties"/>
          <arg value="-search=titles"/>
          <arg value="-fullTextSearch=true"/>
          <classpath>
