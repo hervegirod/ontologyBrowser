@@ -244,6 +244,9 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                      IGraphMLNode rangeNode = elementToNode.get(propKey);
                      GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                      EdgeLabel label = edge.createLabel(true);
+                     EdgeLabel.ParamModel model = label.getParameterModel();
+                     model.setAutoFlip(true);
+                     model.setAutoRotate(true);
                      label.setLabel(property.getDisplayedName());
                      Arrows arrows = edge.getArrows();
                      arrows.setSource(Arrows.STANDARD);
