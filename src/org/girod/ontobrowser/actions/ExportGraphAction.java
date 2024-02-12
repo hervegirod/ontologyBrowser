@@ -241,33 +241,41 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                while (it4.hasNext()) {
                   ElementKey propKey = it4.next();
                   if (owlClasses.containsKey(propKey)) {
-                     IGraphMLNode rangeNode = elementToNode.get(propKey);
-                     GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
-                     EdgeLabel label = edge.createLabel(true);
-                     EdgeLabel.ParamModel model = label.getParameterModel();
-                     model.setAutoFlip(true);
-                     model.setAutoRotate(true);
-                     label.setLabel(property.getDisplayedName());
-                     Arrows arrows = edge.getArrows();
-                     arrows.setSource(Arrows.STANDARD);
-                     arrows.setTarget(Arrows.NONE);
-                     if (showRelationsConstraints) {
-                        addCardinalityRestriction(objectProp, edge);
+                     EdgePair pair = new EdgePair(property, theClass.getKey(), propKey);
+                     if (!processedEdges.contains(pair)) {
+                        processedEdges.add(pair);
+                        IGraphMLNode rangeNode = elementToNode.get(propKey);
+                        GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
+                        EdgeLabel label = edge.createLabel(true);
+                        EdgeLabel.ParamModel model = label.getParameterModel();
+                        model.setAutoFlip(true);
+                        model.setAutoRotate(true);
+                        label.setLabel(property.getDisplayedName());
+                        Arrows arrows = edge.getArrows();
+                        arrows.setSource(Arrows.STANDARD);
+                        arrows.setTarget(Arrows.NONE);
+                        if (showRelationsConstraints) {
+                           addCardinalityRestriction(objectProp, edge);
+                        }
                      }
                   }
                }
             } else {
                OwlDatatypeProperty dataProperty = (OwlDatatypeProperty) property;
-               GraphMLNode propertyNode = addDataProperty(theClass, dataProperty);
+               EdgePair pair = new EdgePair(property, theClass.getKey());
+               if (!processedEdges.contains(pair)) {
+                  processedEdges.add(pair);
+                  GraphMLNode propertyNode = addDataProperty(theClass, dataProperty);
 
-               GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
-               EdgeLabel elabel = edge.createLabel(true);
-               Arrows arrows = edge.getArrows();
-               arrows.setSource(Arrows.STANDARD);
-               arrows.setTarget(Arrows.NONE);
+                  GraphMLEdge edge = graph.addEdge(propertyNode, theNode);
+                  edge.createLabel(true);
+                  Arrows arrows = edge.getArrows();
+                  arrows.setSource(Arrows.STANDARD);
+                  arrows.setTarget(Arrows.NONE);
 
-               if (showAlias && dataProperty.hasEquivalentProperties()) {
-                  exportPropertyAlias(dataProperty);
+                  if (showAlias && dataProperty.hasEquivalentProperties()) {
+                     exportPropertyAlias(dataProperty);
+                  }
                }
             }
          }

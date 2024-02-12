@@ -54,7 +54,7 @@ import org.mdiutil.swing.PropertyEditor;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.10
+ * @version 0.11
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
@@ -75,6 +75,7 @@ public class BrowserSettings {
    private JCheckBox autoRefreshCb;
    private JCheckBox multiSelectionCb;
    private JCheckBox showCommentsCb;
+   private JCheckBox showOwnElementsInBoldCb;
    private JCheckBox includeParentRelationsCb;
    private JCheckBox includeAliasCb;
    private JComboBox logLevelCb;  
@@ -221,8 +222,8 @@ public class BrowserSettings {
          this.dir = conf.getDefaultDirectory();
       }
       // General
-
       showCommentsCb.setSelected(conf.showComments);
+      showOwnElementsInBoldCb.setSelected(conf.showOwnElementsInBold);
       showPackagesCb.setSelected(conf.showPackages);
       showPackagesAsClosedCb.setSelected(conf.showPackagesAsClosed);
       showPackagesInPackageViewCb.setSelected(conf.showPackagesInPackageView);
@@ -565,6 +566,12 @@ public class BrowserSettings {
          conf.showComments = showCommentsCb.isSelected();
       });
 
+      showOwnElementsInBoldCb = new JCheckBox("", conf.showOwnElementsInBold);
+      showOwnElementsInBoldCb.setBackground(Color.WHITE);
+      showOwnElementsInBoldCb.addActionListener((ActionEvent e) -> {
+         conf.showOwnElementsInBold = showOwnElementsInBoldCb.isSelected();
+      });      
+
       showIndirectRelationsCb = new JCheckBox("", conf.showIndirectRelations);
       showIndirectRelationsCb.setBackground(Color.WHITE);
       showIndirectRelationsCb.addActionListener((ActionEvent e) -> {
@@ -678,6 +685,7 @@ public class BrowserSettings {
       generalSettings.addProperty(multiSelectionCb, "", "Multi Selection");
       generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations in Dependencies");
       generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
+      generalSettings.addProperty(showOwnElementsInBoldCb, "", "Show Owl Elements in Bold");
       generalSettings.addProperty(includeParentRelationsCb, "", "Include Parent Relations in Dependencies");
       generalSettings.addProperty(includeAliasCb, "", "Include Alias Relations in Dependencies");
       generalSettings.addProperty(logLevelCb, "", "Log Level");

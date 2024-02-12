@@ -65,7 +65,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save Classes as yEd diagrams.
  *
- * @version 0.10
+ * @version 0.11
  */
 public class ExportClassGraphAction extends AbstractExportGraphAction {
    private final List<OwlClass> selectedClasses;
@@ -191,27 +191,35 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
             while (it4.hasNext()) {
                ElementKey propKey = it4.next();
                if (owlClasses.containsKey(propKey)) {
-                  OwlClass rangeClass = owlClasses.get(propKey);
-                  IGraphMLNode rangeNode = createClassNode(rangeClass);
-                  GraphMLEdge edge = graph.addEdge(rangeNode, theRootNode);
-                  EdgeLabel label = edge.createLabel(true);
-                  label.setLabel(property.getDisplayedName());
-                  Arrows arrows = edge.getArrows();
-                  arrows.setSource(Arrows.STANDARD);
-                  arrows.setTarget(Arrows.NONE);
-                  if (showRelationsConstraints) {
-                     addCardinalityRestriction(property, edge);
+                  EdgePair pair = new EdgePair(property, theClass.getKey(), propKey);
+                  if (!processedEdges.contains(pair)) {
+                     processedEdges.add(pair);
+                     OwlClass rangeClass = owlClasses.get(propKey);
+                     IGraphMLNode rangeNode = createClassNode(rangeClass);
+                     GraphMLEdge edge = graph.addEdge(rangeNode, theRootNode);
+                     EdgeLabel label = edge.createLabel(true);
+                     label.setLabel(property.getDisplayedName());
+                     Arrows arrows = edge.getArrows();
+                     arrows.setSource(Arrows.STANDARD);
+                     arrows.setTarget(Arrows.NONE);
+                     if (showRelationsConstraints) {
+                        addCardinalityRestriction(property, edge);
+                     }
                   }
                }
             }
          } else {
             OwlDatatypeProperty dataProperty = (OwlDatatypeProperty) property;
-            IGraphMLNode propertyNode = createDataPropertyNode(dataProperty);
-            processedProperties.put(dataProperty.getKey(), dataProperty);
-            GraphMLEdge edge = graph.addEdge(propertyNode, theRootNode);
-            Arrows arrows = edge.getArrows();
-            arrows.setSource(Arrows.STANDARD);
-            arrows.setTarget(Arrows.NONE);
+            EdgePair pair = new EdgePair(property, theClass.getKey());
+            if (!processedEdges.contains(pair)) {
+               processedEdges.add(pair);
+               IGraphMLNode propertyNode = createDataPropertyNode(dataProperty);
+               processedProperties.put(dataProperty.getKey(), dataProperty);
+               GraphMLEdge edge = graph.addEdge(propertyNode, theRootNode);
+               Arrows arrows = edge.getArrows();
+               arrows.setSource(Arrows.STANDARD);
+               arrows.setTarget(Arrows.NONE);
+            }
          }
       }
       it3 = theClass.getRangeOwlProperties().values().iterator();
@@ -223,16 +231,20 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
             while (it4.hasNext()) {
                ElementKey propKey = it4.next();
                if (owlClasses.containsKey(propKey)) {
-                  OwlClass domainClass = owlClasses.get(propKey);
-                  IGraphMLNode domainNode = createClassNode(domainClass);
-                  GraphMLEdge edge = graph.addEdge(domainNode, theRootNode);
-                  EdgeLabel label = edge.createLabel(true);
-                  label.setLabel(property.getDisplayedName());
-                  Arrows arrows = edge.getArrows();
-                  arrows.setSource(Arrows.NONE);
-                  arrows.setTarget(Arrows.STANDARD);
-                  if (showRelationsConstraints) {
-                     addCardinalityRestriction(property, edge);
+                  EdgePair pair = new EdgePair(property, propKey, theClass.getKey());
+                  if (!processedEdges.contains(pair)) {
+                     processedEdges.add(pair);
+                     OwlClass domainClass = owlClasses.get(propKey);
+                     IGraphMLNode domainNode = createClassNode(domainClass);
+                     GraphMLEdge edge = graph.addEdge(domainNode, theRootNode);
+                     EdgeLabel label = edge.createLabel(true);
+                     label.setLabel(property.getDisplayedName());
+                     Arrows arrows = edge.getArrows();
+                     arrows.setSource(Arrows.NONE);
+                     arrows.setTarget(Arrows.STANDARD);
+                     if (showRelationsConstraints) {
+                        addCardinalityRestriction(property, edge);
+                     }
                   }
                }
             }

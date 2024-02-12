@@ -67,7 +67,7 @@ import org.mdi.bootstrap.swing.AbstractMDIAction;
 /**
  * An abstract class which exports a doiagram as a GraphML graoh.
  *
- * @version 0.10
+ * @version 0.11
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
@@ -89,6 +89,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected GraphMLDiagram graph;
    protected Map<ElementKey, GraphMLGroupNode> packagesNodes = new HashMap<>();
    protected Map<ElementKey, IGraphMLNode> elementToNode;
+   protected Set<EdgePair> processedEdges = new HashSet<>();
    protected boolean showRelationsConstraints = false;
    protected boolean showDataPropertiesTypes = false;
    protected DiagramDefaults defaults = null;

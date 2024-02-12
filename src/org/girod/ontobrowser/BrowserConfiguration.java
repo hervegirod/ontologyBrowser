@@ -55,7 +55,7 @@ import org.mdiutil.swing.JErrorPane;
 /**
  * The browser configuration.
  *
- * @version 0.10
+ * @version 0.11
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -80,8 +80,8 @@ public class BrowserConfiguration implements Configuration {
     * General configuration
     */
    public boolean showIndirectRelations = false;
-
    public boolean showComments = false;
+   public boolean showOwnElementsInBold = false;
    public boolean includeParentRelations = false;
    public boolean includeAlias = false;
    public short logLevel = ErrorLevel.WARNING;
@@ -463,6 +463,7 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("multiSelection", multiSelection);
       p.putBoolean("showIndirectRelations", showIndirectRelations);      
       p.putBoolean("showComments", showComments);
+      p.putBoolean("showOwnElementsInBold", showOwnElementsInBold);
       p.putBoolean("includeParentRelations", includeParentRelations);
       p.putBoolean("includeAlias", includeAlias);
       p.putInt("logLevel", (int) logLevel);
@@ -519,6 +520,7 @@ public class BrowserConfiguration implements Configuration {
       multiSelection = p.getBoolean("multiSelection", multiSelection);
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
       showComments = p.getBoolean("showComments", showComments);
+      showOwnElementsInBold = p.getBoolean("showOwnElementsInBold", showOwnElementsInBold);
       includeParentRelations = p.getBoolean("includeParentRelations", includeParentRelations);
       includeAlias = p.getBoolean("includeAlias", includeAlias);
       logLevel = (short) p.getInt("logLevel", logLevel);

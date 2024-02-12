@@ -64,7 +64,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.10
+ * @version 0.11
  */
 public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private final OwlClass thePackage;

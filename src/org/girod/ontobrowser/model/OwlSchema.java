@@ -135,7 +135,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
          if (_ns.endsWith("#")) {
             _ns = _ns.substring(0, _ns.length() - 1);
          }
-         if (defaultNamespace != null && defaultNamespace.equals(_ns)) {
+         if (defaultNamespace != null && (defaultNamespace.equals(_ns) || defaultNamespace.equals(ns))) {
             defaultPrefix = prefix;
          } else {
             switch (ns) {

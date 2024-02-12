@@ -42,17 +42,25 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * Represents an Owl element represented in its tree.
  *
- * @version 0.9
+ * @version 0.11
  */
 public class OwlElementRep {
    private final NamedOwlElement element;
    private final String name;
    private final String prefix;
+   private final boolean hasDefaultPrefix;
+   private final String schemaDefaultPrefix;
+   private final boolean allowBold;
+   private final boolean isDefaultPrefix;
 
-   public OwlElementRep(NamedOwlElement element, OwlSchema schema) {
+   public OwlElementRep(NamedOwlElement element, OwlSchema schema, boolean hasDefaultPrefix, boolean allowBold) {
       this.element = element;
       this.name = element.getDisplayedName();
       this.prefix = schema.getPrefix(element.getNamespace());
+      this.hasDefaultPrefix = hasDefaultPrefix;
+      this.schemaDefaultPrefix = schema.getDefaultPrefix();
+      this.allowBold = allowBold;
+      this.isDefaultPrefix = hasDefaultPrefix && prefix != null && schemaDefaultPrefix.equals(prefix);
    }
 
    public boolean isPackage() {
@@ -63,24 +71,47 @@ public class OwlElementRep {
       }
    }
 
+   private String getDisplayedName(NamedOwlElement element) {
+      String theName = element.getPrefixedDisplayedName();
+      if (allowBold) {
+         String thePrefix = element.getPrefix();
+         boolean isDefaultPrefixForElement = hasDefaultPrefix && thePrefix != null && schemaDefaultPrefix.equals(thePrefix);
+
+         if (!hasDefaultPrefix || isDefaultPrefixForElement) {
+            theName = "<b>" + theName + "</b>";
+         }
+      }
+      return theName;
+   }
+
    @Override
    public String toString() {
+      StringBuilder buf = new StringBuilder();
+      buf.append("<html>");
+      String defaultStringName = getDefaultStringName();
+      if (allowBold) {
+         if (!hasDefaultPrefix || isDefaultPrefix) {
+            defaultStringName = "<b>" + defaultStringName + "</b>";
+         }
+      }
       if (element.hasAliasElements()) {
          Map<ElementKey, ? extends NamedOwlElement> map = element.getAliasElements();
-         StringBuilder buf = new StringBuilder();
-         buf.append(getDefaultStringName());
+         buf.append(defaultStringName);
          int max = map.size();
          if (max > 2) {
             max = 2;
          }
          Iterator<? extends NamedOwlElement> it = map.values().iterator();
          while (it.hasNext()) {
-            NamedOwlElement element = it.next();
-            buf.append(" \u2263 ").append(element.getPrefixedDisplayedName());
+            NamedOwlElement aliasElement = it.next();
+            buf.append(" \u2263 ").append(getDisplayedName(aliasElement));
          }
+         buf.append("</html>");
          return buf.toString();
       } else {
-         return getDefaultStringName();
+         buf.append(defaultStringName);
+         buf.append("</html>");
+         return buf.toString();
       }
    }
 

@@ -152,6 +152,8 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    private OwlElementRep selectedElement = null;
    private OwlOntologyTreeRep selectedPrefix = null;
    private boolean autoTabChange = false;
+   private boolean hasDefaultPrefix = false;
+   private boolean allowBold = false;
    private final Map<ElementKey, DefaultMutableTreeNode> keyToClassNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToPropertyNode = new HashMap<>();
    private final Map<ElementKey, DefaultMutableTreeNode> keyToAnnotationNode = new HashMap<>();
@@ -311,6 +313,8 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    public void setDiagram(OwlDiagram diagram) {
       this.diagram = diagram;
       this.schema = diagram.getSchema();
+      this.allowBold = BrowserConfiguration.getInstance().showOwnElementsInBold;
+      this.hasDefaultPrefix = schema.hasDefaultPrefix();
       prefixRoot = new DefaultMutableTreeNode(new OwlOntologyRep(schema));
       prefixTreeModel = new DefaultTreeModel(prefixRoot);
       prefixTree = new JTree(prefixTreeModel);
@@ -1451,6 +1455,6 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    }
 
    private OwlElementRep createElementRep(NamedOwlElement theElement) {
-      return new OwlElementRep(theElement, schema);
+      return new OwlElementRep(theElement, schema, hasDefaultPrefix, allowBold);
    }
 }
