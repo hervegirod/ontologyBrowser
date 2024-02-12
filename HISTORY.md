@@ -79,3 +79,8 @@
  - Use MDIUtilities 1.2.63
  - Take into account functional properties when computing the cardinalities of properties
  - Allow multi-selection on elements for the export
+
+# 0.11
+ - Fix some cases where there were several times the same Object property link shown the the yEd export diagram
+ - Fix some cases where the default prefix of a schema was not correctly detected
+ - Add a configuration property to show elements using the default namespace / prefix in bold
