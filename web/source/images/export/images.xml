@@ -3,6 +3,7 @@
    <image id="export1" url="export1.png" />
    <image id="export2" url="export2.png" />
    <image id="exportTreeLayout" url="exportTreeLayout.png" />
+   <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />
    <image id="exportResult" url="exportResult.png" />
    <image id="edgerouting" url="edgerouting.png" />
    <image id="edgeroutingResult" url="edgeroutingResult.png" />

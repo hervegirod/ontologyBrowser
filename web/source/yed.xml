@@ -26,10 +26,9 @@
 
    You can apply a Tree layout:
    <img id="exportTreeLayout" />
-
-   <messageBox type="warning">
-      The Hierarchical Layout does not keep edge labels alongside the edges, which the reason why we advise to use the tree layout.
-   </messageBox>
+   
+   or a Hierarchical layout:
+   <img id="exportHierarchicalLayout" />
 
    The result will be:
    <img id="exportResult" width="60%" />

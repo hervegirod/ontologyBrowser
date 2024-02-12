@@ -27,6 +27,7 @@
       <li>"Show Indirect Relations": checked if the indirect relations are shown in the <ref id="Dependencies window" /></li>
       <li>"Show Commented Elements": checked if elements which have comments must be shown with a specific icon. See also
          <ref id="elements default annotations" /> for more information</li>
+      <li>"Show Own Elements in Bold": checked if elements which are in the default namespace are presented in Bold in the tree</li>         
       <li>"Include Parent Relations in Dependencies": checked if the Superclass relations must be shown in the Dependencies window for a Class</li>
       <li>"Include Alias Relations in Dependencies": checked if the Alias relations must be shown in the Dependencies window for a Class</li>
       <li>"Log Level": specifies the Log level which will be shown in the console</li>
