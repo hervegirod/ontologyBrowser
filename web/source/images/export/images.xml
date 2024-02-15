@@ -2,9 +2,14 @@
 <images>
    <image id="export1" url="export1.png" />
    <image id="export2" url="export2.png" />
+   <image id="export2Small" url="export2Small.png" />
    <image id="exportTreeLayout" url="exportTreeLayout.png" />
    <image id="exportHierarchicalLayout" url="exportHierarchicalLayout.png" />
-   <image id="exportResult" url="exportResult.png" />
+   <image id="exportHierarchicalLayout2" url="exportHierarchicalLayout2.png" />
+   <image id="exportHierarchicalLayout3" url="exportHierarchicalLayout3.png" />
+   <image id="exportResultHierarchical" url="exportResultHierarchical.png" />
+   <image id="exportResultHierarchical2" url="exportResultHierarchical2.png" />
+   <image id="exportResultTree" url="exportResultTree.png" />
    <image id="edgerouting" url="edgerouting.png" />
    <image id="edgeroutingResult" url="edgeroutingResult.png" />
    <image id="diagramafternodemove" url="diagramafternodemove.png" />

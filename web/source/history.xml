@@ -84,21 +84,31 @@
       <li>Show the SuperClasses and the SubClasses in the Classes dependencies</li>
       <li>Show the SuperProperties and the SubProperties in the Properties dependencies</li>
    </ul>
-   
+
    <title title="Version 0.9" />
    <ul>
       <li>Use jGraphml 1.2.6</li>
       <li>Fix the package export in yEd not always putting some range classes correctly</li>
       <li>Fix the Class dependencies for domain and range object properties in the dependencies dialog</li>
       <li>Show the Functional and InverseFunctional characteristics of Properties</li>
-      <li>Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes</li>        
-   </ul>    
-   
+      <li>Fix the package dependencies export for classes which belong to several packages not showing any from package for these classes</li>
+   </ul>
+
    <title title="Version 0.10" />
    <ul>
-      <li>Use jGraphml 1.2.7</li>    
-      <li>Use MDIUtilities 1.2.62</li>      
-   </ul>    
+      <li>Use docJGenerator 1.6.6.1</li>
+      <li>Use jGraphml 1.2.8</li>
+      <li>Use MDIUtilities 1.2.63</li>
+      <li>Take into account functional properties when computing the cardinalities of properties</li>
+      <li>Allow multi-selection on elements for the export </li>
+   </ul>
+
+   <title title="Version 0.11" />
+   <ul>
+      <li>Fix some cases where there were several times the same Object property link shown the the yEd export diagram</li>
+      <li>Fix some cases where the default prefix of a schema was not correctly detected</li>
+      <li>Add a configuration property to show elements using the default namespace / prefix in bold</li>
+   </ul>
 
    <cat id="general" />
 </article>

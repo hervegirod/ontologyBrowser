@@ -14,43 +14,54 @@
       Note that the exported diagrams have no layout, you will need to use the layout features of yEd to obtain a readable diagram.
    </messageBox>
 
-   <title title="layout"/>
-   <title level="2" title="apply a full layout"/>
+   <title title="apply a layout"/>
    The exported diagrams have no layout, you will need to use the layout features of yEd to obtain a readable diagram.
+   
+   <title level="2" title="apply a hierarchical layout on the diagram"/>
+   The hierarchical layout in yEd will try to organize the nodes respecting the nodes hierarchy.
 
    For example, suppose the following Owl/RDF diagram:
    <img id="export1" width="60%" />
 
    The result of the export is the following, when opened with yEd:
    <img id="export2" width="60%" />
-
-   You can apply a Tree layout:
-   <img id="exportTreeLayout" />
    
-   or a Hierarchical layout:
-   <img id="exportHierarchicalLayout" />
+   If you apply a Hierarchical layout:
+   <img id="exportHierarchicalLayout" />   
 
    The result will be:
-   <img id="exportResult" width="60%" />
+   <img id="exportResultHierarchical" />
+   
+   <title level="2" title="configure the hierarchical layout"/>
+   <moreInfo id="Diagrams export layout" />
+   It is possible to configure the hierarchical layout to ensure that the Y relative position if nodes is kept if possible when applying the layout.
+   
+   To configure this layout, right-click on the "Hierarchical" option. The following panel will appear:
+   <img id="exportHierarchicalLayout2" />  
+   
+   If you check the "Use Drawing As Sketch" checkbox, the tool will try to ensure that the Y relative position if nodes is kept if possible when applying the layout.
+   
+   <title level="2" title="apply a tree layout on the diagram"/>
+   The tree layout in yEd will try to organize the nodes in a tree.
 
-   You can apply an edge routing:
-   <img id="edgerouting" />
+   If you apply a Tree layout on the same diagram:
+   <img id="exportTreeLayout" />
 
    The result will be:
-   <img id="exportResult" width="60%" />
+   <img id="exportResultTree" />   
 
    <title level="2" title="apply edges routing"/>
-   It is mpossible to apply edges oouting without moving the nodes, which can be useful if you moved node after applying a full layout, and you only want
+   It is possible to apply edges routing without moving the nodes, which can be useful if you moved node after applying a layout, and you only want
    to fix the edged paths.
 
-   For example, suppose the follwing diagram, after we moved the <code>Class3</code> node:
-   <img id="diagramafternodemove" width="60%" />
+   For example, suppose the following diagram, after we moved the <code>Class3</code> node:
+   <img id="diagramafternodemove" />
 
    You can apply edges routing:
    <img id="edgerouting" />
 
    The result will be:
-   <img id="diagramafternodemoveedgerouting" width="60%" />
+   <img id="diagramafternodemoveedgerouting" />
 
    <title title="GraphML format"/>
    The yEd tool is compatible with the standardized GraphML format which is the graph output format of the Ontology browser tool.

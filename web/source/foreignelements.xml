@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Foreign Elements parsing">
+   <meta desc="This article explains how the Foreign Elements are included in the model" />
+   By default all foreign elements (that is elements which are not in the defaut namespace of the Ontology) are presented. However it is possible to:
+   <ul>
+      <li>Only show foreign elements if are associated with an element which is in the default namespace</li>
+      <li>Show elements in the default namespace in bold and foreign elements in regular font in the tree</li>
+   </ul> 
+   
+   <title title="configuration options" />
+   The <ref id="configuration" desc="configuration options" /> which specify these options are:
+   <ul>
+      <li>General settings:
+         <ul>
+            <li>"Show Own Elements in Bold": checked if elements which are in the default namespace are presented in Bold in the tree</li> 
+         </ul>
+      </li>
+      <li>Parsing settings:
+         <ul>
+            <li>"Include Foreign Disconnected Elements": checked if elements from namespaces different from the default namespace should not be included in the
+               result by default</li> 
+         </ul>
+      </li>      
+   </ul> 
+   
+   <title title="Example" />  
+   Suppose the following ontology, importing the BFO ontology:
+   <img id="ownelementsprotege" />
+   
+   With the default configuration, we have:
+   <img id="ownelementsforeignall" />
+   
+   If we uncheck the "Include Foreign Disconnected Elements" property, we will have:
+   <img id="ownelementsforeign" />
+   
+   If we check the "Show Own Elements in Bold" property, we will have:
+   <img id="ownelementsbold" />   
+   
+   <see id="configuration" />
+   <cat id="configuration" />
+</article>

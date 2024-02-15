@@ -40,7 +40,6 @@
       <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
       <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
       <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
-      <li>"Layout super-classes on top": checked if the exported diagram will try to put super-classes on top of their sub-classes</li>
    </ul>
 
    <title title="Parsing settings" />
@@ -48,6 +47,8 @@
    <img id="configParsing" />
    <ul>
       <li>"Include Individuals": checked if individuals must be included in the result</li>
+      <li>"Include Foreign Disconnected Elements": checked if elements from namespaces different from the default namespace should not be included in the
+         result by default. See also <ref id="Foreign Elements parsing" /> for more information</li>      
       <li>"Strict Mode": set if the browser is currently in strict checking mode. Strict mode means that converting a common resource to a
          particular language element, such as an ontology class, will be subject to some simple syntactic-level checks for appropriateness</li>
       <li>"Model Specification": set the ontology model specification used to construct the Ontology model. See also <ref id="Model Specification" /> for
@@ -90,7 +91,8 @@
    <ul>
       <li>"Width Padding" : the padding for the boxes widths</li>
       <li>"Height Padding" : the padding for the boxes height</li>
-      <li>"Has Custom Styles": checked if the style of diagrams is customized</li>
+      <li>"Custom Styles": Specify the XML file for the custom style of diagrams</li>
+      <li>"Layout option": Specify how the layout of diagrams is computed for the <ref id="Yed"/> export. See also <ref id="Diagrams export layout" /></li>
    </ul>
 
    <title title="Packages settings" />

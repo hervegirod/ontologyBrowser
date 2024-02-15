@@ -10,5 +10,9 @@
       <image id="configStyles" url="configStyles.png" />
       <image id="configPackages" url="configPackages.png" />
       <image id="configYed" url="configYed.png" />
+      <image id="ownelementsprotege" url="ownelementsprotege.png" />
+      <image id="ownelementsforeignall" url="ownelementsforeignall.png" />
+      <image id="ownelementsforeign" url="ownelementsforeign.png" />
+      <image id="ownelementsbold" url="ownelementsbold.png" />
    </category>
 </images>
