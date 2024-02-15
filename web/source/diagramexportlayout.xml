@@ -31,7 +31,7 @@
         <li>"Children on South Relative Position": Additionally, Data properties and Individuals should be presented below their super-classes</li>
     </ul>
     
-    <titlte title="example" />
+    <title title="example" />
     Suppose the following Ontology:
    For example, suppose the following Owl/RDF diagram:
    <img id="export1" width="60%" />
