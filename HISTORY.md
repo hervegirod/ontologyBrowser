@@ -88,3 +88,4 @@
    with elements in the default namespace
  - Allow to configure the layout of the diagram when exporting
  - Fix the default directory which was sometimes incorrectly set
+ - Fix the namespaces which could be incorrectly set on the overall Ontology
