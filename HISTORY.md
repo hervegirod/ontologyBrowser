@@ -84,3 +84,7 @@
  - Fix some cases where there were several times the same Object property link shown the the yEd export diagram
  - Fix some cases where the default prefix of a schema was not correctly detected
  - Add a configuration property to show elements using the default namespace / prefix in bold
+ - Add a configuration property to avoid to show foreign elements (using namespaces different from the default namespace) if they have no association
+   with elements in the default namespace
+ - Allow to configure the layout of the diagram when exporting
+ - Fix the default directory which was sometimes incorrectly set
