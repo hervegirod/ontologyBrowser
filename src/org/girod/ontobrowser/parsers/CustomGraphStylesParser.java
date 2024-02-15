@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,104 +44,130 @@ import org.xml.sax.Attributes;
 /**
  * This class allows to parse the custom colors for the browser.
  *
- * @version 0.8
+ * @version 0.11
  */
 public class CustomGraphStylesParser extends BasicSAXHandler {
-   private CustomGraphStyles graphStyles;
-   private CustomGraphStyles.ElementStyle currentStyle = null;
-   
+    
+    private CustomGraphStyles graphStyles;
+    private CustomGraphStyles.ElementStyle currentStyle = null;
+    
+    public CustomGraphStylesParser() {
+    }
+    
+    public void parse(File file) {
+        BrowserConfiguration conf = BrowserConfiguration.getInstance();
+        graphStyles = conf.getCustomGraphStyles();
+        graphStyles.reset();
+        XMLSAXParser parser = new XMLSAXParser(this);
+        parser.setSchema(conf.getGraphStylesSchema());
+        parser.parse(file);
+    }
 
-   public CustomGraphStylesParser() {
-   }
-
-   public void parse(File file) {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
-      graphStyles = conf.getCustomGraphStyles();
-      graphStyles.reset();
-      XMLSAXParser parser = new XMLSAXParser(this);
-      parser.setSchema(conf.getGraphStylesSchema());
-      parser.parse(file);
-   }
-
-   /**
-    * Receive notification of the beginning of an element.
-    *
-    */
-   @Override
-   public void startElement(String uri, String localname, String qname, Attributes attr) {
-      if (qname.equals("element")) {
-         parseElement(attr);
-      } else if (qname.equals("background") && currentStyle != null) {
-         parseBackgroundColor(attr);
-      } else if (qname.equals("property") && currentStyle != null) {
-         parseProperty(attr);         
-      }
-   }
-   
-   private void parseElement(Attributes attr) {
-      currentStyle = null;
-      
-      for (int i = 0; i < attr.getLength(); i++) {
-         String attrname = attr.getQName(i);
-         String attrvalue = attr.getValue(i);
-         if (attrname.equals("type")) {
-            switch (attrvalue) {
-               case "class":
-                  currentStyle = graphStyles.getStyle(CustomGraphStyles.CLASS);
-                  break;
-               case "package":
-                  currentStyle = graphStyles.getStyle(CustomGraphStyles.PACKAGE);
-                  break;
-               case "externalPackage":
-                  currentStyle = graphStyles.getStyle(CustomGraphStyles.EXTERNAL_PACKAGE);
-                  break;      
-               case "individual":
-                  currentStyle = graphStyles.getStyle(CustomGraphStyles.INDIVIDUAL);
-                  break;   
-               case "property":
-                  currentStyle = graphStyles.getStyle(CustomGraphStyles.PROPERTY);
-                  break;                    
+    /**
+     * Receive notification of the beginning of an element.
+     *
+     */
+    @Override
+    public void startElement(String uri, String localname, String qname, Attributes attr) {
+        if (qname.equals("element")) {
+            parseElement(attr);
+        } else if (qname.equals("diagramLayout")) {
+            parseDiagramLayout(attr);            
+        } else if (qname.equals("background") && currentStyle != null) {
+            parseBackgroundColor(attr);
+        } else if (qname.equals("property") && currentStyle != null) {
+            parseProperty(attr);            
+        }
+    }
+    
+    private void parseDiagramLayout(Attributes attr) {
+        for (int i = 0; i < attr.getLength(); i++) {
+            String attrname = attr.getQName(i);
+            String attrvalue = attr.getValue(i);
+            if (attrname.equals("distance")) {
+                try {
+                    float distance = Float.parseFloat(attrvalue);
+                    if (distance > 0) {
+                        graphStyles.setLayoutDistance(distance);
+                    }
+                } catch (NumberFormatException e) {
+                }
+            } else if (attrname.equals("maximumSteps")) {
+                try {
+                    int maximumSteps = Integer.parseInt(attrvalue);
+                    if (maximumSteps > 0) {
+                        graphStyles.setLayoutMaximumSteps(maximumSteps);
+                    }
+                } catch (NumberFormatException e) {
+                }
             }
-         }
-      }
-   }
-
-   private void parseBackgroundColor(Attributes attr) {
-      for (int i = 0; i < attr.getLength(); i++) {
-         String attrname = attr.getQName(i);
-         String attrvalue = attr.getValue(i);
-         switch (attrname) {
-            case "color": {
-               Color col = HTMLSwingColors.decodeColor(attrvalue);
-               currentStyle.backgroundColor = col;
-               break;
+        }
+    }
+    
+    private void parseElement(Attributes attr) {
+        currentStyle = null;
+        
+        for (int i = 0; i < attr.getLength(); i++) {
+            String attrname = attr.getQName(i);
+            String attrvalue = attr.getValue(i);
+            if (attrname.equals("type")) {
+                switch (attrvalue) {
+                    case "class":
+                        currentStyle = graphStyles.getStyle(CustomGraphStyles.CLASS);
+                        break;
+                    case "package":
+                        currentStyle = graphStyles.getStyle(CustomGraphStyles.PACKAGE);
+                        break;
+                    case "externalPackage":
+                        currentStyle = graphStyles.getStyle(CustomGraphStyles.EXTERNAL_PACKAGE);
+                        break;                    
+                    case "individual":
+                        currentStyle = graphStyles.getStyle(CustomGraphStyles.INDIVIDUAL);
+                        break;                    
+                    case "property":
+                        currentStyle = graphStyles.getStyle(CustomGraphStyles.PROPERTY);
+                        break;                    
+                }
             }
-         }
-      }
-   }
-   
-   private void parseProperty(Attributes attr) {
-      String key = null;
-      String value = null;
-      
-      for (int i = 0; i < attr.getLength(); i++) {
-         String attrname = attr.getQName(i);
-         String attrvalue = attr.getValue(i);
-         switch (attrname) {
-            case "key":
-               key = attrvalue;
-               break;
-            case "value":
-               value = attrvalue;
-               break;               
-         }
-      }
-      if (key != null && value != null) {
-         if (currentStyle.type == CustomGraphStyles.PACKAGE) {
-            if (key.equals("showInnerGraphDisplay")) {
-               graphStyles.setShowInnerGraphDisplay(value.equals("true"));
+        }
+    }
+    
+    private void parseBackgroundColor(Attributes attr) {
+        for (int i = 0; i < attr.getLength(); i++) {
+            String attrname = attr.getQName(i);
+            String attrvalue = attr.getValue(i);
+            switch (attrname) {
+                case "color": {
+                    Color col = HTMLSwingColors.decodeColor(attrvalue);
+                    currentStyle.backgroundColor = col;
+                    break;
+                }
             }
-         }
-      }
-   }   
+        }
+    }
+    
+    private void parseProperty(Attributes attr) {
+        String key = null;
+        String value = null;
+        
+        for (int i = 0; i < attr.getLength(); i++) {
+            String attrname = attr.getQName(i);
+            String attrvalue = attr.getValue(i);
+            switch (attrname) {
+                case "key":
+                    key = attrvalue;
+                    break;
+                case "value":
+                    value = attrvalue;
+                    break;                
+            }
+        }
+        if (key != null && value != null) {
+            if (currentStyle.type == CustomGraphStyles.PACKAGE) {
+                if (key.equals("showInnerGraphDisplay")) {
+                    graphStyles.setShowInnerGraphDisplay(value.equals("true"));
+                }
+            }
+        }
+    }    
 }

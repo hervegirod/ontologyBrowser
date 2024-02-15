@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023 Hervé Girod
+Copyright (c) 2021, 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import org.apache.jena.ontology.ObjectProperty;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
@@ -41,7 +42,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
 /**
  * Represents an Owl Object property.
  *
- * @version 0.9
+ * @version 0.11
  */
 public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
    private final Map<ElementKey, OwlRestriction> range = new HashMap<>();
@@ -119,6 +120,23 @@ public class OwlObjectProperty extends OwlProperty<ObjectProperty> {
    public Map<ElementKey, OwlRestriction> getRange() {
       return range;
    }
+   
+   /**
+    * Return an iterator on the property range.
+    *
+    * @return the iterator
+    */
+   public Iterator<Map.Entry<ElementKey, OwlClass>> getRangeIterator() {
+      Map<ElementKey, OwlClass> map = new HashMap<>();
+      Iterator<OwlRestriction> it = range.values().iterator();
+      while (it.hasNext()) {
+         OwlRestriction restriction = it.next();
+         OwlClass theClass = restriction.getOwlClass();
+         map.put(theClass.getKey(), theClass);
+      }
+
+      return map.entrySet().iterator();
+   }   
 
    @Override
    public boolean isObjectProperty() {

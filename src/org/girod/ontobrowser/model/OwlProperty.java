@@ -33,7 +33,9 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.jena.ontology.OntProperty;
 import org.girod.ontobrowser.model.restriction.OwlRestriction;
 import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
@@ -42,7 +44,7 @@ import org.girod.ontobrowser.model.restriction.UnrestrictedOwlRestriction;
  * An abstract OwlProperty.
  *
  * @param <T> the property type
- * @version 0.10
+ * @version 0.11
  */
 public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement<OwlProperty> {
    private final Map<ElementKey, OwlRestriction> domain = new HashMap<>();
@@ -171,11 +173,28 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
    }
 
    /**
+    * Return an iterator on the property domain.
+    *
+    * @return the iterator
+    */
+   public Iterator<Entry<ElementKey, OwlClass>> getDomainIterator() {
+      Map<ElementKey, OwlClass> map = new HashMap<>();
+      Iterator<OwlRestriction> it = domain.values().iterator();
+      while (it.hasNext()) {
+         OwlRestriction restriction = it.next();
+         OwlClass theClass = restriction.getOwlClass();
+         map.put(theClass.getKey(), theClass);
+      }
+
+      return map.entrySet().iterator();
+   }
+
+   /**
     * Add an equivalent (alias) property.
     *
     * @param aliasProperty the equivalent property
     */
-   public void addEquivalentProperty(OwlProperty aliasProperty) {
+   public void addAliasProperty(OwlProperty aliasProperty) {
       this.aliasProperties.put(aliasProperty.getKey(), aliasProperty);
       aliasProperty.propertyFromAlias.put(getKey(), this);
    }
@@ -185,11 +204,11 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
     *
     * @return the equivalent properties
     */
-   public Map<ElementKey, OwlProperty> getEquivalentProperties() {
+   public Map<ElementKey, OwlProperty> getAliasProperties() {
       return aliasProperties;
    }
 
-   public boolean hasEquivalentProperties() {
+   public boolean hasAliasProperties() {
       return !aliasProperties.isEmpty();
    }
 
@@ -286,7 +305,7 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
     * Return the minimum cardinality of the property.
     *
     * @return the cardinality
-    */       
+    */
    public int getMinCardinality() {
       return minCardinality;
    }
@@ -300,10 +319,11 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
    }
 
    /**
-    * Compute the maximum cardinality of the property. Note that if the property is functional or inverse functional, then the maximum cardinality will be 1.
+    * Compute the maximum cardinality of the property. Note that if the property is functional or inverse functional, then the maximum
+    * cardinality will be 1.
     *
     * @return the cardinality
-    */   
+    */
    public int computeMaxCardinality() {
       if (isFunctionalProperty() || isInverseFunctionalProperty()) {
          return 1;
@@ -318,7 +338,7 @@ public abstract class OwlProperty<T extends OntProperty> extends NamedOwlElement
     * Return the maximum cardinality of the property, not taking into account if the property is functional or inverse functional.
     *
     * @return the cardinality
-    */    
+    */
    public int getMaxCardinality() {
       return maxCardinality;
    }

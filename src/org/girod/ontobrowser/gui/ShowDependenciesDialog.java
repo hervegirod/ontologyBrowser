@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This Dialog shows the dependencies of an element.
  *
- * @version 0.8
+ * @version 0.11
  */
 public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
    private NamedOwlElement element;
@@ -320,9 +320,9 @@ public class ShowDependenciesDialog extends GenericDialog implements MDIDialog {
          }           
 
          // equivalent properties
-         if (theProperty.hasEquivalentProperties()) {
+         if (theProperty.hasAliasProperties()) {
             model.addElement("Alias Properties");
-            SortedMap<ElementKey, OwlProperty> mapc = new TreeMap<>(theProperty.getEquivalentProperties());
+            SortedMap<ElementKey, OwlProperty> mapc = new TreeMap<>(theProperty.getAliasProperties());
             Iterator<OwlProperty> iti = mapc.values().iterator();
             while (iti.hasNext()) {
                OwlProperty alias = iti.next();

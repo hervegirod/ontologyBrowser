@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.mdi.bootstrap.swing.GUIApplication;
 /**
  * The Action that search for elements.
  *
- * @version 0.7
+ * @version 0.11
  */
 public class SearchAction extends AbstractMDIAction {
    private final String category;
@@ -247,8 +247,8 @@ public class SearchAction extends AbstractMDIAction {
    }
 
    private void addAliasedProperties(List<NamedOwlElement> list, OwlProperty property) {
-      if (property.hasEquivalentProperties()) {
-         Iterator<OwlProperty> it2 = property.getEquivalentProperties().values().iterator();
+      if (property.hasAliasProperties()) {
+         Iterator<OwlProperty> it2 = property.getAliasProperties().values().iterator();
          while (it2.hasNext()) {
             OwlProperty theProperty = it2.next();
             list.add(theProperty);

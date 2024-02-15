@@ -64,7 +64,7 @@ import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.util.FileManager;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
-import org.girod.ontobrowser.actions.graph.GraphExtractor;
+import org.girod.ontobrowser.parsers.graph.GraphExtractor;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.errors.SwingErrorLogger;
@@ -88,7 +88,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.10
+ * @version 0.11
  */
 public class OpenModelAction extends AbstractMDIAction {
    private File file = null;
@@ -478,8 +478,8 @@ public class OpenModelAction extends AbstractMDIAction {
       while (it2.hasNext()) {
          ElementKey key = it2.next();
          OwlDatatypeProperty theProperty = owlDatatypeProperties.get(key);
-         if (showAlias && theProperty.hasEquivalentProperties()) {
-            Iterator<ElementKey> it4 = theProperty.getEquivalentProperties().keySet().iterator();
+         if (showAlias && theProperty.hasAliasProperties()) {
+            Iterator<ElementKey> it4 = theProperty.getAliasProperties().keySet().iterator();
             while (it4.hasNext()) {
                ElementKey keyAlias = it4.next();
                mxCell theCell = cell4Property.get(key);

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.net.URL;
 import java.util.Map;
 import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
-import org.girod.ontobrowser.actions.graph.PackagesExtractor;
+import org.girod.ontobrowser.parsers.graph.PackagesExtractor;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -53,7 +53,7 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @version 0.8
+ * @version 0.11
  */
 @RunWith(OrderedRunner.class)
 public class PackagesExtractorTest {

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,53 +30,41 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions.graph;
+package org.girod.ontobrowser.parsers.graph;
 
 import java.util.HashSet;
 import java.util.Set;
 import org.girod.ontobrowser.model.ElementKey;
 
 /**
- * The skipped annotations.
+ * The skipped namespaces for foreign elements.
  *
- * @version 0.8
+ * @since 0.11
  */
-public class SkippedAnnotations {
-   private static SkippedAnnotations annotationsInstance = null;
-   private final Set<ElementKey> skipped = new HashSet<>();
+public class SkippedNamespaces {
 
-   private SkippedAnnotations() {
-      setup();
-   }
+    private static SkippedNamespaces skippedNamespaces = null;
+    private final Set<String> skipped = new HashSet<>();
 
-   public static SkippedAnnotations getInstance() {
-      if (annotationsInstance == null) {
-         annotationsInstance = new SkippedAnnotations();
-      }
-      return annotationsInstance;
-   }
+    private SkippedNamespaces() {
+        setup();
+    }
 
-   public boolean isSkipped(ElementKey key) {
-      return skipped.contains(key);
-   }
+    public static SkippedNamespaces getInstance() {
+        if (skippedNamespaces == null) {
+            skippedNamespaces = new SkippedNamespaces();
+        }
+        return skippedNamespaces;
+    }
 
-   private void setup() {
-      String owl = "http://www.w3.org/2002/07/owl#";
-      addSkipped(owl, "inverseOf");
-      addSkipped(owl, "equivalentClass");
+    public static boolean isSkipped(ElementKey key) {
+        SkippedNamespaces.getInstance();
+        return skippedNamespaces.skipped.contains(key.getNamespace());
+    }
 
-      String rdfSchema = "http://www.w3.org/2000/01/rdf-schema#";
-      addSkipped(rdfSchema, "domain");
-      addSkipped(rdfSchema, "range");
-      addSkipped(rdfSchema, "subClassOf");
-      addSkipped(rdfSchema, "subPropertyOf");
-
-      String rdfsyntax = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-      addSkipped(rdfsyntax, "type");
-   }
-
-   private void addSkipped(String namespace, String name) {
-      ElementKey key = ElementKey.create(namespace, name);
-      skipped.add(key);
-   }
+    private void setup() {
+        skipped.add("http://www.w3.org/2002/07/owl#");
+        skipped.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        skipped.add("http://www.w3.org/2000/01/rdf-schema#");
+    }
 }

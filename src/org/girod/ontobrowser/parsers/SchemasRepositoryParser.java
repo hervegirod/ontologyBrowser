@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.model.NamespaceUtils;
 import org.girod.ontobrowser.model.SchemasRepository;
 import org.mdiutil.xml.XMLSAXParser;
 import org.mdiutil.xml.swing.BasicSAXHandler;
@@ -50,7 +51,7 @@ import org.xml.sax.Attributes;
 /**
  * This class allows to parse the schemas repository configuration.
  *
- * @since 0.8
+ * @version 0.11
  */
 public class SchemasRepositoryParser extends BasicSAXHandler {
    private final SchemasRepository schemaRepository = SchemasRepository.getInstance();
@@ -144,7 +145,7 @@ public class SchemasRepositoryParser extends BasicSAXHandler {
             }
             break;
             case "namespace":
-               namespace = attrvalue;
+               namespace = NamespaceUtils.fixNamespace(attrvalue);
                break;
             case "description":
                description = attrvalue;

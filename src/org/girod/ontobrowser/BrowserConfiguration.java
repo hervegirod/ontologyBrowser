@@ -51,6 +51,7 @@ import org.mdiutil.lang.swing.ResourceUILoader;
 import org.mdiutil.prefs.PreferencesHelper;
 import org.mdiutil.swing.ExtensionFileFilter;
 import org.mdiutil.swing.JErrorPane;
+import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 
 /**
  * The browser configuration.
@@ -82,6 +83,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showIndirectRelations = false;
    public boolean showComments = false;
    public boolean showOwnElementsInBold = false;
+   public boolean includeForeignDisconnectedElements = true;
    public boolean includeParentRelations = false;
    public boolean includeAlias = false;
    public short logLevel = ErrorLevel.WARNING;
@@ -93,7 +95,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showAlias = false;
    public boolean showRelationsConstraints = false;
    public boolean showDataPropertiesTypes = false;
-   public boolean superClassesOnTop = false;
+   public short layoutOptions = LayoutOptions.ANY_POSITION;
    /*
     * Parsing configuration
     */
@@ -205,7 +207,7 @@ public class BrowserConfiguration implements Configuration {
     * @param dir the default directory
     */
    public void setDefaultDirectory(File dir) {
-      defaultDir = dir;
+      this.defaultDir = dir;
    }
 
    /**
@@ -258,9 +260,6 @@ public class BrowserConfiguration implements Configuration {
     */
    public void setAlternateLocations(File[] alternateLocations) {
       this.alternateLocations = alternateLocations;
-      if (alternateLocations != null && alternateLocations.length != 0) {
-         this.defaultDir = alternateLocations[0].getParentFile();
-      }
       SchemasResolvers.getInstance().setAlternateLocations(alternateLocations, useBuiltinSchemas);
    }
 
@@ -323,7 +322,6 @@ public class BrowserConfiguration implements Configuration {
          CustomGraphStylesParser parser = new CustomGraphStylesParser();
          try {
             parser.parse(customGraphStylesFile);
-            this.defaultDir = customGraphStylesFile.getParentFile();
             this.customGraphStylesFile = customGraphStylesFile;
             this.hasCustomStyles = true;
          } catch (Exception e) {
@@ -383,7 +381,6 @@ public class BrowserConfiguration implements Configuration {
          try {
             parser.parse(packagesConfiguration);
             this.hasPackagesConfiguration = true;
-            this.defaultDir = packagesConfiguration.getParentFile();
             this.packagesConfigurationFile = packagesConfiguration;
          } catch (Exception e) {
             this.hasPackagesConfiguration = false;
@@ -441,7 +438,6 @@ public class BrowserConfiguration implements Configuration {
          SchemasRepositoryParser parser = new SchemasRepositoryParser();
          try {
             parser.parse(schemasRepositoryFile);
-            this.defaultDir = schemasRepositoryFile.getParentFile();
             this.schemasRepositoryFile = schemasRepositoryFile;
          } catch (Exception e) {
             this.schemasRepositoryFile = null;
@@ -462,8 +458,8 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("autoRefresh", autoRefresh);
       p.putBoolean("multiSelection", multiSelection);
       p.putBoolean("showIndirectRelations", showIndirectRelations);      
-      p.putBoolean("showComments", showComments);
       p.putBoolean("showOwnElementsInBold", showOwnElementsInBold);
+      p.putBoolean("showComments", showComments);
       p.putBoolean("includeParentRelations", includeParentRelations);
       p.putBoolean("includeAlias", includeAlias);
       p.putInt("logLevel", (int) logLevel);
@@ -472,10 +468,11 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showRelationsConstraints", showRelationsConstraints);
       p.putBoolean("showDataPropertiesTypes", showDataPropertiesTypes);  
       p.putBoolean("showAlias", showAlias);
-      p.putBoolean("superClassesOnTop", superClassesOnTop);
+      p.putInt("superClassPosition", (int)layoutOptions);
 
       // parsing
       p.putBoolean("includeIndividuals", includeIndividuals);
+      p.putBoolean("includeForeignDisconnectedElements", includeForeignDisconnectedElements);
       p.putBoolean("addThingClass", addThingClass);
       p.putBoolean("strictMode", strictMode);
       p.put("modelSpec", modelSpec);
@@ -521,6 +518,7 @@ public class BrowserConfiguration implements Configuration {
       showIndirectRelations = p.getBoolean("showIndirectRelations", showIndirectRelations);
       showComments = p.getBoolean("showComments", showComments);
       showOwnElementsInBold = p.getBoolean("showOwnElementsInBold", showOwnElementsInBold);
+      includeForeignDisconnectedElements = p.getBoolean("includeForeignDisconnectedElements", includeForeignDisconnectedElements);
       includeParentRelations = p.getBoolean("includeParentRelations", includeParentRelations);
       includeAlias = p.getBoolean("includeAlias", includeAlias);
       logLevel = (short) p.getInt("logLevel", logLevel);
@@ -529,7 +527,7 @@ public class BrowserConfiguration implements Configuration {
       showAlias = p.getBoolean("showAlias", showAlias);
       showRelationsConstraints = p.getBoolean("showRelationsConstraints", showRelationsConstraints);
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
-      superClassesOnTop = p.getBoolean("superClassesOnTop", superClassesOnTop);
+      layoutOptions = (short)p.getInt("superClassPosition", layoutOptions);
 
       // parsing
       includeIndividuals = p.getBoolean("includeIndividuals", includeIndividuals);

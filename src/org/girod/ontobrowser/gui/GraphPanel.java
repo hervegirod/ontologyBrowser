@@ -1455,6 +1455,6 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
    }
 
    private OwlElementRep createElementRep(NamedOwlElement theElement) {
-      return new OwlElementRep(theElement, schema, hasDefaultPrefix, allowBold);
+      return new OwlElementRep(theElement, schema, allowBold);
    }
 }

@@ -51,7 +51,7 @@ import org.girod.ontobrowser.utils.SchemaUtils;
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.8
+ * @version 0.11
  */
 public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDeclaredSchema, Cloneable, Serializable {
    private File file = null;
@@ -112,13 +112,10 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
       Iterator<Entry<String, String>> it = ontModel.getNsPrefixMap().entrySet().iterator();
       while (it.hasNext()) {
          Entry<String, String> entry = it.next();
-         String ns = entry.getValue();
+         String ns = NamespaceUtils.fixNamespace(entry.getValue());
          String prefix = entry.getKey();
          prefixMap.put(ns, prefix);
          prefixToNamespace.put(prefix, ns);
-         if (!ns.endsWith("/#")) {
-            prefixMap.put(ns + "/#", prefix);
-         }
       }
       if (prefixToNamespace.containsKey("")) {
          defaultNamespace = prefixToNamespace.get("");
@@ -127,15 +124,11 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
       while (it.hasNext()) {
          Entry<String, String> entry = it.next();
          String prefix = entry.getKey();
-         String ns = entry.getValue();
+         String ns = NamespaceUtils.fixNamespace(entry.getValue());
          if (prefix.isEmpty()) {
             continue;
          }
-         String _ns = ns;
-         if (_ns.endsWith("#")) {
-            _ns = _ns.substring(0, _ns.length() - 1);
-         }
-         if (defaultNamespace != null && (defaultNamespace.equals(_ns) || defaultNamespace.equals(ns))) {
+         if (defaultNamespace != null && defaultNamespace.equals(ns)) {
             defaultPrefix = prefix;
          } else {
             switch (ns) {
@@ -148,15 +141,15 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
                   break;
                default:
                   if (defaultNamespace == null || !ns.equals(defaultNamespace)) {
-                     OwlImportedSchema imported = new OwlImportedSchema(prefix, _ns);
+                     OwlImportedSchema imported = new OwlImportedSchema(prefix, ns);
                      importedSchemas.put(prefix, imported);
-                     importedSchemasFromNamespace.put(_ns, imported);
+                     importedSchemasFromNamespace.put(ns, imported);
 
-                     if (schemasRepository.hasSchemaByNamespace(_ns)) {
-                        SchemasRepository.SchemaRep schemaRep = schemasRepository.getSchemaByNamespace(_ns);
+                     if (schemasRepository.hasSchemaByNamespace(ns)) {
+                        SchemasRepository.SchemaRep schemaRep = schemasRepository.getSchemaByNamespace(ns);
                         imported.setSchemaRep(schemaRep);
                      } else {
-                        SchemasRepository.SchemaRep schemaRep = new SchemasRepository.SchemaRep(_ns);
+                        SchemasRepository.SchemaRep schemaRep = new SchemasRepository.SchemaRep(ns);
                         imported.setSchemaRep(schemaRep);
                      }
                      declaredSchemasFromNamespace.put(ns, imported.getSchemaRep());

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions.graph;
+package org.girod.ontobrowser.parsers.graph;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,7 +64,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * A helper for boolean expressions.
  *
- * @version 0.8
+ * @version 0.11
  */
 public class ExpressionsHelper {
    private final OwlSchema graph;
@@ -267,7 +267,7 @@ public class ExpressionsHelper {
                ElementKey theKey = it2.next();
                if (graph.hasOwlProperty(theKey)) {
                   OwlProperty theOtherProperty = graph.getOwlProperty(theKey);
-                  thisProperty.addEquivalentProperty(theOtherProperty);
+                  thisProperty.addAliasProperty(theOtherProperty);
                }
             }
          }

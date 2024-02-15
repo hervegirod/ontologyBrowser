@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Represents a named Owl element.
  *
- * @version 0.9
+ * @version 0.11
  * @param <T> the element type
  */
 public abstract class NamedOwlElement<T extends NamedOwlElement> extends AnnotatedElement implements NamedElement, Cloneable {
@@ -56,6 +56,7 @@ public abstract class NamedOwlElement<T extends NamedOwlElement> extends Annotat
     */
    protected String prefix = null;
    private ElementKey key = null;
+   private boolean isForeign = false;
    private final Map<ElementKey, OwlClass> inEquivalentExpressions = new HashMap<>();
 
    public NamedOwlElement(String namespace, String name, String prefix) {
@@ -69,6 +70,24 @@ public abstract class NamedOwlElement<T extends NamedOwlElement> extends Annotat
       super();
       this.namespace = namespace;
       this.name = name;
+   }
+
+   /**
+    * Set if the element is foreign (does not belong to the default namespace - in the case where there is a default namespace.
+    *
+    * @param isForeign true if if the element is foreign
+    */
+   public void setForeign(boolean isForeign) {
+      this.isForeign = isForeign;
+   }
+
+   /**
+    * Return true if the element is foreign (does not belong to the default namespace - in the case where there is a default namespace.
+    *
+    * @return true if if the element is foreign
+    */   
+   public boolean isForeign() {
+      return isForeign;
    }
 
    /**

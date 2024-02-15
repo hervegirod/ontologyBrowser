@@ -50,6 +50,7 @@ import org.girod.ontobrowser.model.OntModelSpecTypes;
 import org.mdiutil.swing.JFileSelector;
 import org.mdiutil.swing.JMultipleFileSelector;
 import org.mdiutil.swing.PropertyEditor;
+import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 
 /**
  * This class encapsulates the settings.
@@ -76,6 +77,7 @@ public class BrowserSettings {
    private JCheckBox multiSelectionCb;
    private JCheckBox showCommentsCb;
    private JCheckBox showOwnElementsInBoldCb;
+   private JCheckBox includeForeignDisconnectedElementsCb;
    private JCheckBox includeParentRelationsCb;
    private JCheckBox includeAliasCb;
    private JComboBox logLevelCb;  
@@ -88,7 +90,6 @@ public class BrowserSettings {
    private JCheckBox showAliasCb;
    private JCheckBox showRelationsConstraintsCb;
    private JCheckBox showDataPropertiesTypesCb;   
-   private JCheckBox superClassesOnTopCb;   
    // Packages
    private JCheckBox showPackagesCb;
    private JCheckBox showPackagesAsClosedCb;
@@ -104,6 +105,7 @@ public class BrowserSettings {
    private final SpinnerNumberModel padHeightSpinnerModel = new SpinnerNumberModel(11, 0, 100, 1);
    private JSpinner padHeightSpinner;
    private JFileSelector customStylesFs;
+   private JComboBox layoutOptionCb;   
    // yEd
    private JFileSelector yedExeDirectoryFs;
    private JFileSelector packagesConfigurationFs;
@@ -238,7 +240,6 @@ public class BrowserSettings {
       showRelationsConstraintsCb.setSelected(conf.showRelationsConstraints);
       showDataPropertiesTypesCb.setSelected(conf.showDataPropertiesTypes);
       showAliasCb.setSelected(conf.showAlias);
-      superClassesOnTopCb.setSelected(conf.superClassesOnTop);
 
       // parsing
       includeIndividualsCb.setSelected(conf.includeIndividuals);
@@ -255,6 +256,7 @@ public class BrowserSettings {
          customStylesFs.setSelectedFile(null);
          customStylesFs.setCurrentDirectory(dir);
       }
+      layoutOptionCb.setSelectedItem(this.getLayoutOption(conf.layoutOptions));
 
       // Packages
       if (conf.getPackagesToForgetFile() != null) {
@@ -384,6 +386,15 @@ public class BrowserSettings {
          } catch (ArithmeticException ex) {
          }
       });
+      String[] positionType = {"No Constraint", "Connector on South Side", "Sub-Classes on South Relative Position", "Children on South Relative Position"};   
+      layoutOptionCb = new JComboBox<>(positionType);
+      layoutOptionCb.setSelectedItem(getLayoutOption(conf.layoutOptions));
+
+      layoutOptionCb.addItemListener(new ItemListener() {
+         public void itemStateChanged(ItemEvent e) {
+            conf.layoutOptions = getLayoutOption(layoutOptionCb.getSelectedItem().toString());
+         }
+      });       
    }
 
    /**
@@ -440,6 +451,7 @@ public class BrowserSettings {
             if (file != null) {
                conf.setSchemasRepository(file);
                dir = file.getParentFile();
+               conf.setDefaultDirectory(dir);
             } else {
                conf.setSchemasRepository(file);
             }
@@ -464,6 +476,7 @@ public class BrowserSettings {
             if (files != null && files.length != 0) {
                conf.setAlternateLocations(files);
                dir = files[0].getParentFile();
+               conf.setDefaultDirectory(dir);
             } else {
                conf.setAlternateLocations(null);
             }
@@ -493,13 +506,7 @@ public class BrowserSettings {
       showDataPropertiesTypesCb.setBackground(Color.WHITE);
       showDataPropertiesTypesCb.addActionListener((ActionEvent e) -> {
          conf.showDataPropertiesTypes = showDataPropertiesTypesCb.isSelected();
-      });
-      
-      superClassesOnTopCb = new JCheckBox("", conf.superClassesOnTop);
-      superClassesOnTopCb.setBackground(Color.WHITE);
-      superClassesOnTopCb.addActionListener((ActionEvent e) -> {
-         conf.superClassesOnTop = superClassesOnTopCb.isSelected();
-      });
+      });     
    }
 
    /**
@@ -570,7 +577,13 @@ public class BrowserSettings {
       showOwnElementsInBoldCb.setBackground(Color.WHITE);
       showOwnElementsInBoldCb.addActionListener((ActionEvent e) -> {
          conf.showOwnElementsInBold = showOwnElementsInBoldCb.isSelected();
-      });      
+      });     
+      
+      includeForeignDisconnectedElementsCb = new JCheckBox("", conf.includeForeignDisconnectedElements);
+      includeForeignDisconnectedElementsCb.setBackground(Color.WHITE);
+      includeForeignDisconnectedElementsCb.addActionListener((ActionEvent e) -> {
+         conf.includeForeignDisconnectedElements = includeForeignDisconnectedElementsCb.isSelected();
+      });     
 
       showIndirectRelationsCb = new JCheckBox("", conf.showIndirectRelations);
       showIndirectRelationsCb.setBackground(Color.WHITE);
@@ -631,6 +644,36 @@ public class BrowserSettings {
             return "No Logging";
       }
    }
+   
+   private short getLayoutOption(String option) {
+      switch (option) {
+         case "No Constraint":
+            return LayoutOptions.ANY_POSITION;
+         case "Connector on South Side":
+            return LayoutOptions.PORT_SOUTH_SIDE;
+         case "Sub-Classes on South Relative Position":
+            return LayoutOptions.SUBCLASS_SOUTH_POSITION;
+         case "Children on South Relative Position":
+            return LayoutOptions.CHILDREN_SOUTH_POSITION;            
+         default:
+            return LayoutOptions.ANY_POSITION;
+      }
+   }
+   
+   private String getLayoutOption(short option) {
+      switch (option) {
+         case LayoutOptions.ANY_POSITION:
+            return "No Constraint";
+         case LayoutOptions.PORT_SOUTH_SIDE:
+            return "Connector on South Side";
+         case LayoutOptions.SUBCLASS_SOUTH_POSITION:
+            return "Sub-Classes on South Relative Position";
+         case LayoutOptions.CHILDREN_SOUTH_POSITION:
+            return "Children on South Relative Position";            
+         default:
+            return "No Constraint";
+      }
+   }   
 
    /**
     * Initialize the package Settings.
@@ -668,6 +711,7 @@ public class BrowserSettings {
             if (file != null) {
                conf.setPackagesConfiguration(file);
                dir = file.getParentFile();
+               conf.setDefaultDirectory(dir);
             } else {
                conf.setPackagesConfiguration(null);
             }
@@ -685,7 +729,7 @@ public class BrowserSettings {
       generalSettings.addProperty(multiSelectionCb, "", "Multi Selection");
       generalSettings.addProperty(showIndirectRelationsCb, "", "Show Indirect Relations in Dependencies");
       generalSettings.addProperty(showCommentsCb, "", "Show Commented Elements");
-      generalSettings.addProperty(showOwnElementsInBoldCb, "", "Show Owl Elements in Bold");
+      generalSettings.addProperty(showOwnElementsInBoldCb, "", "Show Own Elements in Bold");
       generalSettings.addProperty(includeParentRelationsCb, "", "Include Parent Relations in Dependencies");
       generalSettings.addProperty(includeAliasCb, "", "Include Alias Relations in Dependencies");
       generalSettings.addProperty(logLevelCb, "", "Log Level");
@@ -694,10 +738,10 @@ public class BrowserSettings {
       diagramsSettings.addProperty(showRelationsConstraintsCb, "", "Show Relations Constraints");
       diagramsSettings.addProperty(showDataPropertiesTypesCb, "", "Show DataProperties Types");
       diagramsSettings.addProperty(showAliasCb, "", "Show Alias");
-      diagramsSettings.addProperty(superClassesOnTopCb, "", "Layout super-classes on top");
       diagramsSettings.setVisible(true);
 
       parsingSettings.addProperty(includeIndividualsCb, "", "Include Individuals");
+      parsingSettings.addProperty(includeForeignDisconnectedElementsCb, "", "Include Foreign Disconnected Elements");
       parsingSettings.addProperty(addThingClassCb, "", "Add Thing Class");
       parsingSettings.addProperty(strictModeCb, "", "Strict Mode");
       parsingSettings.addProperty(modelSpecCb, "", "Model Specification");
@@ -718,6 +762,7 @@ public class BrowserSettings {
       styleSettings.addProperty(padWidthSpinner, "", "Width Padding");
       styleSettings.addProperty(padHeightSpinner, "", "Height Padding");
       styleSettings.addProperty(customStylesFs, "", "Custom Styles");
+      styleSettings.addProperty(layoutOptionCb, "", "Layout Option");
       styleSettings.setVisible(true);
 
       packageSettings.addProperty(showPackagesCb, "", "Show Packages");

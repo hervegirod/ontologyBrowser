@@ -48,19 +48,13 @@ public class OwlElementRep {
    private final NamedOwlElement element;
    private final String name;
    private final String prefix;
-   private final boolean hasDefaultPrefix;
-   private final String schemaDefaultPrefix;
    private final boolean allowBold;
-   private final boolean isDefaultPrefix;
 
-   public OwlElementRep(NamedOwlElement element, OwlSchema schema, boolean hasDefaultPrefix, boolean allowBold) {
+   public OwlElementRep(NamedOwlElement element, OwlSchema schema, boolean allowBold) {
       this.element = element;
       this.name = element.getDisplayedName();
       this.prefix = schema.getPrefix(element.getNamespace());
-      this.hasDefaultPrefix = hasDefaultPrefix;
-      this.schemaDefaultPrefix = schema.getDefaultPrefix();
       this.allowBold = allowBold;
-      this.isDefaultPrefix = hasDefaultPrefix && prefix != null && schemaDefaultPrefix.equals(prefix);
    }
 
    public boolean isPackage() {
@@ -74,10 +68,7 @@ public class OwlElementRep {
    private String getDisplayedName(NamedOwlElement element) {
       String theName = element.getPrefixedDisplayedName();
       if (allowBold) {
-         String thePrefix = element.getPrefix();
-         boolean isDefaultPrefixForElement = hasDefaultPrefix && thePrefix != null && schemaDefaultPrefix.equals(thePrefix);
-
-         if (!hasDefaultPrefix || isDefaultPrefixForElement) {
+         if (!element.isForeign()) {
             theName = "<b>" + theName + "</b>";
          }
       }
@@ -90,7 +81,7 @@ public class OwlElementRep {
       buf.append("<html>");
       String defaultStringName = getDefaultStringName();
       if (allowBold) {
-         if (!hasDefaultPrefix || isDefaultPrefix) {
+         if (!element.isForeign()) {
             defaultStringName = "<b>" + defaultStringName + "</b>";
          }
       }
