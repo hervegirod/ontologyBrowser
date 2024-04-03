@@ -98,7 +98,7 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.11
+ * @version 0.12
  */
 public class GraphExtractor extends AbstractWarningAction {
 
@@ -472,7 +472,7 @@ public class GraphExtractor extends AbstractWarningAction {
     }
 
     private void addClassToGraph(OntClass thisClass, OwlClass owlThingClass) {
-        if (thisClass.getNameSpace() == null && thisClass.getLocalName() == null) {
+        if (thisClass.getLocalName() == null) {
             return;
         }
         ElementKey key = new ElementKey(thisClass.getNameSpace(), thisClass.getLocalName());
@@ -485,6 +485,9 @@ public class GraphExtractor extends AbstractWarningAction {
                     while (parents.hasNext()) {
                         OntClass superClass = parents.next();
                         isEmpty = false;
+                        if (superClass.getLocalName() == null) {
+                           continue;
+                        }
                         ElementKey skey = new ElementKey(superClass.getNameSpace(), superClass.getLocalName());
                         if (graph.hasOwlClass(skey)) {
                             OwlClass superOwlClass = graph.getOwlClass(skey);

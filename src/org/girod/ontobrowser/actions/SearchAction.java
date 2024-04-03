@@ -67,7 +67,7 @@ import org.mdi.bootstrap.swing.GUIApplication;
 /**
  * The Action that search for elements.
  *
- * @version 0.11
+ * @version 0.12
  */
 public class SearchAction extends AbstractMDIAction {
    private final String category;
@@ -324,9 +324,12 @@ public class SearchAction extends AbstractMDIAction {
       Iterator<NamedOwlElement> it = list.iterator();
       while (it.hasNext()) {
          NamedOwlElement elt = it.next();
-         Matcher matcher = pat.matcher(getName(elt));
-         if (matcher.matches()) {
-            outputList.add(elt);
+         String name = getName(elt);
+         if (name != null) {
+            Matcher matcher = pat.matcher(getName(elt));
+            if (matcher.matches()) {
+               outputList.add(elt);
+            }
          }
       }
       return outputList;
