@@ -89,3 +89,7 @@
  - Allow to configure the layout of the diagram when exporting
  - Fix the default directory which was sometimes incorrectly set
  - Fix the namespaces which could be incorrectly set on the overall Ontology
+
+# 0.12
+ - Fix some cases where a Search would lead to an exception
+ - Fix some cases where a Dependency dialog on a Class would lead to an exception
