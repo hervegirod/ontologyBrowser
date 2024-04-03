@@ -6,12 +6,22 @@
 
    But in some cases the URI might not be found, or you might no have access to the Web. For these cases you can provide a list of alternate
    locations which will be local on your disk to resolve these URIs.
+   
+   There are two ways of defining alternate schemas locations:
+   <ul>
+      <li>Using built-in locations in the tool</li>
+      <li>Specifying alternate locations</li>      
+   </ul>
+   
+   <title title="Built-in Locations" />
+   The tool defines several built-in schemas which can be enabled in the configuration:
+   <include id="list schemas" />
 
-   <title title="usage" />
+   <title title="Schemas Alternate Locations" />
    The "Schemas Alternate Locations" setting in the <ref id="configuration" /> allow to specify these Ontologies alternate locations.
 
    <title title="example" />
-   For example suppose the folllwing Ontology, which uses the <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a>
+   For example suppose the following Ontology, which uses the <a href="https://www.dublincore.org/schemas/rdfs/">Dublin Core</a>
    <code>terms</code> schema:
    <pre syntax="xml">
       &lt;rdf:RDF xmlns="http://www.my.uri.com/myOntology#"
