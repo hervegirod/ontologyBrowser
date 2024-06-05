@@ -20,6 +20,7 @@
       <!-- general properties definition -->
       <property name="archiveName" value="ontoBrowser"/>
       <property name="wikiDir" value="web/wiki/"/>
+      <property name="src.dir" value="${src.core.dir}/.."/>      
       <property name="javadocAPI.dir" value="${dist.javadoc.dir}/../ontoBrowserAPI" />
       <property name="javadocAPIOut" value="web/wiki/javadoc" />
       <condition property="wiki.exists">
@@ -45,6 +46,11 @@
             <available file="web/soft/docGenerator.jar" type="file"/>
          </not>
       </condition>
+      <condition property="plugins.notexists">
+         <not>
+            <available file="plugins" type="dir"/>
+         </not>
+      </condition>      
       <condition property="docgenerator.exists">
          <available file="web/soft/docGenerator.jar" type="file"/>
       </condition>
@@ -59,7 +65,7 @@
    <!-- =================================================================== -->
 
    <target description="fetch version" depends="-init-project" name="version">
-      <loadproperties srcFile="${src.dir}/org/girod/ontobrowser/resources/browser.properties">
+      <loadproperties srcFile="${src.core.dir}/org/girod/ontobrowser/resources/browser.properties">
          <filterchain>
             <linecontains>
                <contains value="version"/>
@@ -120,7 +126,7 @@
             <include name="src/**/*.png"/>
             <include name="src/**/*.gif"/>
             <include name="src/**/*.jpg"/>
-            <include name="src/manifest*.mf"/>
+            <include name="src/**/manifest*.mf"/>
          </fileset>
          <fileset description="binaries" dir="${dist.dir}">
             <include name="ontoBrowser.jar"/>
@@ -171,7 +177,6 @@
       </zip>
    </target>
 
-
    <!-- =================================================================== -->
    <!-- NB overwrite targets : javadocs                                     -->
    <!-- =================================================================== -->
@@ -199,7 +204,7 @@
          </classpath>
          <doctitle><![CDATA[<h1>ontologyBrowser documentation</h1>]]></doctitle>
          <bottom>
-            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
+            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023, 2024 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
          </bottom>
       </javadoc>
    </target>
@@ -235,7 +240,7 @@
          </classpath>
          <doctitle><![CDATA[<h1>ontologyBrowser API documentation</h1>]]></doctitle>
          <bottom>
-            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
+            <![CDATA[<i>Copyright &#169; 2021, 2022, 2023, 2024 Herve Girod. All Rights Reserved. Documentation and source under the BSD 3-Clause licence</i>]]>
          </bottom>
       </javadoc>
    </target>
@@ -261,26 +266,48 @@
 
    <target depends="init,compile,-pre-jar,-do-jar-without-manifest,-post-jar" description="Build JAR." name="jar"/>
 
-   <target name="-do-jar-without-manifest" depends="-jarlib" />
+   <target name="-do-jar-without-manifest" depends="-jarcore, -jarxsdplugin" />
 
-   <target name="-jarlib" depends="init,compile,-pre-pre-jar,-pre-jar" >
+   <!-- create plugins directory -->
+   <target depends="version, -post-init" name="-create-plugins-dir" if="plugins.notexists">
+      <mkdir dir="plugins" />
+   </target>        
+
+   <target name="-jarcore" depends="init,compile,-pre-pre-jar,-pre-jar" >
       <!-- Jar construction -->
       <jar description="core jar binary file" compress="true" jarfile="${dist.dir}/ontoBrowser.jar"
-           manifest="${src.dir}/manifest.mf" >
+           manifest="${src.dir}/core/manifest.mf" >
          <fileset defaultexcludes="yes" dir="${build.classes.dir}">
-            <include name="org/girod/**/*.class"/>
-            <include name="org/girod/**/*.xml"/>
-            <include name="org/girod/**/*.xsd"/>
-            <include name="org/girod/**/*.ttl"/>
-            <include name="org/girod/**/*.owl"/>
-            <include name="org/girod/**/*.rdf"/>
-            <include name="org/girod/**/*.png"/>
-            <include name="org/girod/**/*.jpg"/>
-            <include name="org/girod/**/*.gif"/>
-            <include name="org/girod/**/*.properties"/>
+            <include name="org/girod/ontobrowser/**/*.class"/>
+            <include name="org/girod/ontobrowser/**/*.xml"/>
+            <include name="org/girod/ontobrowser/**/*.xsd"/>
+            <include name="org/girod/ontobrowser/**/*.ttl"/>
+            <include name="org/girod/ontobrowser/**/*.owl"/>
+            <include name="org/girod/ontobrowser/**/*.rdf"/>
+            <include name="org/girod/ontobrowser/**/*.png"/>
+            <include name="org/girod/ontobrowser/**/*.jpg"/>
+            <include name="org/girod/ontobrowser/**/*.gif"/>
+            <include name="org/girod/ontobrowser/**/*.properties"/>
+            <exclude name="org/girod/ontobrowser/xsdplugin/**/*" />
          </fileset>
       </jar>
    </target>
+   
+   <target name="-jarxsdplugin" depends="init,compile,-pre-pre-jar,-pre-jar, -create-plugins-dir" >
+      <!-- Jar construction -->
+      <jar description="core jar binary file" compress="true" jarfile="${dist.dir}/xsdPlugin.jar"
+           manifest="${src.dir}/xsdplugin/manifest.mf" >
+         <fileset defaultexcludes="yes" dir="${build.classes.dir}">
+            <include name="org/girod/ontobrowser/xsdplugin/*.class"/>
+            <include name="org/girod/ontobrowser/**/*.properties"/>
+         </fileset>
+      </jar>
+      <copy todir="plugins">
+         <fileset defaultexcludes="yes" dir="${dist.dir}" >
+            <include name="xsdPlugin.jar"/>
+         </fileset>
+      </copy>      
+   </target>   
 
    <!-- =================================================================== -->
    <!-- NB overwrite targets : wiki                                     -->
@@ -325,7 +352,7 @@
          <arg value="-checkHTTPLinks=false"/>
          <arg value="-lightbox=true"/>
          <arg value="-$version=${version}"/>
-         <arg value="-config=web/source/config.properties"/>
+         <arg value="-config=web/source/config.properties"/>         
          <arg value="-search=titles"/>
          <arg value="-fullTextSearch=true"/>
          <classpath>

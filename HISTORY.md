@@ -93,3 +93,13 @@
 # 0.12
  - Fix some cases where a Search would lead to an exception
  - Fix some cases where a Dependency dialog on a Class would lead to an exception
+ 
+  # 0.13
+ - Add the datatypes to the DatatypeProperties dependencies window
+ - Fix the base type of a datatype always being set to custom
+ - Fix elements which were incorrectly seen as foreign 
+ - Support the http://purl.org/dc/elements/1.1/ descriptions
+ - Allows to refresh the content tab if the ontology has been modified externally
+ - Add an action to save the model
+ - Allow to parse an XML file in the scripting framework
+ - Fix some cases where the parsing would not see some elements because seen as foreign
