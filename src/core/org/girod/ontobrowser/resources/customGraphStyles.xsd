@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="elementType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="class"/>
+            <xs:enumeration value="package"/>
+            <xs:enumeration value="individual"/>
+            <xs:enumeration value="property"/>
+            <xs:enumeration value="externalPackage"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="customStyles">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="diagramLayout" type="diagramLayout" />
+            <xs:element name="element" type="elementProperties" />
+        </xs:choice>
+        <xs:attribute name="desc" type="xs:string" />
+    </xs:complexType>
+    <xs:complexType name="diagramLayout">
+        <xs:attribute name="distance" type="xs:decimal"/>
+        <xs:attribute name="maximumSteps" type="xs:positiveInteger"/>
+    </xs:complexType>    
+    <xs:complexType name="elementProperties">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="background" type="colorType" />
+            <xs:element name="property" type="propertyType" />
+        </xs:choice>
+        <xs:attribute name="type" type="elementType" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="colorType">
+        <xs:attribute name="color" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="propertyType">
+        <xs:attribute name="key" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:element name="customStyles" type="customStyles" />
+</xs:schema>
