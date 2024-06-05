@@ -1,0 +1,1 @@
+MDIPluginClass: org.ontobrowser.xsdplugin.XSDPlugin
