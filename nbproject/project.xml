@@ -6,7 +6,8 @@
             <name>ontologyBrowser</name>
             <explicit-platform explicit-source-supported="true"/>
             <source-roots>
-                <root id="src.dir"/>
+                <root id="src.core.dir" name="core"/>
+                <root id="src.xsdplugin.dir" name="xsdplugin"/>
             </source-roots>
             <test-roots>
                 <root id="test.src.dir"/>
