@@ -29,16 +29,25 @@
             <a href="https://sourceforge.net/projects/mdiframework/">sourceforge.net/projects/mdiframework/</a>
          </cell>
          <cell>LGPL version 2</cell>
-         <cell>1.4.2</cell>
+         <cell>1.4.3</cell>
          <cell>Only used for the browser</cell>
       </row>
+      <row>
+         <cell>jEditor</cell>
+         <cell>Java</cell>
+         <cell>
+            <a href="https://sourceforge.net/projects/jeditor/">sourceforge.net/projects/jeditor</a>
+         </cell>
+         <cell>1.2.17</cell>
+         <cell>-</cell>
+      </row>    
       <row>
          <cell>jGraphml</cell>
          <cell>
             <a href="https://sourceforge.net/projects/jgraphml/">sourceforge.net/projects/jgraphml/</a>
          </cell>
          <cell>BSD 3-Clause License</cell>
-         <cell>1.2.8</cell>
+         <cell>1.2.9</cell>
          <cell>-</cell>
       </row>
       <row>
