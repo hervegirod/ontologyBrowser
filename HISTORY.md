@@ -95,11 +95,20 @@
  - Fix some cases where a Dependency dialog on a Class would lead to an exception
  
   # 0.13
+ - Use MDIFramework 1.4.3
+ - Use jGraphml 1.2.9
+ - Use jEditor 1.2.17
+ - Allow to save an Owl model on the disk
+ - Update the scripting framework to be able to edit the Owl model
+ - Update the scripting framework to be able to parse XML files
  - Add the datatypes to the DatatypeProperties dependencies window
  - Fix the base type of a datatype always being set to custom
  - Fix elements which were incorrectly seen as foreign 
  - Support the http://purl.org/dc/elements/1.1/ descriptions
  - Allows to refresh the content tab if the ontology has been modified externally
- - Add an action to save the model
- - Allow to parse an XML file in the scripting framework
- - Fix some cases where the parsing would not see some elements because seen as foreign
+ - Add an option to not allow to have several levels of packages
+ - Add an option to not add data properties in graphml exports
+ - Add an option to not export links between two packages in graphml exports
+ - Fix the graph extractor only seing one value for each property on an Individual 
+ - Support the decimal built-in datatype
+ - Show property values for individuals
