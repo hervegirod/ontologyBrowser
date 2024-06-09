@@ -71,7 +71,7 @@ public class ApplyScriptAction extends AbstractScriptAction {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       endAtFirstException = conf.endAtFirstException;
 
-      context = new OwlScriptContext((OntoBrowserGUI) app, schema);
+      context = new OwlScriptContext((OntoBrowserGUI) app, diagram);
       DefaultSwingScriptLogger logger = new DefaultSwingScriptLogger();
       logger.registerHyperLinkListener(this);
       logger.registerLinkIndexConverter(this);

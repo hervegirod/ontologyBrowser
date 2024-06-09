@@ -68,11 +68,13 @@ import org.girod.ontobrowser.model.OwlSchema;
  */
 public class AnnotationsHelper {
    private final OwlSchema graph;
+   private final GraphExtractor extractor;
    private final OntModel model;
    private final SkippedAnnotations skipped = SkippedAnnotations.getInstance();
 
-   public AnnotationsHelper(OwlSchema graph) {
+   public AnnotationsHelper(OwlSchema graph, GraphExtractor extractor) {
       this.graph = graph;
+      this.extractor = extractor;
       this.model = graph.getOntModel();
    }
 
@@ -105,15 +107,16 @@ public class AnnotationsHelper {
             if (skipped.isSkipped(annkey)) {
                continue;
             }
+            OwlAnnotation annotation = graph.getOrCreateAnnotation(annkey);
             AnnotationValue value = null;
             if (theNode.isLiteral()) {
                String literal = theNode.asLiteral().getString();
-               value = new AnnotationValue.LiteralAnnotationValue(literal);
+               value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
             } else if (theNode.isURIResource()) {
                uriAsString = theNode.asResource().getURI();
                try {
                   URI uri = new URI(uriAsString);
-                  value = new AnnotationValue.URIAnnotationValue(uri);
+                  value = new AnnotationValue.URIAnnotationValue(annotation, uri);
                } catch (URISyntaxException ex) {
                }
             } else if (theNode.isResource()) {
@@ -124,15 +127,15 @@ public class AnnotationsHelper {
                   ElementKey key = ElementKey.create(namespace, name);
                   if (resource instanceof OntClass) {
                      if (graph.hasOwlClass(key)) {
-                        value = new AnnotationValue.ElementAnnotationValue(graph.getOwlClass(key));
+                        value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlClass(key));
                      }
                   } else if (resource instanceof OntProperty) {
                      if (graph.hasOwlProperty(key)) {
-                        value = new AnnotationValue.ElementAnnotationValue(graph.getOwlProperty(key));
+                        value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlProperty(key));
                      }
                   } else if (resource instanceof Individual) {
                      if (graph.hasIndividual(key)) {
-                        value = new AnnotationValue.ElementAnnotationValue(graph.getIndividual(key));
+                        value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getIndividual(key));
                      }
                   }
                }
@@ -216,18 +219,19 @@ public class AnnotationsHelper {
    private void setIsDefinedBy(AnnotatedElement element, OntResource resource) {
       Resource isDefinedBy = resource.getIsDefinedBy();
       if (isDefinedBy != null) {
+         OwlAnnotation annotation = graph.getOrCreateAnnotation(AnnotatedElement.DEFINED_BY);
          if (isDefinedBy.isLiteral()) {
-            String _definedBy = isDefinedBy.asLiteral().getString();
-            element.setIsDefinedBy(new AnnotationValue.LiteralAnnotationValue(_definedBy));
+            String _definedBy = isDefinedBy.asLiteral().getString();            
+            element.setIsDefinedBy(new AnnotationValue.LiteralAnnotationValue(annotation, _definedBy));
          } else if (isDefinedBy.isURIResource()) {
             String uriAsString = isDefinedBy.getURI();
             URI uri;
             try {
                uri = new URI(uriAsString);
                if (!graph.hasElement(uri)) {
-                  element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(uri));
+                  element.setIsDefinedBy(new AnnotationValue.URIAnnotationValue(annotation, uri));
                } else {
-                  element.setIsDefinedBy(new AnnotationValue.ElementAnnotationValue(graph.getElement(uri)));
+                  element.setIsDefinedBy(new AnnotationValue.ElementAnnotationValue(annotation, graph.getElement(uri)));
                }
             } catch (URISyntaxException ex) {
             }
@@ -240,15 +244,16 @@ public class AnnotationsHelper {
       try {
          seeAlso = resource.getSeeAlso();
       } catch (OntologyException e) {
+         OwlAnnotation annotation = graph.getOrCreateAnnotation(AnnotatedElement.SEE_ALSO);
          if (resource.isURIResource()) {
             String uriAsString = resource.getURI();
             URI uri;
             try {
                uri = new URI(uriAsString);
                if (!graph.hasElement(uri)) {
-                  element.setSeeAlso(new AnnotationValue.URIAnnotationValue(uri));
+                  element.setSeeAlso(new AnnotationValue.URIAnnotationValue(annotation, uri));
                } else {
-                  element.setSeeAlso(new AnnotationValue.ElementAnnotationValue(graph.getElement(uri)));
+                  element.setSeeAlso(new AnnotationValue.ElementAnnotationValue(annotation, graph.getElement(uri)));
                }
             } catch (URISyntaxException ex) {
             }
@@ -256,18 +261,19 @@ public class AnnotationsHelper {
          seeAlso = null;
       }
       if (seeAlso != null) {
+         OwlAnnotation annotation = graph.getOrCreateAnnotation(AnnotatedElement.SEE_ALSO);
          if (seeAlso.isLiteral()) {
             String _seeAlso = seeAlso.asLiteral().getString();
-            element.setSeeAlso(new AnnotationValue.LiteralAnnotationValue(_seeAlso));
+            element.setSeeAlso(new AnnotationValue.LiteralAnnotationValue(annotation, _seeAlso));
          } else if (seeAlso.isURIResource()) {
             String uriAsString = seeAlso.getURI();
             URI uri;
             try {
                uri = new URI(uriAsString);
                if (!graph.hasElement(uri)) {
-                  element.setSeeAlso(new AnnotationValue.URIAnnotationValue(uri));
+                  element.setSeeAlso(new AnnotationValue.URIAnnotationValue(annotation, uri));
                } else {
-                  element.setSeeAlso(new AnnotationValue.ElementAnnotationValue(graph.getElement(uri)));
+                  element.setSeeAlso(new AnnotationValue.ElementAnnotationValue(annotation, graph.getElement(uri)));
                }
             } catch (URISyntaxException ex) {
             }
@@ -279,15 +285,15 @@ public class AnnotationsHelper {
                AnnotationValue value = null;
                if (resource instanceof OntClass) {
                   if (graph.hasOwlClass(key)) {
-                     value = new AnnotationValue.ElementAnnotationValue(graph.getOwlClass(key));
+                     value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlClass(key));
                   }
                } else if (resource instanceof OntProperty) {
                   if (graph.hasOwlProperty(key)) {
-                     value = new AnnotationValue.ElementAnnotationValue(graph.getOwlProperty(key));
+                     value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlProperty(key));
                   }
                } else if (resource instanceof Individual) {
                   if (graph.hasIndividual(key)) {
-                     value = new AnnotationValue.ElementAnnotationValue(graph.getIndividual(key));
+                     value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getIndividual(key));
                   }
                }
                if (value != null) {
@@ -305,7 +311,8 @@ public class AnnotationsHelper {
       }
    }
 
-   public AnnotationValue addAnnotationValue(OntClass theClass, OwlClass owlClass, ElementKey annotationKey, Property property) {
+   public AnnotationValue addAnnotationValue(OntClass theClass, OwlClass owlClass, OwlAnnotation annotation, Property property) {
+      ElementKey annotationKey = annotation.getKey();
       if (skipped.isSkipped(annotationKey)) {
          return null;
       }
@@ -316,12 +323,12 @@ public class AnnotationsHelper {
       AnnotationValue value = null;
       if (theNode.isLiteral()) {
          String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
+         value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
       } else if (theNode.isURIResource()) {
          String uriAsString = theNode.asResource().getURI();
          try {
             URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
+            value = new AnnotationValue.URIAnnotationValue(annotation, uri);
          } catch (URISyntaxException ex) {
          }
       } else if (theNode.isResource()) {
@@ -332,15 +339,15 @@ public class AnnotationsHelper {
             ElementKey key = ElementKey.create(namespace, name);
             if (resource instanceof OntClass) {
                if (graph.hasOwlClass(key)) {
-                  value = new AnnotationValue.ElementAnnotationValue(graph.getOwlClass(key));
+                  value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlClass(key));
                }
             } else if (resource instanceof OntProperty) {
                if (graph.hasOwlProperty(key)) {
-                  value = new AnnotationValue.ElementAnnotationValue(graph.getOwlProperty(key));
+                  value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getOwlProperty(key));
                }
             } else if (resource instanceof Individual) {
                if (graph.hasIndividual(key)) {
-                  value = new AnnotationValue.ElementAnnotationValue(graph.getIndividual(key));
+                  value = new AnnotationValue.ElementAnnotationValue(annotation, graph.getIndividual(key));
                }
             }
          }
@@ -359,12 +366,12 @@ public class AnnotationsHelper {
       AnnotationValue value = null;
       if (theNode.isLiteral()) {
          String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
+         value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
       } else if (theNode.isURIResource()) {
          String uriAsString = theNode.asResource().getURI();
          try {
             URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
+            value = new AnnotationValue.URIAnnotationValue(annotation, uri);
          } catch (URISyntaxException ex) {
          }
       }
@@ -374,19 +381,20 @@ public class AnnotationsHelper {
       return value;
    }
 
-   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlObjectProperty owlProperty, ElementKey annotationKey) {
+   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlObjectProperty owlProperty, OwlAnnotation annotation) {
+      ElementKey annotationKey = annotation.getKey();
       if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       AnnotationValue value = null;
       if (theNode.isLiteral()) {
          String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
+         value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
       } else if (theNode.isURIResource()) {
          String uriAsString = theNode.asResource().getURI();
          try {
             URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
+            value = new AnnotationValue.URIAnnotationValue(annotation, uri);
          } catch (URISyntaxException ex) {
          }
       }
@@ -396,19 +404,20 @@ public class AnnotationsHelper {
       return value;
    }
 
-   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlDatatypeProperty owlProperty, ElementKey annotationKey) {
+   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlDatatypeProperty owlProperty, OwlAnnotation annotation) {
+      ElementKey annotationKey = annotation.getKey();
       if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       AnnotationValue value = null;
       if (theNode.isLiteral()) {
          String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
+         value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
       } else if (theNode.isURIResource()) {
          String uriAsString = theNode.asResource().getURI();
          try {
             URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
+            value = new AnnotationValue.URIAnnotationValue(annotation, uri);
          } catch (URISyntaxException ex) {
          }
       }
@@ -418,19 +427,20 @@ public class AnnotationsHelper {
       return value;
    }
 
-   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlIndividual owlIndividual, ElementKey annotationKey) {
+   public AnnotationValue addAnnotationValue(RDFNode theNode, OwlIndividual owlIndividual, OwlAnnotation annotation) {
+      ElementKey annotationKey = annotation.getKey();
       if (skipped.isSkipped(annotationKey)) {
          return null;
       }
       AnnotationValue value = null;
       if (theNode.isLiteral()) {
          String literal = theNode.asLiteral().getString();
-         value = new AnnotationValue.LiteralAnnotationValue(literal);
+         value = new AnnotationValue.LiteralAnnotationValue(annotation, literal);
       } else if (theNode.isURIResource()) {
          String uriAsString = theNode.asResource().getURI();
          try {
             URI uri = new URI(uriAsString);
-            value = new AnnotationValue.URIAnnotationValue(uri);
+            value = new AnnotationValue.URIAnnotationValue(annotation, uri);
          } catch (URISyntaxException ex) {
          }
       }

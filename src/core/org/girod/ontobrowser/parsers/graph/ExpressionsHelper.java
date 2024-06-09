@@ -53,6 +53,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.girod.ontobrowser.model.ElementKey;
+import org.girod.ontobrowser.model.OwlAnnotation;
 import org.girod.ontobrowser.model.OwlAutoIndividual;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDeclaredIndividual;
@@ -64,7 +65,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * A helper for boolean expressions.
  *
- * @version 0.11
+ * @version 0.13
  */
 public class ExpressionsHelper {
    private final OwlSchema graph;
@@ -175,7 +176,8 @@ public class ExpressionsHelper {
                      RDFNode node2 = statement.getObject();
                      Property predicate = statement.getPredicate();
                      ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-                     annotationsHelper.addAnnotationValue(node2, owlIndividual, theKey);
+                     OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+                     annotationsHelper.addAnnotationValue(node2, owlIndividual, annotation);
                   }
                }
             }
@@ -226,7 +228,8 @@ public class ExpressionsHelper {
                         RDFNode node = statement.getObject();
                         Property predicate = statement.getPredicate();
                         ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-                        annotationsHelper.addAnnotationValue(node, owlIndividual, theKey);
+                        OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+                        annotationsHelper.addAnnotationValue(node, owlIndividual, annotation);
                      }
                   }
                }

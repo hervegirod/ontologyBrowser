@@ -168,6 +168,14 @@ public class BrowserConfiguration implements Configuration {
     * The groovy script file filter.
     */
    public ExtensionFileFilter scriptfilter;
+   /**
+    * The SPARQL file filter.
+    */
+   public ExtensionFileFilter sparqlfilter;   
+   /**
+    * The txt file filter.
+    */
+   public ExtensionFileFilter txtfilter;     
 
    private BrowserConfiguration() {
       // load ressources
@@ -196,7 +204,13 @@ public class BrowserConfiguration implements Configuration {
       scriptfilter = new ExtensionFileFilter(ext3, "Script");
       
       String[] ext4 = {"xml"};
-      xmlfilter = new ExtensionFileFilter(ext4, "xml Files");      
+      xmlfilter = new ExtensionFileFilter(ext4, "xml Files");   
+      
+      String[] ext5 = {"sparql"};
+      sparqlfilter = new ExtensionFileFilter(ext5, "SPARQL requests");    
+      
+      String[] ext6 = {"txt"};
+      txtfilter = new ExtensionFileFilter(ext5, "ext6 files");          
    }
 
    /**

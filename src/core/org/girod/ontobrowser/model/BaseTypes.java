@@ -43,9 +43,10 @@ public interface BaseTypes {
    public static final short FLOAT = 1;
    public static final short LONG = 2;
    public static final short DOUBLE = 3;
-   public static final short SHORT = 4;
-   public static final short STRING = 5;
-   public static final short NON_NEGATIVE_INT = 6;
-   public static final short POSITIVE_INT = 7;
-   public static final short BOOLEAN = 8;
+   public static final short DECIMAL = 4;
+   public static final short SHORT = 5;
+   public static final short STRING = 6;
+   public static final short NON_NEGATIVE_INT = 7;
+   public static final short POSITIVE_INT = 8;
+   public static final short BOOLEAN = 9;
 }

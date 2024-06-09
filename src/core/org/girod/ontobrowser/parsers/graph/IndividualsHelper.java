@@ -32,18 +32,15 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.parsers.graph;
 
-import java.util.Iterator;
-import java.util.Map;
-import org.apache.jena.ontology.DatatypeProperty;
-import org.apache.jena.ontology.ObjectProperty;
-import org.apache.jena.ontology.OntResource;
 import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.girod.ontobrowser.model.DatatypePropertyValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.ObjectPropertyValue;
-import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
@@ -52,58 +49,55 @@ import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 
 /**
- * A helper for boolean expressions.
+ * A helper for individuals.
  *
- * @version 0.11
+ * @version 0.13
  */
 public class IndividualsHelper {
    private final OwlSchema graph;
-   private final GraphExtractor extractor;
 
-   public IndividualsHelper(GraphExtractor extractor, OwlSchema graph) {
-      this.extractor = extractor;
+   public IndividualsHelper(OwlSchema graph) {
       this.graph = graph;
    }
 
    public void addIndividualProperties(OwlIndividual owlIndividual) {
       Resource individual = owlIndividual.getIndividual();
-      Map<ElementKey, OwlClass> parentClasses = owlIndividual.getParentClasses();
-      Iterator<OwlClass> it = parentClasses.values().iterator();
-      while (it.hasNext()) {
-         OwlClass theClass = it.next();
-         Iterator<OwlProperty> it2 = theClass.getDomainOwlProperties().values().iterator();
-         while (it2.hasNext()) {
-            OwlProperty property = it2.next();
-            if (property.isObjectProperty()) {
-               OwlObjectProperty objectproperty = (OwlObjectProperty) property;
-               ObjectProperty _jenaproperty = objectproperty.getProperty();
-               Resource resource = individual.getPropertyResourceValue(_jenaproperty);
-               if (resource != null) {
-                  String namespace = resource.getNameSpace();
-                  String name = resource.getLocalName();
-                  ElementKey targetKey = ElementKey.create(namespace, name);
-                  if (graph.hasIndividual(targetKey)) {
-                     OwlIndividual target = graph.getIndividual(targetKey);
-                     ObjectPropertyValue value = new ObjectPropertyValue(objectproperty, owlIndividual, target);
-                     owlIndividual.addObjectPropertyValue(value);
-                  }
+
+      StmtIterator smt = individual.listProperties();
+      while (smt.hasNext()) {
+         Statement statement = smt.nextStatement();
+         Property property = statement.getPredicate();
+         String namespace = graph.getNamespace(property);
+         String name = property.getLocalName();
+         ElementKey propertyKey = ElementKey.create(namespace, name);
+         RDFNode node = statement.getObject();
+         if (node != null && graph.hasOwlProperty(propertyKey)) {
+            OwlProperty owlProperty = graph.getOwlProperty(propertyKey);
+            if (owlProperty.isObjectProperty() && node.isResource()) {
+               Resource resource = node.asResource();
+               OwlObjectProperty objectproperty = (OwlObjectProperty) owlProperty;
+               namespace = graph.getNamespace(resource);
+               name = resource.getLocalName();
+               ElementKey targetKey = ElementKey.create(namespace, name);
+               if (graph.hasIndividual(targetKey)) {
+                  OwlIndividual target = graph.getIndividual(targetKey);
+                  ObjectPropertyValue value = new ObjectPropertyValue(objectproperty, owlIndividual, target);
+                  owlIndividual.addObjectPropertyValue(value);
                }
-            } else if (property.isDatatypeProperty()) {
-               OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty) property;
-               DatatypeProperty _jenaproperty = datatypeproperty.getProperty();
-               if (individual instanceof OntResource) {
-                  RDFNode node = ((OntResource) individual).getPropertyValue(_jenaproperty);
-                  if (node != null && node.isLiteral()) {
-                     Literal literal = node.asLiteral();
-                     String value = literal.getString();
-                     String datatypeURI = literal.getDatatypeURI();
-                     ElementKey datatypeKey = ElementKey.createFromURI(datatypeURI);
-                     if (datatypeKey != null && graph.hasDatatype(datatypeKey)) {
-                        OwlDatatype datatype = graph.getDatatype(datatypeKey);
-                        DatatypePropertyValue propValue = new DatatypePropertyValue(datatypeproperty, owlIndividual, datatype, value);
-                        owlIndividual.addDatatypePropertyValue(propValue);
-                     }
-                  }
+            } else if (owlProperty.isDatatypeProperty() && node.isLiteral()) {
+               OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty) owlProperty;
+               Literal literal = node.asLiteral();
+               String value = literal.getString();
+               String datatypeURI = literal.getDatatypeURI();
+               ElementKey datatypeKey = ElementKey.createFromURI(datatypeURI);
+               if (! graph.hasDatatype(datatypeKey)) {
+                  OwlDatatype datatype = new OwlDatatype(datatypeKey);
+                  graph.addDatatype(datatype);
+               }
+               if (datatypeKey != null && graph.hasDatatype(datatypeKey)) {
+                  OwlDatatype datatype = graph.getDatatype(datatypeKey);
+                  DatatypePropertyValue propValue = new DatatypePropertyValue(datatypeproperty, owlIndividual, datatype, value);
+                  owlIndividual.addDatatypePropertyValue(propValue);
                }
             }
          }

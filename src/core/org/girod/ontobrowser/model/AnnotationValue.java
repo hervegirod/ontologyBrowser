@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.net.URI;
 /**
  * The value of an annotation on an element.
  *
- * @version 0.7
+ * @version 0.13
  */
 public interface AnnotationValue {
    public static final short LITERAL_TYPE = 0;
@@ -50,6 +50,13 @@ public interface AnnotationValue {
     * @return true if the annotation value is an URI
     */
    public short getType();
+
+   /**
+    * Return the associated annotation.
+    *
+    * @return the annotation
+    */
+   public OwlAnnotation getAnnotation();
 
    /**
     * Return the annotation value as an URI.
@@ -87,9 +94,21 @@ public interface AnnotationValue {
 
    public static class URIAnnotationValue implements AnnotationValue {
       private final URI uri;
+      private final OwlAnnotation annotation;
 
-      public URIAnnotationValue(URI uri) {
+      public URIAnnotationValue(OwlAnnotation annotation, URI uri) {
+         this.annotation = annotation;
          this.uri = uri;
+      }
+
+      /**
+       * Return the associated annotation.
+       *
+       * @return the annotation
+       */
+      @Override
+      public OwlAnnotation getAnnotation() {
+         return annotation;
       }
 
       /**
@@ -124,18 +143,30 @@ public interface AnnotationValue {
 
    public static class ElementAnnotationValue implements AnnotationValue {
       private final NamedOwlElement element;
+      private final OwlAnnotation annotation;
 
-      public ElementAnnotationValue(NamedOwlElement element) {
+      public ElementAnnotationValue(OwlAnnotation annotation, NamedOwlElement element) {
+         this.annotation = annotation;
          this.element = element;
+      }
+      
+      /**
+       * Return the associated annotation.
+       *
+       * @return the annotation
+       */
+      @Override
+      public OwlAnnotation getAnnotation() {
+         return annotation;
+      }      
+
+      public NamedOwlElement getElement() {
+         return element;
       }
 
       @Override
       public String toString() {
          return getLiteral();
-      }
-
-      public NamedOwlElement getElement() {
-         return element;
       }
 
       @Override
@@ -161,10 +192,22 @@ public interface AnnotationValue {
 
    public static class LiteralAnnotationValue implements AnnotationValue {
       private final String literal;
+      private final OwlAnnotation annotation;
 
-      public LiteralAnnotationValue(String literal) {
+      public LiteralAnnotationValue(OwlAnnotation annotation, String literal) {
          this.literal = literal;
+         this.annotation = annotation;
       }
+      
+      /**
+       * Return the associated annotation.
+       *
+       * @return the annotation
+       */
+      @Override
+      public OwlAnnotation getAnnotation() {
+         return annotation;
+      }           
 
       @Override
       public String toString() {

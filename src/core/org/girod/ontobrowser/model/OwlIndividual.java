@@ -32,8 +32,10 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.jena.rdf.model.Resource;
 
@@ -46,8 +48,9 @@ import org.apache.jena.rdf.model.Resource;
 public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndividual> {
    private final I individual;
    private final Map<ElementKey, OwlClass> parentClasses;
-   private final Map<ElementKey, ObjectPropertyValue> objectPropertyValues = new HashMap<>();
-   private final Map<ElementKey, DatatypePropertyValue> datatypePropertyValues = new HashMap<>();
+   private final Map<ElementKey, List<ObjectPropertyValue>> objectPropertyValues = new HashMap<>();
+   private final Map<ElementKey, List<ObjectPropertyValue>> objectTargetPropertyValues = new HashMap<>();
+   private final Map<ElementKey, List<DatatypePropertyValue>> datatypePropertyValues = new HashMap<>();
 
    public OwlIndividual(I individual) {
       this(individual, individual.getNameSpace());
@@ -119,7 +122,24 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
     */
    public void addObjectPropertyValue(ObjectPropertyValue value) {
       ElementKey theKey = value.getKey();
-      objectPropertyValues.put(theKey, value);
+      List<ObjectPropertyValue> values;
+      if (objectPropertyValues.containsKey(theKey)) {
+         values = objectPropertyValues.get(theKey);
+      } else {
+         values = new ArrayList<>();
+         objectPropertyValues.put(theKey, values);
+      }
+      values.add(value);
+      
+      OwlIndividual target = value.getTarget();
+      List<ObjectPropertyValue> valuesT;
+      if (target.objectTargetPropertyValues.containsKey(theKey)) {
+         valuesT = (List<ObjectPropertyValue>)target.objectTargetPropertyValues.get(theKey);
+      } else {
+         valuesT = new ArrayList<>();
+         target.objectTargetPropertyValues.put(theKey, valuesT);
+      }
+      valuesT.add(value);      
    }
 
    /**
@@ -130,15 +150,51 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    public boolean hasPropertyValues() {
       return !objectPropertyValues.isEmpty() || !datatypePropertyValues.isEmpty();
    }
+   
+   /**
+    * Return true if this class has data property values.
+    *
+    * @return true if this class has data property values
+    */
+   public boolean hasDatatypePropertyValues() {
+      return!datatypePropertyValues.isEmpty();
+   } 
+   
+   /**
+    * Return true if this class has object property values.
+    *
+    * @return true if this class has object property values
+    */
+   public boolean hasObjectPropertyValues() {
+      return!objectPropertyValues.isEmpty();
+   }     
+   
+   /**
+    * Return true if this class has object target property values. It means that the individual is the target of a property.
+    *
+    * @return true if this class has object target property values
+    */
+   public boolean hasObjectTargetPropertyValues() {
+      return!objectTargetPropertyValues.isEmpty();
+   }        
 
    /**
     * Return the object property values.
     *
     * @return the object property values
     */
-   public Map<ElementKey, ObjectPropertyValue> getObjectPropertyValues() {
+   public Map<ElementKey, List<ObjectPropertyValue>> getObjectPropertyValues() {
       return objectPropertyValues;
    }
+   
+   /**
+    * Return the object target property values. It means that the individual is the target of properties.
+    *
+    * @return the object target property values
+    */
+   public Map<ElementKey, List<ObjectPropertyValue>> getObjectTargetPropertyValues() {
+      return objectTargetPropertyValues;
+   }   
 
    /**
     * Add a datatype property value.
@@ -147,7 +203,14 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
     */
    public void addDatatypePropertyValue(DatatypePropertyValue value) {
       ElementKey theKey = value.getKey();
-      datatypePropertyValues.put(theKey, value);
+      List<DatatypePropertyValue> values;
+      if (datatypePropertyValues.containsKey(theKey)) {
+         values = datatypePropertyValues.get(theKey);
+      } else {
+         values = new ArrayList<>();
+         datatypePropertyValues.put(theKey, values);
+      }
+      values.add(value);      
    }
 
    /**
@@ -155,7 +218,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
     *
     * @return the datatype propety values
     */
-   public Map<ElementKey, DatatypePropertyValue> getDatatypePropertyValues() {
+   public Map<ElementKey, List<DatatypePropertyValue>> getDatatypePropertyValues() {
       return datatypePropertyValues;
    }
 
@@ -164,7 +227,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
     *
     * @return the datatype property values
     */
-   public PropertyValue getPropertyValue(ElementKey key) {
+   public List<? extends PropertyValue> getPropertyValues(ElementKey key) {
       if (datatypePropertyValues.containsKey(key)) {
          return datatypePropertyValues.get(key);
       } else {
@@ -176,15 +239,23 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    public void accept(ElementVisitor visitor) {
       boolean cont = visitor.visit(this);
       if (cont) {
-         Iterator<ObjectPropertyValue> it = objectPropertyValues.values().iterator();
+         Iterator<List<ObjectPropertyValue>> it = objectPropertyValues.values().iterator();
          while (it.hasNext()) {
-            ObjectPropertyValue theValue = it.next();
-            theValue.accept(visitor);
+            List<ObjectPropertyValue> values = it.next();
+            Iterator<ObjectPropertyValue> it2 = values.iterator();
+            while (it2.hasNext()) {
+               ObjectPropertyValue theValue = it2.next();
+               theValue.accept(visitor);
+            }            
          }
-         Iterator<DatatypePropertyValue> it2 = datatypePropertyValues.values().iterator();
+         Iterator<List<DatatypePropertyValue>> it2 = datatypePropertyValues.values().iterator();
          while (it2.hasNext()) {
-            DatatypePropertyValue theProperty = it2.next();
-            theProperty.accept(visitor);
+            List<DatatypePropertyValue> values = it2.next();
+            Iterator<DatatypePropertyValue> it3 = values.iterator();
+            while (it3.hasNext()) {
+               DatatypePropertyValue theValue = it3.next();
+               theValue.accept(visitor);
+            } 
          }
       }
    }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,21 +41,15 @@ import org.xml.sax.SAXParseException;
  * @since 0.13
  */
 public interface XMLHandler {
-   public default void fireException(Exception e) {
+   public default void fireXMLException(Exception e) {
    }
 
-   public default void error(SAXParseException e) {
+   public default void xmlError(SAXParseException e, int exceptionType) {      
    }
 
-   public default void warning(SAXParseException e) {
+   public default void startXMLElement(String qName, Map<String, String> attributes) {
    }
 
-   public default void fatalError(SAXParseException e) {
-   }
-
-   public default void startElement(String qName, Map<String, String> attributes) {
-   }
-
-   public default void endElement(String qName) {
+   public default void endXMLElement(String qName) {
    }
 }

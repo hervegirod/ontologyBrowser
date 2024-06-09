@@ -192,7 +192,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
             return false;
          }        
       } else {
-         return false;
+         return true;
       }
    }
 

@@ -3,6 +3,7 @@ Main-Class: org.girod.ontobrowser.OntoBrowser
 Class-Path: lib/MDIFramework-swingAll.jar
             lib/MDIUtilities-core-LGPL.jar
             lib/MDIUtilities-ui-LGPL.jar
+            lib/jEditor.jar
             lib/jgraphx.jar
             lib/JGraphml.jar
             lib/scriptHelper.jar

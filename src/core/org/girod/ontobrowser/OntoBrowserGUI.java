@@ -41,17 +41,20 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.girod.ontobrowser.actions.RefreshModelAction;
+import org.girod.ontobrowser.actions.RefreshTreeAction;
 import org.girod.ontobrowser.actions.SearchAction;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchOptions;
 import org.mdi.app.LauncherConf;
 import org.mdi.app.swing.AbstractMDIApplication;
+import org.mdi.bootstrap.swing.SwingFileProperties;
 import org.mdiutil.prefs.NetworkPreferencesFactory;
 
 /**
  * The main class of the application.
  *
- * @version 0.7
+ * @version 0.13
  */
 public class OntoBrowserGUI extends AbstractMDIApplication {
    private Preferences pref = null;
@@ -99,6 +102,24 @@ public class OntoBrowserGUI extends AbstractMDIApplication {
          logger.setLevel(Level.OFF);
       }
    }
+   
+   public void refreshModel(OwlDiagram diagram) {
+      if (diagram != null) {
+         String longDesc = "Refresh";
+         SwingFileProperties prop = getSelectedProperties();
+         RefreshModelAction action = new RefreshModelAction(this, "Refresh", longDesc, prop);
+         executeAction(action);
+      }
+   }   
+   
+   public void refreshTree(OwlDiagram diagram) {
+      if (diagram != null) {
+         SwingFileProperties prop = getSelectedProperties();
+         RefreshTreeAction action = new RefreshTreeAction(this, prop);
+         executeAction(action);
+      }
+   }   
+   
 
    /*
     * Main entry point of the Application.

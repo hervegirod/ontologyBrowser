@@ -32,49 +32,70 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import com.mxgraph.view.mxGraph;
+import java.io.File;
+import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.gui.GraphPanel;
+import org.girod.ontobrowser.gui.errors.SwingErrorLogger;
+import org.girod.ontobrowser.parsers.graph.GraphExtractor;
 import org.mdi.bootstrap.MDIApplication;
+import org.mdi.bootstrap.swing.GUIApplication;
 import org.mdi.bootstrap.swing.SwingFileProperties;
 
 /**
- * The Action that opens owl/rdf schemas.
+ * The Action that refresh only the tree.
  *
  * @since 0.13
  */
-public class RefreshModelAction extends AbstractOpenModelAction {
+public class RefreshTreeAction extends AbstractUpdateModelAction {
    private int selectedTab = 0;
 
    /**
     * Constructor.
     *
     * @param app the Application
-    * @param desc the short description of the action
-    * @param longDesc the long description of the action
     * @param prop the file properties
     */
-   public RefreshModelAction(MDIApplication app, String desc, String longDesc, SwingFileProperties prop) {
-      super(app, desc, longDesc, prop);
+   public RefreshTreeAction(MDIApplication app, SwingFileProperties prop) {
+      super(app, "Refresh Tree", "Refresh Tree", prop);
       this.graphPanel = (GraphPanel) prop.getComponent();
-      this.file = graphPanel.getSchema().getFile();
+      this.diagram = graphPanel.getDiagram();
       this.selectedTab = graphPanel.getSelectedTab();
    }
-   
+
    @Override
    public void run() throws Exception {
       graphPanel.reset();
-      super.run();
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      File file = diagram.getFile();
+
+      boolean addThingClass = conf.addThingClass;
+      boolean showPackages = conf.showPackages;
+      GraphExtractor extractor = new GraphExtractor(file, diagram.getSchema().getOntModel(), addThingClass, showPackages);
+      schema = extractor.getGraph();
+      diagram.setSchema(schema);
+      mxGraph graph = createGraph(schema);
+      diagram.setGraph(graph);
+      diagram.setKeyToCell(cell4Class);
+
+      if (graphPanel == null) {
+         graphPanel = new GraphPanel((GUIApplication) app);
+      }
+      graphPanel.setDiagram(diagram);
+      if (extractor.hasErrors()) {
+         SwingErrorLogger logger = new SwingErrorLogger();
+         logger.showParserExceptions(extractor.getErrors());
+      }
    }
-   
+
    @Override
    public void endAction() {
       if (diagram == null) {
          return;
       }
-      
-      graphPanel.reset();
-      graphPanel.setDiagram(diagram);      
+
       graphPanel.revalidate();
       graphPanel.setSelectedTab(selectedTab);
-      prop.setObject(diagram);
-   }   
+   }
 }

@@ -133,30 +133,12 @@ public class GraphExtractor extends AbstractWarningAction {
 
    public GraphExtractor(File file, OntModel model, boolean addThingClass, boolean showPackages) {
       this.file = file;
-      setupNamespaceFromFile();
       this.model = model;
       this.showPackages = showPackages;
       if (showPackages) {
          this.addThingClass = false;
       } else {
          this.addThingClass = addThingClass;
-      }
-   }
-
-   private void setupNamespaceFromFile() {
-      String uriAsString = file.toURI().toString();
-      int index = uriAsString.lastIndexOf('/');
-      if (index <= 0) {
-         namespaceFromFile = null;
-      } else {
-         // file:///D:/Java/ProceduresOntology/v21/FalconProcedures#
-         String startPart = uriAsString.substring(0, index);
-         if (startPart.startsWith("file:/")) {
-            startPart = "file:///" + startPart.substring(6);
-            namespaceFromFile = startPart;
-         } else {
-            namespaceFromFile = null;
-         }
       }
    }
 
@@ -230,7 +212,7 @@ public class GraphExtractor extends AbstractWarningAction {
             return null;
          }
       } else {
-         owlRestriction = new UnrestrictedOwlRestriction(clazz, getNamespace(clazz));
+         owlRestriction = new UnrestrictedOwlRestriction(clazz, graph.getNamespace(clazz));
       }
       return owlRestriction;
    }
@@ -260,19 +242,6 @@ public class GraphExtractor extends AbstractWarningAction {
 
    public AnnotationsHelper getAnnotationsHelper() {
       return annotationsHelper;
-   }
-
-   private String getNamespace(Resource resource) {
-      if (defaultNamespace == null) {
-         return resource.getNameSpace();
-      } else {
-         String namespace = resource.getNameSpace();
-         if (namespace.startsWith(namespaceFromFile)) {
-            return defaultNamespace;
-         } else {
-            return resource.getNameSpace();
-         }
-      }
    }
 
    private OwlIndividual createOwlIndividual(Map<ElementKey, OwlClass> parentClasses, Individual individual) {
@@ -317,12 +286,13 @@ public class GraphExtractor extends AbstractWarningAction {
    public OwlSchema getGraph() throws OntologyException {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       graph = new OwlSchema(model, representationType, file);
+      namespaceFromFile = graph.getPotentialNamespaceFromFile();
       defaultNamespace = graph.getDefaultNamespace();
       defaultSquashedNamespace = graph.getDefaultSquashedNamespace();
       graph.setIncludeIndividuals(conf.includeIndividuals);
-      annotationsHelper = new AnnotationsHelper(graph);
+      annotationsHelper = new AnnotationsHelper(graph, this);
       exprHelper = new ExpressionsHelper(this, graph);
-      individualsHelper = new IndividualsHelper(this, graph);
+      individualsHelper = new IndividualsHelper(graph);
       OntClass thingClass = model.getOntClass("http://www.w3.org/2002/07/owl#Thing");
       OwlClass owlThingClass = graph.getThingClass();
       thingKey = owlThingClass.getKey();
@@ -343,7 +313,7 @@ public class GraphExtractor extends AbstractWarningAction {
       ExtendedIterator properties = model.listAllOntProperties();
       while (properties.hasNext()) {
          OntProperty thisProperty = (OntProperty) properties.next();
-         String nameSpace = getNamespace(thisProperty);
+         String nameSpace = graph.getNamespace(thisProperty);
          OwlProperty owlProp = null;
          if (thisProperty.isObjectProperty()) {
             owlProp = addObjectProperty(thisProperty, nameSpace, equivalentProperties, domainClassToProperties, rangeClassToProperties, restrictions);
@@ -394,7 +364,8 @@ public class GraphExtractor extends AbstractWarningAction {
                Statement statement = stmt.next();
                Property prop = statement.getPredicate();
                ElementKey theKey = ElementKey.create(prop.getNameSpace(), prop.getLocalName());
-               annotationsHelper.addAnnotationValue(thisClass, owlClass, theKey, prop);
+               OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+               annotationsHelper.addAnnotationValue(thisClass, owlClass, annotation, prop);
             }
          }
          if (owlClass != null) {
@@ -417,7 +388,8 @@ public class GraphExtractor extends AbstractWarningAction {
                Property predicate = statement.getPredicate();
                RDFNode node = statement.getObject();
                ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               annotationsHelper.addAnnotationValue(node, _owlProperty, theKey);
+               OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+               annotationsHelper.addAnnotationValue(node, _owlProperty, annotation);
             }
          } else if (owlProperty instanceof OwlDatatypeProperty) {
             OwlDatatypeProperty _owlProperty = (OwlDatatypeProperty) owlProperty;
@@ -428,7 +400,8 @@ public class GraphExtractor extends AbstractWarningAction {
                RDFNode node = statement.getObject();
                Property predicate = statement.getPredicate();
                ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               annotationsHelper.addAnnotationValue(node, _owlProperty, theKey);
+               OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+               annotationsHelper.addAnnotationValue(node, _owlProperty, annotation);
             }
          }
       }
@@ -464,10 +437,10 @@ public class GraphExtractor extends AbstractWarningAction {
                   Property p = stmt.getPredicate();
                   if (isDefinedKey(p, TYPE_NS)) {
                      Resource objectResource = object.asResource();
-                     String namespace = getNamespace(objectResource);
+                     String namespace = graph.getNamespace(objectResource);
                      ElementKey objectKey = ElementKey.create(namespace, objectResource.getLocalName());
                      Resource subjectResource = subject.asResource();
-                     String namespace2 = getNamespace(subjectResource);
+                     String namespace2 = graph.getNamespace(subjectResource);
                      ElementKey subjectKey = ElementKey.create(namespace2, subjectResource.getLocalName());
                      if (graph.hasOwlClass(objectKey) && !graph.hasIndividual(subjectKey)) {
                         OwlClass owlClass = graph.getOwlClass(objectKey);
@@ -494,7 +467,7 @@ public class GraphExtractor extends AbstractWarningAction {
          ExtendedIterator<OntClass> children = thingClass.listSubClasses();
          while (children.hasNext()) {
             OntClass childClass = children.next();
-            String childNamespace = getNamespace(childClass);
+            String childNamespace = graph.getNamespace(childClass);
             ElementKey skey = new ElementKey(childNamespace, childClass.getLocalName());
             if (graph.hasOwlClass(skey)) {
                OwlClass childOwlClass = graph.getOwlClass(skey);
@@ -582,7 +555,7 @@ public class GraphExtractor extends AbstractWarningAction {
       if (thisClass.getLocalName() == null) {
          return;
       }
-      String classNamespace = getNamespace(thisClass);
+      String classNamespace = graph.getNamespace(thisClass);
       ElementKey key = new ElementKey(classNamespace, thisClass.getLocalName());
       if (graph.hasOwlClass(key)) {
          OwlClass owlClass = graph.getOwlClass(key);
@@ -596,7 +569,7 @@ public class GraphExtractor extends AbstractWarningAction {
                   if (superClass.getLocalName() == null) {
                      continue;
                   }
-                  String superclassNamespace = getNamespace(superClass);
+                  String superclassNamespace = graph.getNamespace(superClass);
                   ElementKey skey = new ElementKey(superclassNamespace, superClass.getLocalName());
                   if (graph.hasOwlClass(skey)) {
                      OwlClass superOwlClass = graph.getOwlClass(skey);
@@ -675,7 +648,7 @@ public class GraphExtractor extends AbstractWarningAction {
          while (resources.hasNext()) {
             OntResource resource = resources.next();
             if (resource.isURIResource()) {
-               String namespace = getNamespace(resource);
+               String namespace = graph.getNamespace(resource);
                ElementKey tkey = new ElementKey(namespace, resource.getLocalName());
                OwlDatatype dtype;
                if (graph.hasDatatype(tkey)) {
@@ -1047,7 +1020,7 @@ public class GraphExtractor extends AbstractWarningAction {
          Map<ElementKey, OwlClass> parentClasses = new HashMap<>();
          while (it.hasNext()) {
             OntClass theClass = it.next();
-            String namespace = getNamespace(theClass);
+            String namespace = graph.getNamespace(theClass);
             ElementKey theKey = new ElementKey(namespace, theClass.getLocalName());
             if (graph.hasOwlClass(theKey)) {
                OwlClass theOwlClass = graph.getOwlClass(theKey);
@@ -1063,7 +1036,10 @@ public class GraphExtractor extends AbstractWarningAction {
                RDFNode node = statement.getObject();
                Property predicate = statement.getPredicate();
                ElementKey theKey = ElementKey.create(predicate.getNameSpace(), predicate.getLocalName());
-               annotationsHelper.addAnnotationValue(node, owlIndividual, theKey);
+               if (!graph.hasOwlProperty(theKey)) {
+                  OwlAnnotation annotation = graph.getOrCreateAnnotation(theKey);
+                  annotationsHelper.addAnnotationValue(node, owlIndividual, annotation);
+               }
             }
             graph.addIndividual(owlIndividual);
          }

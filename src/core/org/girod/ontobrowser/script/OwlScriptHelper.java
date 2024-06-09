@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -36,20 +36,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.rdf.model.Property;
+import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.rdf.model.Resource;
+import org.girod.ontobrowser.model.DatatypePropertyValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.ElementFilter;
+import org.girod.ontobrowser.model.ObjectPropertyValue;
+import org.girod.ontobrowser.model.OwlDatatype;
+import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
+import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlSchema;
+import org.girod.ontobrowser.parsers.graph.IndividualsHelper;
 import org.girod.ontobrowser.utils.SchemaUtils;
 import org.scripthelper.context.ScriptContext;
 import org.scripthelper.context.ScriptHelper;
@@ -64,9 +72,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * @version 0.13
  */
 public class OwlScriptHelper implements ScriptHelper {
+   private static final Pattern ID_PAT = Pattern.compile("(\\d+\\s*)(.*)");
    private final OwlScriptContext context;
    private final OwlSchema schema;
    private final OntModel ontModel;
+   private IndividualsHelper individualsHelper = null;
 
    public OwlScriptHelper(OwlScriptContext context) {
       this.context = context;
@@ -77,6 +87,12 @@ public class OwlScriptHelper implements ScriptHelper {
    @Override
    public ScriptContext getContext() {
       return context;
+   }
+
+   private void getIndividualsHelper() {
+      if (individualsHelper == null) {
+         individualsHelper = new IndividualsHelper(schema);
+      }
    }
 
    /**
@@ -139,8 +155,66 @@ public class OwlScriptHelper implements ScriptHelper {
       }
    }
 
+   /**
+    * Refresh the model from the underlying file.
+    */
+   public void refreshFromFile() {
+      context.getApplication().refreshModel(context.getDiagram());
+   }
+
+   /**
+    * Refresh the model tree.
+    */
+   public void refreshTree() {
+      context.getApplication().refreshTree(context.getDiagram());
+   }
+
    public ElementKey getKeyFromDefaultNamespace(String name) {
       return ElementKey.create(schema.getDefaultNamespace(), name);
+   }
+   
+   public OwlClass getOwlClass(String name) {
+      return schema.getOwlClass(getKeyFromDefaultNamespace(name));
+   }      
+
+   public OwlClass getOwlClass(ElementKey classKey) {
+      return schema.getOwlClass(classKey);
+   }   
+   
+   public OwlIndividual getIndividual(String name) {
+      return schema.getIndividual(getKeyFromDefaultNamespace(name));
+   }   
+
+   public OwlIndividual getIndividual(ElementKey individualKey) {
+      return schema.getIndividual(individualKey);
+   }
+   
+   public OwlProperty getOwlProperty(String name) {
+      return schema.getOwlProperty(getKeyFromDefaultNamespace(name));
+   }   
+
+   public OwlProperty getOwlProperty(ElementKey propertyKey) {
+      return schema.getOwlProperty(propertyKey);
+   }
+
+   private String replaceNameID(String name) {
+      Matcher m = ID_PAT.matcher(name);
+      if (m.matches()) {
+         name = m.group(2);
+      }
+      name = name.replace(" ", "_");
+      name = name.replace(":", "");
+      name = name.replace("/", "_");
+      name = name.replace("+", "_");
+      return name;
+   }
+   
+   public int parseInt(String content, int defaultValue) {
+      try {
+         return Integer.parseInt(content);
+      } catch (NumberFormatException e) {
+         return defaultValue;
+      }
    }
 
    /**
@@ -150,7 +224,8 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param name the individual name
     * @return the individual, or null if it was not psosible to create the individual
     */
-   public OwlIndividual addIndividual(String className, String name) {
+   public ElementKey addIndividual(String className, String name) {
+      name = replaceNameID(name);
       ElementKey classKey = getKeyFromDefaultNamespace(className);
       return addIndividual(classKey, name);
    }
@@ -162,7 +237,8 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param name the individual name
     * @return the individual, or null if it was not psosible to create the individual
     */
-   public OwlIndividual addIndividual(ElementKey classKey, String name) {
+   public ElementKey addIndividual(ElementKey classKey, String name) {
+      name = replaceNameID(name);
       if (schema.hasOwlClass(classKey)) {
          ElementKey individualKey = ElementKey.create(classKey.getNamespace(), name);
          if (schema.hasIndividual(individualKey)) {
@@ -170,35 +246,87 @@ public class OwlScriptHelper implements ScriptHelper {
          }
          OwlClass owlClass = schema.getOwlClass(classKey);
          // see https://stackoverflow.com/questions/43719469/create-individuals-using-jena
-         Individual individual = ontModel.createIndividual(individualKey.getPrefixedName(schema), owlClass.getOntClass());
+         Individual individual = ontModel.createIndividual(individualKey.toURI().toString(), owlClass.getOntClass());
          OwlIndividual owlIndividual = new OwlIndividual(owlClass, individual);
-         return owlIndividual;
+         schema.addIndividual(owlIndividual);
+         return owlIndividual.getKey();
       } else {
          return null;
       }
    }
    
-   public boolean addIndividualPropertyValue(ElementKey individualKey,  ElementKey propertyKey, String value) {
+   public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, Object value) {
+      return addIndividualDataPropertyValue(individualKey, propertyKey, value.toString());
+   }
+
+   public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, String value) {
+      getIndividualsHelper();
       if (schema.hasIndividual(individualKey)) {
          if (schema.hasOwlProperty(propertyKey)) {
             OwlProperty owlproperty = schema.getOwlProperty(propertyKey);
-            Property property = owlproperty.getProperty();
-            OwlIndividual owlIndividual = schema.getIndividual(individualKey);
-            Resource resource = owlIndividual.getIndividual();
-            resource.addProperty(property, value);
-            return true;
-         } else {
-            return false;
+            if (owlproperty instanceof OwlDatatypeProperty) {
+               OntProperty property = owlproperty.getProperty();
+               OwlIndividual owlIndividual = schema.getIndividual(individualKey);
+               Resource resource = owlIndividual.getIndividual();
+               resource.addProperty(property, value);
+               OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty) owlproperty;
+               OwlDatatype datatype = datatypeproperty.getFirstType();
+               if (datatype != null) {
+                  DatatypePropertyValue propValue = new DatatypePropertyValue(datatypeproperty, owlIndividual, datatype, value);
+                  owlIndividual.addDatatypePropertyValue(propValue);
+                  return true;
+               }
+            }
          }
-      } else {
-         return false;
       }
-   }   
-
-   public boolean addIndividualPropertyValue(ElementKey individualKey, String propertyName, String value) {
-      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
-      return addIndividualPropertyValue(individualKey, propertyKey, value);
+      return false;
    }
+   
+   public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, Object value) {
+      return addIndividualDataPropertyValue(individualKey, propertyName, value.toString());
+   }
+
+   public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, String value) {
+      propertyName = replaceNameID(propertyName);
+      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
+      return addIndividualDataPropertyValue(individualKey, propertyKey, value);
+   }
+
+   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, ElementKey propertyKey, ElementKey targetKey) {
+      getIndividualsHelper();
+      if (schema.hasIndividual(individualKey) && schema.hasIndividual(targetKey)) {
+         if (schema.hasOwlProperty(propertyKey)) {
+            OwlProperty owlproperty = schema.getOwlProperty(propertyKey);
+            if (owlproperty instanceof OwlObjectProperty) {
+               OntProperty property = owlproperty.getProperty();
+               OwlIndividual owlIndividual = schema.getIndividual(individualKey);
+               OwlIndividual owlTargetIndividual = schema.getIndividual(targetKey);
+               OwlObjectProperty objectproperty = (OwlObjectProperty) owlproperty;
+               ObjectPropertyValue propValue = new ObjectPropertyValue(objectproperty, owlIndividual, owlTargetIndividual);
+               owlIndividual.addObjectPropertyValue(propValue);
+               
+               Resource individual = owlIndividual.getIndividual();
+               Resource individual2 = owlTargetIndividual.getIndividual();
+               individual.addProperty(property, individual2);
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+   
+   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, ElementKey targetKey) {
+      propertyName = replaceNameID(propertyName);
+      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
+      return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
+   }   
+   
+   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, String targetName) {
+      propertyName = replaceNameID(propertyName);
+      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
+      ElementKey targetKey = ElementKey.create(individualKey.getNamespace(), targetName);
+      return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
+   }      
 
    /**
     * Parse an XML file.
@@ -213,7 +341,7 @@ public class OwlScriptHelper implements ScriptHelper {
          XMLParserHandler phandler = new XMLParserHandler(xmlHandler);
          parser.parse(file, phandler);
       } catch (ParserConfigurationException | SAXException | IOException ex) {
-         xmlHandler.fireException(ex);
+         xmlHandler.fireXMLException(ex);
       }
    }
 
@@ -232,30 +360,30 @@ public class OwlScriptHelper implements ScriptHelper {
             String attrvalue = attr.getValue(i);
             attributes.put(attrname, attrvalue);
          }
-         xmlHandler.startElement(qName, attributes);
+         xmlHandler.startXMLElement(qName, attributes);
       }
 
       @Override
       public void endElement(String uri, String localName, String qName) {
-         xmlHandler.endElement(localName);
+         xmlHandler.endXMLElement(qName);
       }
 
       @Override
       public void error(SAXParseException e) {
-         xmlHandler.error(e);
+         xmlHandler.xmlError(e, XMLExceptionType.ERROR);
          context.echo(e.getMessage(), "red");
       }
 
       @Override
       public void warning(SAXParseException e) {
-         xmlHandler.warning(e);
+         xmlHandler.xmlError(e, XMLExceptionType.WARNING);
          context.echo(e.getMessage(), "red");
       }
 
       @Override
       public void fatalError(SAXParseException e) {
          context.echo(e.getMessage(), "red");
-         xmlHandler.fatalError(e);
+         xmlHandler.xmlError(e, XMLExceptionType.FATAL);
       }
    }
 }

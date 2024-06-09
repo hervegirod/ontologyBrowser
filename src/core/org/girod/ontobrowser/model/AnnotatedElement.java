@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,14 @@ public abstract class AnnotatedElement {
    public static final ElementKey SEE_ALSO = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "seeAlso");
    public static final ElementKey DEFINED_BY = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "isDefinedBy");
    public static final ElementKey VERSION_INFO = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "versionInfo");
-   private static final ElementKey LABEL = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "label");
+   public static final ElementKey LABEL = ElementKey.create("http://www.w3.org/2000/01/rdf-schema/", "label");
+   public static final OwlAnnotation DUBLINCORE_DESCRIPTION_ANNOTATION = new OwlAnnotation(DUBLINCORE_DESCRIPTION);
+   public static final OwlAnnotation DUBLINCORE_DESCRIPTION2_ANNOTATION = new OwlAnnotation(DUBLINCORE_DESCRIPTION2);
+   public static final OwlAnnotation COMMENT_ANNOTATION = new OwlAnnotation(COMMENT);
+   public static final OwlAnnotation SEE_ALSO_ANNOTATION = new OwlAnnotation(SEE_ALSO);
+   public static final OwlAnnotation DEFINED_BY_ANNOTATION = new OwlAnnotation(DEFINED_BY);
+   public static final OwlAnnotation VERSION_INFO_ANNOTATION = new OwlAnnotation(VERSION_INFO);
+   public static final OwlAnnotation LABEL_ANNOTATION = new OwlAnnotation(LABEL);
    public final Map<ElementKey, AnnotationValue> annotations = new HashMap<>();
    private ElementDocumentation elementDoc = null;
    /**
@@ -109,6 +116,15 @@ public abstract class AnnotatedElement {
    public Map<ElementKey, AnnotationValue> getAnnotations() {
       return annotations;
    }
+   
+   /**
+    * Return true if the element has annotations.
+    *
+    * @return true if the element has annotations
+    */
+   public boolean hasAnnotations() {
+      return !annotations.isEmpty();
+   }   
 
    /**
     * Set the element description.
@@ -151,7 +167,7 @@ public abstract class AnnotatedElement {
     */
    public void setVersionInfo(String versionInfo) {
       if (versionInfo != null) {
-         annotations.put(VERSION_INFO, new AnnotationValue.LiteralAnnotationValue(versionInfo));
+         annotations.put(VERSION_INFO, new AnnotationValue.LiteralAnnotationValue(VERSION_INFO_ANNOTATION, versionInfo));
          createDocumentation().setVersionInfo(versionInfo);
       }
    }
@@ -241,7 +257,7 @@ public abstract class AnnotatedElement {
    public void setLabel(String label) {
       if (label != null) {
          this.label = label;
-         annotations.put(LABEL, new AnnotationValue.LiteralAnnotationValue(label));
+         annotations.put(LABEL, new AnnotationValue.LiteralAnnotationValue(LABEL_ANNOTATION, label));
          createDocumentation().setLabel(label);
       }
    }

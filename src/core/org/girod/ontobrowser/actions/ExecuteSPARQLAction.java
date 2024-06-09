@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,16 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.awt.event.ActionEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import org.apache.jena.ontology.OntModel;
@@ -54,24 +59,32 @@ import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.MDIDialogType;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
 import org.mdi.bootstrap.swing.GUIApplication;
+import org.mdiutil.io.FileUtilities;
 
 /**
  * A Sparql action, which executes a SPARQL query.
  *
- * @version 0.8
+ * @version 0.13
  */
 public class ExecuteSPARQLAction extends AbstractMDIAction {
    private final OwlSchema schema;
    private final String sparql;
+   private final SparqlActionHelper helper;
    private String resultAsString = null;
    private Exception exception = null;
 
    /**
     * Constructor.
+    *
+    * @param app the application
+    * @param helper the SparqlActionHelper
+    * @param schema the schema
+    * @param sparql the SPARQL request
     */
-   public ExecuteSPARQLAction(MDIApplication app, OwlSchema schema, String sparql) {
+   public ExecuteSPARQLAction(MDIApplication app, SparqlActionHelper helper, OwlSchema schema, String sparql) {
       super(app, "Execute SPARQL");
       this.schema = schema;
+      this.helper = helper;
       this.sparql = sparql;
       this.setDescription("Execute SPARQL", "Execute SPARQL");
    }
@@ -82,28 +95,8 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       boolean addPrefix = conf.addPrefixInSPARQL;
       String queryAsString;
-      if (addPrefix) {
-         StringBuilder buf = new StringBuilder();
-         Map<String, String> prefixMap = schema.getPrefixMap();
-         Set<String> alreadyExists = new HashSet<>();
-         Iterator<Entry<String, String>> it = prefixMap.entrySet().iterator();
-         while (it.hasNext()) {
-            Entry<String, String> entry = it.next();
-            String uri = entry.getKey();
-            String prefix = entry.getValue();
-            if (uri.endsWith("/#")) {
-               uri = uri.substring(0, uri.length() - 2);
-            }
-            if (prefix.isEmpty()) {
-               prefix = conf.basePrefix;
-            }
-            if (!alreadyExists.contains(uri)) {
-               buf.append("PREFIX ").append(prefix).append(": <").append(uri).append(">");
-               buf.append("\n");
-               alreadyExists.add(uri);
-            }
-         }
-         queryAsString = buf.toString() + sparql;
+      if (addPrefix && !helper.hasPrefix(sparql)) {
+         queryAsString = helper.addPrefixToRequest(sparql);
       } else {
          queryAsString = sparql;
       }
@@ -124,6 +117,33 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
    public void endAction() {
       if (exception == null) {
          DefaultMDIDialogBuilder builder = new DefaultMDIDialogBuilder("SPARQL Result");
+
+         JMenuBar menubar = new JMenuBar();
+         builder.setJMenuBar(menubar);
+         JMenu menu = new JMenu("File");
+         menubar.add(menu);
+         AbstractAction saveSPARQLAction = new AbstractAction("Save SPARQL") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               String queryAsString;
+               if (!helper.hasPrefix(sparql)) {
+                  queryAsString = helper.addPrefixToRequest(sparql);
+               } else {
+                  queryAsString = sparql;
+               }
+               helper.saveSPARQL(queryAsString);
+            }
+         };
+         menu.add(new JMenuItem(saveSPARQLAction));
+         
+         AbstractAction saveResultAction = new AbstractAction("Save Result") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               saveResult(resultAsString);
+            }
+         };
+         menu.add(new JMenuItem(saveResultAction));         
+
          JTextArea area = new JTextArea(40, 40);
          area.setText(resultAsString);
          builder.setResizable(true);
@@ -132,4 +152,22 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
          guiAppli.showDialog(builder, MDIDialogType.UNIQUE_INSTANCE);
       }
    }
+   
+   private void saveResult(String sparql) {
+      JFileChooser chooser = new JFileChooser("Save Result");
+      chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      chooser.setFileFilter(conf.txtfilter);
+      chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      chooser.setCurrentDirectory(conf.getDefaultDirectory());
+      if (chooser.showSaveDialog(((GUIApplication) app).getApplicationWindow()) == JFileChooser.APPROVE_OPTION) {
+         File file = chooser.getSelectedFile();
+         file = FileUtilities.getCompatibleFile(file, "txt");
+         try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(sparql);
+            writer.flush();
+         } catch (IOException e) {
+         }
+      }
+   }   
 }

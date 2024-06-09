@@ -76,6 +76,9 @@ public class OwlDatatype extends NamedOwlElement<OwlDatatype> implements BaseTyp
             case "double":
                type = DOUBLE;
                break;
+            case "decimal":
+               type = DECIMAL;
+               break;               
             case "long":
                type = LONG;
                break;

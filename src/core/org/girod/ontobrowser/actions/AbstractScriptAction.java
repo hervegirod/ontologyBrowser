@@ -33,6 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.actions;
 
 import java.io.File;
+import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.ElementVisitor;
@@ -61,6 +62,7 @@ public abstract class AbstractScriptAction extends AbstractMDIAction implements 
    protected Script script = null;
    protected String scriptName = null;
    protected GraphPanel graphPanel = null;
+   protected OwlDiagram diagram = null;
    protected OwlSchema schema = null;
    protected OwlScriptContext context = null;
    protected ScriptExceptionListener exListener = null;
@@ -79,6 +81,7 @@ public abstract class AbstractScriptAction extends AbstractMDIAction implements 
       this.setDescription("Apply Script", "Apply Script");
       this.scriptFile = scriptFile;
       this.graphPanel = graphPanel;
+      this.diagram = graphPanel.getDiagram();
       this.schema = graphPanel.getSchema();
    }
 
@@ -198,7 +201,7 @@ public abstract class AbstractScriptAction extends AbstractMDIAction implements 
                   ElementKey propertyKey = ElementKey.createFromURI(propertyLink);
                   OwlIndividual theIndividual = schema.getIndividual(theKey);
                   if (theIndividual != null) {
-                     return theIndividual.getPropertyValue(propertyKey);
+                     return theIndividual.getPropertyValues(propertyKey).get(0);
                   } else {
                      return null;
                   }

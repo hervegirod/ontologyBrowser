@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import org.apache.jena.rdf.model.Resource;
 /**
  * Represents an Owl annotation.
  *
- * @since 0.6
+ * @version 0.13
  */
 public class OwlAnnotation extends NamedOwlElement<OwlAnnotation> {
 
@@ -53,6 +53,10 @@ public class OwlAnnotation extends NamedOwlElement<OwlAnnotation> {
    public OwlAnnotation(String namespace, String name) {
       super(namespace, name);
    }
+   
+   public OwlAnnotation(ElementKey key) {
+      super(key.getNamespace(), key.getName());
+   }   
 
    @Override
    public OwlAnnotation clone() {

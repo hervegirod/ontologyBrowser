@@ -178,34 +178,61 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       // Classes tree
       thingRoot = new DefaultMutableTreeNode("Thing");
       classTreeModel = new DefaultTreeModel(thingRoot);
-      classTree = new JTree(classTreeModel);
+      if (classTree == null) {
+         classTree = new JTree(classTreeModel);
+      } else {
+         classTree.setModel(classTreeModel);
+         classTree.updateUI();
+      }
       // Properties tree
       propertiesRoot = new DefaultMutableTreeNode(PROPERTIES_NAME);
       dataPropertiesRoot = new DefaultMutableTreeNode(DATA_PROPERTIES_NAME);
       objectPropertiesRoot = new DefaultMutableTreeNode(OBJECT_PROPERTIES_NAME);
       propertiesTreeModel = new DefaultTreeModel(propertiesRoot);
-      propertiesTree = new JTree(propertiesTreeModel);
+      if (propertiesTree == null) {
+         propertiesTree = new JTree(propertiesTreeModel);
+      } else {
+         propertiesTree.setModel(propertiesTreeModel);
+         propertiesTree.updateUI();
+      }
       // Datatypes tree
       datatypesRoot = new DefaultMutableTreeNode(DATATYPES_NAME);
       datatypesTreeModel = new DefaultTreeModel(datatypesRoot);
-      datatypesTree = new JTree(datatypesTreeModel);
+      if (datatypesTree == null) {
+         datatypesTree = new JTree(datatypesTreeModel);
+      } else {
+         datatypesTree.setModel(datatypesTreeModel);
+         datatypesTree.updateUI();
+      }
       // annotations tree
       annotationsRoot = new DefaultMutableTreeNode(ANNOTATIONS_NAME);
       annotationsTreeModel = new DefaultTreeModel(annotationsRoot);
-      annotationsTree = new JTree(annotationsTreeModel);
+      if (annotationsTree == null) {
+         annotationsTree = new JTree(annotationsTreeModel);
+      } else {
+         annotationsTree.setModel(annotationsTreeModel);
+         annotationsTree.updateUI();
+      }
       // individual tree
+      individualsRoot = new DefaultMutableTreeNode(INDIVIDUALS_NAME);
       individualsTreeModel = new DefaultTreeModel(individualsRoot);
-      individualsTree = new JTree(individualsTreeModel);
+      if (individualsTree == null) {
+         individualsTree = new JTree(individualsTreeModel);
+      } else {
+         individualsTree.setModel(individualsTreeModel);
+         individualsTree.updateUI();
+      }
+      individualsTree.setModel(individualsTreeModel);
       registerToolTips();
    }
 
    public int getSelectedTab() {
       return modelTab.getSelectedIndex();
    }
-   
+
    public void setSelectedTab(int index) {
       modelTab.setSelectedIndex(index);
-   }   
+   }
 
    private void registerToolTips() {
       ToolTipManager toolTipmanager = ToolTipManager.sharedInstance();
@@ -375,8 +402,14 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       if (schema.hasPackages()) {
          thingPackagesRoot = new DefaultMutableTreeNode("Packages");
          packagesModel = new DefaultTreeModel(thingPackagesRoot);
-         packagesTree = new JTree(packagesModel);
-         packagesTree.setCellRenderer(treeRenderer);
+         if (packagesTree == null) {
+            packagesTree = new JTree(packagesModel);
+            packagesTree.setCellRenderer(treeRenderer);
+         } else  {
+            packagesTree.setModel(packagesModel);
+            packagesTree.updateUI();
+         }
+         
          ToolTipManager toolTipmanager = ToolTipManager.sharedInstance();
          toolTipmanager.registerComponent(packagesTree);
       }

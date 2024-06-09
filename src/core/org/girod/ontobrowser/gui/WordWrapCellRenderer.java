@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,26 @@ public class WordWrapCellRenderer extends JTextArea implements TableCellRenderer
    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
       JComponent comp;
       int columnWidth = getColumnWidth(table, column);
-      if (value instanceof AnnotationValue) {
+      if (value instanceof SelectableElement) {
+         JEditorPane editor = new JEditorPane();
+         editor.setEditable(false);
+         editor.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
+         editor.setContentType("text/html");
+         SelectableElement selectable = (SelectableElement) value;
+         StringBuilder buf = new StringBuilder();
+         buf.append("<html><a href=\"");
+         NamedOwlElement element = selectable.getElement();
+         URI uri = element.toURI();
+         if (uri != null) {
+            buf.append(uri.toString()).append("\">").append(selectable.getDisplayedName());
+            buf.append("</a></html>");
+            Font font = editor.getFont();
+            font = font.deriveFont(Font.PLAIN);
+            editor.setFont(font);
+            editor.setText(buf.toString());
+         }
+         comp = editor;
+      } else if (value instanceof AnnotationValue) {
          JEditorPane editor = new JEditorPane();
          editor.setEditable(false);
          editor.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Hervé Girod
+Copyright (c) 2023, 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import org.girod.ontobrowser.model.OwlSchema;
 /**
  * An interface that all scripts must implement. The associated object is available through the <code>context</code> reference.
  *
- * @since 0.8
+ * @version 0.13
  */
 public interface Script extends XMLHandler {
    /**

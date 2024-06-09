@@ -338,7 +338,6 @@ public class ExportGraphAction extends AbstractExportGraphAction {
    }
 
    private void exportClasses(Map<ElementKey, OwlClass> owlClasses) {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       Iterator<Entry<ElementKey, OwlClass>> it = owlClasses.entrySet().iterator();
       while (it.hasNext()) {
          Entry<ElementKey, OwlClass> entry = it.next();

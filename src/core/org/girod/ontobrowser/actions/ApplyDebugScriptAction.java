@@ -52,7 +52,7 @@ import org.scripthelper.swing.debug.SwingDebugScriptWindow;
 /**
  * The apply debug Script Action.
  *
- * @since 0.8
+ * @version 0.13
  */
 public class ApplyDebugScriptAction extends AbstractScriptAction {
    private SwingDebugScriptWindow debugWindow = null;
@@ -77,7 +77,7 @@ public class ApplyDebugScriptAction extends AbstractScriptAction {
       endAtFirstException = conf.endAtFirstException;
 
       debugWindow = new SwingDebugScriptWindow(20, 20);
-      context = new OwlScriptContext((OntoBrowserGUI) app, schema);
+      context = new OwlScriptContext((OntoBrowserGUI) app, diagram);
       debugWindow = new SwingDebugScriptWindow(20, 20);
       context.setLogger(debugWindow);
       debugWindow.registerHyperLinkListener(this);

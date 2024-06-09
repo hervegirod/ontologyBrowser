@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, 2024 Hervé Girod
+Copyright (c) 2024 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,52 +30,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.model;
+package org.girod.ontobrowser.script;
 
 /**
- * Represents a datatype property value.
+ * The enumeration for SAX XML exception types.
  *
- * @since 0.8
+ * @since 0.13
  */
-public class DatatypePropertyValue extends PropertyValue<OwlDatatypeProperty> {
-   private final OwlDatatype datatype;
-   private final String value;
-
-   public DatatypePropertyValue(OwlDatatypeProperty property, OwlIndividual source, OwlDatatype datatype, String value) {
-      super(property, source);
-      this.datatype = datatype;
-      this.value = value;
-   }
-
+public interface XMLExceptionType {
    /**
-    * Return the datatype property. Identical as {@link #getProperty()}.
-    *
-    * @return the datatype property
+    * A warning.
     */
-   public OwlDatatypeProperty getDatatypeProperty() {
-      return property;
-   }
-
+   public static short WARNING = 0;
    /**
-    * Return the datatype.
-    *
-    * @return the datatype
+    * An error.
     */
-   public OwlDatatype getDatatype() {
-      return datatype;
-   }
-
+   public static short ERROR = 1;
    /**
-    * Return the value as a String.
-    *
-    * @return the value
+    * A fatal error.
     */
-   public String getValue() {
-      return value;
-   }
-
-   @Override
-   public String toString() {
-      return value;
-   }
+   public static short FATAL = 2;
 }

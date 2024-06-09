@@ -33,6 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.script;
 
 import org.girod.ontobrowser.OntoBrowserGUI;
+import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedElement;
 import org.girod.ontobrowser.model.OwlSchema;
@@ -46,6 +47,7 @@ import org.scripthelper.context.ScriptHelper;
  */
 public class OwlScriptContext extends DefaultScriptContext {
    private OntoBrowserGUI app = null;
+   private OwlDiagram diagram = null;
    private OwlSchema schema = null;
    private NamedElement currentElt = null;
    private OwlScriptHelper scriptHelper = null;
@@ -53,14 +55,15 @@ public class OwlScriptContext extends DefaultScriptContext {
    /**
     * Create a new ScriptContext.
     * @param app the application
-    * @param schema the schema
+    * @param diagram the diagram
     */
-   public OwlScriptContext(OntoBrowserGUI app, OwlSchema schema) {
+   public OwlScriptContext(OntoBrowserGUI app, OwlDiagram diagram) {
       super();
       this.app = app;
-      this.schema = schema;
+      this.diagram = diagram;
+      this.schema = diagram.getSchema();
       this.scriptHelper = new OwlScriptHelper(this);
-   }
+   }   
 
    /**
     * Return the script helper.
@@ -108,7 +111,7 @@ public class OwlScriptContext extends DefaultScriptContext {
    public NamedElement gettCurrentElement() {
       return currentElt;
    }
-
+   
    /**
     * Return the schema.
     *
@@ -116,5 +119,14 @@ public class OwlScriptContext extends DefaultScriptContext {
     */
    public OwlSchema getSchema() {
       return schema;
+   }   
+
+   /**
+    * Return the diagram.
+    *
+    * @return the diagram
+    */
+   public OwlDiagram getDiagram() {
+      return diagram;
    }
 }

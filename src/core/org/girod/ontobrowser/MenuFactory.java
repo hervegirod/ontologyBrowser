@@ -63,8 +63,8 @@ import org.girod.ontobrowser.actions.ExecuteSPARQLAction;
 import org.girod.ontobrowser.actions.ExportGraphAction;
 import org.girod.ontobrowser.actions.OpenInYedAction;
 import org.girod.ontobrowser.actions.OpenModelAction;
-import org.girod.ontobrowser.actions.RefreshModelAction;
 import org.girod.ontobrowser.actions.SaveModelAction;
+import org.girod.ontobrowser.actions.SparqlActionHelper;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchDialog;
 import org.girod.ontobrowser.gui.search.SearchOptions;
@@ -363,27 +363,11 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       OwlDiagram elt = getElement();
       if (elt != null) {
          OwlSchema schema = elt.getSchema();
-         DefaultMDIDialogBuilder builder = new DefaultMDIDialogBuilder("SPARQL Window");
-         JTextArea area = new JTextArea(40, 30);
-         builder.setResizable(true);
-         builder.addVerticalDialogPart(area);
-         builder.setDialogType(MDIDialogBuilder.YES_CANCEL_DIALOG);
-         builder.setYesLabel("Apply");
-         builder.setListener(new DialogListener() {
-            @Override
-            public void apply() {
-               applySPARQL(schema, area.getText());
-            }
-         });
-         appli.showDialog(builder, MDIDialogType.UNIQUE_INSTANCE);
+         SparqlActionHelper helper = new SparqlActionHelper(appli, schema);
+         helper.showDialog();
       }
    }
-
-   private void applySPARQL(OwlSchema schema, String sparql) {
-      ExecuteSPARQLAction sparqlAction = new ExecuteSPARQLAction(appli, schema, sparql);
-      appli.executeAction(sparqlAction);
-   }
-
+   
    private void centerGraph() {
       OwlDiagram elt = getElement();
       if (elt != null) {
@@ -534,10 +518,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
    private void refreshModel() {
       OwlDiagram elt = getElement();
       if (elt != null) {
-         String longDesc = "Refresh";
-         SwingFileProperties prop = ((AbstractMDIApplication) appli).getSelectedProperties();
-         RefreshModelAction action = new RefreshModelAction(appli, "Refresh", longDesc, prop);
-         appli.executeAction(action);
+         ((OntoBrowserGUI)appli).refreshModel(elt);
       }
    }
 

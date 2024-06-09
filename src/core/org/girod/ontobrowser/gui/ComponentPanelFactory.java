@@ -32,14 +32,17 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -54,9 +57,13 @@ import org.girod.ontobrowser.gui.tree.OwlElementRep;
 import org.girod.ontobrowser.gui.tree.OwlImportedSchemaRep;
 import org.girod.ontobrowser.gui.tree.OwlOntologyRep;
 import org.girod.ontobrowser.model.AnnotationValue;
+import org.girod.ontobrowser.model.DatatypePropertyValue;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.NamedOwlElement;
+import org.girod.ontobrowser.model.ObjectPropertyValue;
+import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlImportedSchema;
+import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.SchemasRepository;
@@ -95,6 +102,8 @@ public class ComponentPanelFactory {
       NamedOwlElement namedElement = selectedElement.getOwlElement();
       if (namedElement instanceof OwlProperty) {
          return getOwlPropertyPanel((OwlProperty) namedElement);
+      } else if (namedElement instanceof OwlIndividual) {
+         return getIndividualPanel((OwlIndividual) namedElement);
       } else {
          return getDefaultElementPanel(namedElement);
       }
@@ -102,6 +111,27 @@ public class ComponentPanelFactory {
 
    private JComponent getOwlImportedSchemaPanel(OwlImportedSchema schema) {
       return getOwlImportedSchemaPanel(schema.getSchemaRep());
+   }
+
+   private String getName(ElementKey key) {
+      String ns = key.getNamespace();
+      if (ns == null) {
+         return key.getName();
+      }
+      if (schema.hasPrefix(ns)) {
+         ns = schema.getPrefix(ns);
+         return ns + ":" + key.getName();
+      } else {
+         return key.getNamespace() + "#" + key.getName();
+      }
+   }
+
+   private String getNameSpaceOrPrefix(SchemasRepository.SchemaRep schema) {
+      String ns = schema.getPrefix();
+      if (ns == null) {
+         ns = schema.getNamespace();
+      }
+      return ns;
    }
 
    private JComponent getOwlImportedSchemaPanel(SchemasRepository.SchemaRep schema) {
@@ -116,7 +146,7 @@ public class ComponentPanelFactory {
       tablemodel.addColumn("Description");
 
       Vector v = new Vector();
-      v.add(schema.getNamespace());
+      v.add(getNameSpaceOrPrefix(schema));
       String name = schema.getName();
       if (name == null) {
          name = " ";
@@ -134,7 +164,10 @@ public class ComponentPanelFactory {
       table.getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
       table.getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
 
-      thePanel.add(new JScrollPane(table));
+      JPanel tablePanel = new JPanel(new BorderLayout());
+      tablePanel.add(table, BorderLayout.CENTER);
+      tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+      thePanel.add(tablePanel);
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);
    }
@@ -190,7 +223,10 @@ public class ComponentPanelFactory {
             }
          }
       });
-      thePanel.add(new JScrollPane(table));
+      JPanel tablePanel = new JPanel(new BorderLayout());
+      tablePanel.add(table, BorderLayout.CENTER);
+      tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+      thePanel.add(tablePanel);
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);
    }
@@ -199,7 +235,7 @@ public class ComponentPanelFactory {
       JPanel thePanel = new JPanel();
       thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
       addElementPanelHeader(thePanel, property);
-      
+
       JPanel funcPanel = new JPanel();
       funcPanel.setLayout(new BoxLayout(funcPanel, BoxLayout.X_AXIS));
       JCheckBox funcCb = new JCheckBox("Functional");
@@ -211,17 +247,17 @@ public class ComponentPanelFactory {
       funcCb.setEnabled(false);
       funcCb.setSelected(property.isInverseFunctionalProperty());
       funcPanel.add(funcCb);
-      funcPanel.add(Box.createHorizontalStrut(5));            
+      funcPanel.add(Box.createHorizontalStrut(5));
       funcPanel.add(Box.createHorizontalGlue());
       thePanel.add(funcPanel);
-      
-      thePanel.add(Box.createVerticalStrut(5));         
-      
+
+      thePanel.add(Box.createVerticalStrut(5));
+
       addElementPanelAnnotations(thePanel, property);
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);
    }
-   
+
    private void addElementPanelHeader(JPanel parentPanel, NamedOwlElement theElement) {
       StringBuilder html = new StringBuilder();
       html.append("<html>");
@@ -238,9 +274,111 @@ public class ComponentPanelFactory {
       headerpanel.add(label);
       headerpanel.add((Box.createHorizontalGlue()));
       parentPanel.add(headerpanel);
-      parentPanel.add(Box.createVerticalStrut(5));      
+      parentPanel.add(Box.createVerticalStrut(5));
    }
-   
+
+   private void addElementPanelTitle(JPanel parentPanel, String title) {
+      StringBuilder html = new StringBuilder();
+      html.append("<html>");
+      html.append("<i style=\"font-weight: normal;\">");
+      html.append(title);
+      html.append("</i>");
+      html.append("</html>");
+      JPanel headerpanel = new JPanel();
+      headerpanel.setLayout(new BoxLayout(headerpanel, BoxLayout.X_AXIS));
+      JLabel label = new JLabel(html.toString());
+      headerpanel.add((Box.createHorizontalStrut(5)));
+      headerpanel.add(label);
+      headerpanel.add((Box.createHorizontalGlue()));
+      parentPanel.add(headerpanel);
+      parentPanel.add(Box.createVerticalStrut(5));
+   }
+
+   private void addIndividualPanelDataProperties(JPanel parentPanel, OwlIndividual individual) {
+      final DefaultTableModel tablemodel = new UneditableTableModel();
+      final JTable table = new JTable();
+      tablemodel.addColumn("DatatypeProperty");
+      tablemodel.addColumn("Value");
+      TreeMap<ElementKey, List<DatatypePropertyValue>> map = new TreeMap<>(individual.getDatatypePropertyValues());
+      Iterator<Entry<ElementKey, List<DatatypePropertyValue>>> it = map.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, List<DatatypePropertyValue>> entry = it.next();
+         List<DatatypePropertyValue> values = entry.getValue();
+         Iterator<DatatypePropertyValue> it2 = values.iterator();
+         while (it2.hasNext()) {
+            DatatypePropertyValue theValue = it2.next();
+            Vector v = new Vector();
+            v.add(new SelectableElement(schema, theValue.getDatatypeProperty()));
+            v.add(theValue);
+            tablemodel.addRow(v);
+         }
+      }
+      table.setModel(tablemodel);
+      table.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
+      table.getColumnModel().getColumn(1).setCellRenderer(new WordWrapCellRenderer());
+      table.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            int row = table.rowAtPoint(e.getPoint());
+            int col = table.columnAtPoint(e.getPoint());
+            if (col == 0) {
+               Object o = tablemodel.getValueAt(row, 0);
+               SelectableElement element = (SelectableElement) o;
+               OwlDatatypeProperty property = (OwlDatatypeProperty) element.getElement();
+               panel.selectElement(property);
+            }
+         }
+      });
+      JPanel tablePanel = new JPanel(new BorderLayout());
+      tablePanel.add(table, BorderLayout.CENTER);
+      tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+      parentPanel.add(tablePanel);
+   }
+
+   private void addIndividualPanelObjectProperties(JPanel parentPanel, OwlIndividual individual) {
+      final DefaultTableModel tablemodel = new UneditableTableModel();
+      final JTable table = new JTable();
+      tablemodel.addColumn("ObjectProperty");
+      tablemodel.addColumn("Individual");
+      TreeMap<ElementKey, List<ObjectPropertyValue>> map = new TreeMap<>(individual.getObjectPropertyValues());
+      Iterator<Entry<ElementKey, List<ObjectPropertyValue>>> it = map.entrySet().iterator();
+      while (it.hasNext()) {
+         Entry<ElementKey, List<ObjectPropertyValue>> entry = it.next();
+         List<ObjectPropertyValue> values = entry.getValue();
+         Iterator<ObjectPropertyValue> it2 = values.iterator();
+         while (it2.hasNext()) {
+            ObjectPropertyValue theValue = it2.next();
+            Vector v = new Vector();
+            v.add(new SelectableElement(schema, theValue.getProperty()));
+            v.add(new SelectableElement(schema, theValue.getTarget()));
+            v.add(theValue);
+            tablemodel.addRow(v);
+         }
+      }
+
+      table.setModel(tablemodel);
+      WordWrapCellRenderer cellRenderer = new WordWrapCellRenderer();
+      table.getColumnModel().getColumn(0).setCellRenderer(cellRenderer);
+      table.getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
+      table.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            int row = table.rowAtPoint(e.getPoint());
+            int col = table.columnAtPoint(e.getPoint());
+            if (col == 0) {
+               Object o = tablemodel.getValueAt(row, 0);
+               SelectableElement element = (SelectableElement) o;
+               panel.selectElement(element.getElement());
+            } else if (col == 1) {
+               Object o = tablemodel.getValueAt(row, 1);
+               SelectableElement element = (SelectableElement) o;
+               panel.selectElement(element.getElement());
+            }
+         }
+      });
+      parentPanel.add(table);
+   }
+
    private void addElementPanelAnnotations(JPanel parentPanel, NamedOwlElement theElement) {
       final DefaultTableModel tablemodel = new UneditableTableModel();
       final JTable table = new JTable();
@@ -250,7 +388,7 @@ public class ComponentPanelFactory {
       while (it.hasNext()) {
          Entry<ElementKey, AnnotationValue> entry = it.next();
          Vector v = new Vector();
-         v.add(entry.getKey().toString());
+         v.add(getName(entry.getKey()));
          AnnotationValue value = entry.getValue();
          if (value instanceof AnnotationValue.URIAnnotationValue) {
             v.add(value);
@@ -288,13 +426,39 @@ public class ComponentPanelFactory {
             }
          }
       });
-      parentPanel.add(new JScrollPane(table));      
+      parentPanel.add(table);
+   }
+
+   private JComponent getIndividualPanel(OwlIndividual individual) {
+      JPanel thePanel = new JPanel();
+      thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
+      addElementPanelHeader(thePanel, individual);
+      if (individual.hasAnnotations()) {
+         thePanel.add(Box.createVerticalStrut(5));
+         addElementPanelTitle(thePanel, "Annotations");
+         thePanel.add(Box.createVerticalStrut(5));
+         addElementPanelAnnotations(thePanel, individual);
+      }
+      if (individual.hasDatatypePropertyValues()) {
+         thePanel.add(Box.createVerticalStrut(5));
+         addElementPanelTitle(thePanel, "Data properties");
+         addIndividualPanelDataProperties(thePanel, individual);
+      }
+      if (individual.hasObjectPropertyValues()) {
+         thePanel.add(Box.createVerticalStrut(5));
+         addElementPanelTitle(thePanel, "Object properties");
+         addIndividualPanelObjectProperties(thePanel, individual);
+      }
+      thePanel.add(Box.createVerticalGlue());
+      return new JScrollPane(thePanel);
    }
 
    private JComponent getDefaultElementPanel(NamedOwlElement theElement) {
       JPanel thePanel = new JPanel();
       thePanel.setLayout(new BoxLayout(thePanel, BoxLayout.Y_AXIS));
       addElementPanelHeader(thePanel, theElement);
+      thePanel.add(Box.createVerticalStrut(5));
+      addElementPanelTitle(thePanel, "Annotations");
       addElementPanelAnnotations(thePanel, theElement);
       thePanel.add(Box.createVerticalGlue());
       return new JScrollPane(thePanel);

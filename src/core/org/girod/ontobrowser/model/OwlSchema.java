@@ -56,6 +56,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.Resource;
 import org.girod.ontobrowser.utils.SchemaUtils;
 
 /**
@@ -71,6 +72,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    private String defaultNamespace = null;
    private String defaultSquashedNamespace = null;
    private String defaultPrefix = null;
+   private String namespaceFromFile;
    private short representationType = OwlRepresentationType.TYPE_OWL_XML;
    private final Map<String, OwlImportedSchema> importedSchemas = new HashMap<>();
    private final Map<String, OwlImportedSchema> importedSchemasFromNamespace = new HashMap<>();
@@ -97,6 +99,20 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
       this.file = file;
       this.representationType = owlRepresentationType;
       computePrefixMap();
+   }
+   
+   /**
+    * Reset the content of the schema.
+    */
+   public void reset() {
+      this.classes.clear();
+      this.individuals.clear();
+      this.datatypeProperties.clear();
+      this.objectProperties.clear();
+      this.properties.clear();
+      this.elementsAnnotations.clear();
+      this.datatypes.clear();
+      this.namespaces.clear();
    }
 
    /**
@@ -199,7 +215,27 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
             defaultSquashedNamespace = defaultNamespace;
          }
       }
+      if (file != null) {
+         setupNamespaceFromFile();
+      }
    }
+   
+   private void setupNamespaceFromFile() {
+      String uriAsString = file.toURI().toString();
+      int index = uriAsString.lastIndexOf('/');
+      if (index <= 0) {
+         namespaceFromFile = null;
+      } else {
+         // file:///D:/Java/ProceduresOntology/v21/FalconProcedures#
+         String startPart = uriAsString.substring(0, index);
+         if (startPart.startsWith("file:/")) {
+            startPart = "file:///" + startPart.substring(6);
+            namespaceFromFile = startPart;
+         } else {
+            namespaceFromFile = null;
+         }
+      }
+   }   
 
    private String getAbout() {
       try {
@@ -422,6 +458,29 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    public Set<String> getNamespaces() {
       return namespaces;
    }
+   
+   public String getPotentialNamespaceFromFile() {
+      return namespaceFromFile;
+   }
+   
+   /**
+    * Return the namespace of a resource.
+    *
+    * @param resource the resource
+    * @return the namespace
+    */
+   public String getNamespace(Resource resource) {
+      if (defaultNamespace == null) {
+         return resource.getNameSpace();
+      } else {
+         String namespace = resource.getNameSpace();
+         if (namespace.startsWith(namespaceFromFile)) {
+            return defaultNamespace;
+         } else {
+            return resource.getNameSpace();
+         }
+      }
+   }   
 
    /**
     * Return the Thing class.
@@ -594,6 +653,16 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    public OwlIndividual getIndividual(ElementKey key) {
       return individuals.get(key);
    }
+   
+   public OwlAnnotation getOrCreateAnnotation(ElementKey annotationKey) {
+      if (hasElementAnnotation(annotationKey)) {
+         return getElementAnnotation(annotationKey);
+      } else {
+         OwlAnnotation annotation = new OwlAnnotation(annotationKey);
+         addElementAnnotation(annotation);
+         return annotation;
+      }
+   }   
 
    /**
     * Add an annotation.
