@@ -41,15 +41,38 @@ import org.xml.sax.SAXParseException;
  * @since 0.13
  */
 public interface XMLHandler {
+   /**
+    * Called if an exception occur when parsing the an XML file.
+    *
+    * @param e the exception
+    */
    public default void fireXMLException(Exception e) {
    }
 
-   public default void xmlError(SAXParseException e, int exceptionType) {      
+   /**
+    * Called if a SAX exception occur when parsing the an XML file.
+    *
+    * @param e the SAX exception
+    * @param exceptionType the SAX exception type (see {@link XMLExceptionType})
+    */
+   public default void xmlError(SAXParseException e, int exceptionType) {
    }
 
+   /**
+    * Called for the start of an XML element.
+    *
+    * @param qName the element qualified name
+    * @param attributes the element attributes
+    */
    public default void startXMLElement(String qName, Map<String, String> attributes) {
    }
-   
+
+   /**
+    * Called for the end of an XML element.
+    *
+    * @param qName the element qualified name
+    * @param cdata the element cdata (null if empty)
+    */
    public default void endXMLElement(String cdata, String qName) {
-   }   
+   }
 }

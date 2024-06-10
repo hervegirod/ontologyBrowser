@@ -170,103 +170,190 @@ public class OwlScriptHelper implements ScriptHelper {
       context.getApplication().refreshTree(context.getDiagram());
    }
 
+   /**
+    * Return the key corresponding to a name in the default namespace.
+    *
+    * @param name the name
+    * @return the key
+    */
    public ElementKey getKeyFromDefaultNamespace(String name) {
       return ElementKey.create(schema.getDefaultNamespace(), name);
    }
 
+   /**
+    * Return the Owl Class corresponding to a name in the default namespace.
+    *
+    * @param name the name
+    * @return the Owl Class
+    */
    public OwlClass getOwlClass(String name) {
       return schema.getOwlClass(getKeyFromDefaultNamespace(name));
    }
 
+   /**
+    * Return the Owl Class corresponding to a key.
+    *
+    * @param classKey the key
+    * @return the Owl Class
+    */
    public OwlClass getOwlClass(ElementKey classKey) {
       return schema.getOwlClass(classKey);
    }
 
+   /**
+    * Return the Owl Individual corresponding to a name.
+    *
+    * @param name the name
+    * @return the Owl Individual
+    */
    public OwlIndividual getIndividual(String name) {
       return schema.getIndividual(getKeyFromDefaultNamespace(name));
    }
 
+   /**
+    * Return the Owl Individual corresponding to a key.
+    *
+    * @param individualKey the key
+    * @return the Owl Individual
+    */
    public OwlIndividual getIndividual(ElementKey individualKey) {
       return schema.getIndividual(individualKey);
    }
 
+   /**
+    * Return the Owl Property corresponding to a name.
+    *
+    * @param name the name
+    * @return the Owl Property
+    */
    public OwlProperty getOwlProperty(String name) {
       return schema.getOwlProperty(getKeyFromDefaultNamespace(name));
    }
 
+   /**
+    * Return the Owl Property corresponding to a key.
+    *
+    * @param propertyKey the key
+    * @return the Owl Property
+    */
    public OwlProperty getOwlProperty(ElementKey propertyKey) {
       return schema.getOwlProperty(propertyKey);
    }
-   
+
+   /**
+    * Return the list of property values for an individual and an object property. It will return null if the property does not exist.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the object property key
+    * @return the list of property values
+    */
    public List<ObjectPropertyValue> getOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isObjectProperty()) {
          Map<ElementKey, List<ObjectPropertyValue>> map = individual.getObjectPropertyValues();
-            if (map.containsKey(propertyKey)) {
-               return map.get(propertyKey);
-            } else {
-               return null;
-            }
+         if (map.containsKey(propertyKey)) {
+            return map.get(propertyKey);
+         } else {
+            return null;
+         }
       } else {
          return null;
       }
-   }   
-   
+   }
+
+   /**
+    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual does not have values
+    * for this property.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the object property key
+    * @return the list of property values
+    */
    public boolean hasOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isObjectProperty()) {
          Map<ElementKey, List<ObjectPropertyValue>> map = individual.getObjectPropertyValues();
-            if (map.containsKey(propertyKey)) {
-               return !map.isEmpty();
-            } else {
-               return false;
-            }
+         if (map.containsKey(propertyKey)) {
+            return !map.isEmpty();
+         } else {
+            return false;
+         }
       } else {
          return false;
       }
-   }    
-   
+   }
+
+   /**
+    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual does not have values
+    * for this property.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the object property name
+    * @return the list of property values
+    */
    public boolean hasOwlObjectPropertyValues(ElementKey individualKey, String propertyName) {
       ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
       return hasOwlObjectPropertyValues(individualKey, propertyKey);
-   }     
-   
+   }
+
+   /**
+    * Return the list of data property values for an individual and a data property. It will return null if the property does not exist.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the data property key
+    * @return the list of property values
+    */
    public List<DatatypePropertyValue> getOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isDatatypeProperty()) {
          Map<ElementKey, List<DatatypePropertyValue>> map = individual.getDatatypePropertyValues();
-            if (map.containsKey(propertyKey)) {
-               return map.get(propertyKey);
-            } else {
-               return null;
-            }
+         if (map.containsKey(propertyKey)) {
+            return map.get(propertyKey);
+         } else {
+            return null;
+         }
       } else {
          return null;
       }
-   }      
-   
+   }
+
+   /**
+    * Return the list of data property values for an individual and a data property. It will return null if the property does not exist.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the data property name
+    * @return the list of property values
+    */
    public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, String propertyName) {
       ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
       return hasOwlDatatypePropertyValues(individualKey, propertyKey);
-   }  
-   
+   }
+
+   /**
+    * Return true if an individual has values for a data property. It will return false if the property does not exist or the individual does not have values
+    * for this property.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the data property key
+    * @return the list of property values
+    */
    public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isDatatypeProperty()) {
          Map<ElementKey, List<ObjectPropertyValue>> map = individual.getDatatypePropertyValues();
-            if (map.containsKey(propertyKey)) {
-               return !map.isEmpty();
-            } else {
-               return false;
-            }
+         if (map.containsKey(propertyKey)) {
+            return !map.isEmpty();
+         } else {
+            return false;
+         }
       } else {
          return false;
       }
-   }     
+   }
 
    private String replaceNameID(String name) {
       Matcher m = ID_PAT.matcher(name);
@@ -280,6 +367,13 @@ public class OwlScriptHelper implements ScriptHelper {
       return name;
    }
 
+   /**
+    * Parse an int value.
+    *
+    * @param content the value as a string
+    * @param defaultValue the default value to use if the value can not be parsed as an int
+    * @return the parsed value as an int
+    */
    public int parseInt(String content, int defaultValue) {
       try {
          return Integer.parseInt(content);
@@ -326,10 +420,28 @@ public class OwlScriptHelper implements ScriptHelper {
       }
    }
 
+   /**
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
+    * a datatype.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the data property key
+    * @param value the value
+    * @return true if the value could be added
+    */
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, Object value) {
       return addIndividualDataPropertyValue(individualKey, propertyKey, value.toString());
    }
 
+   /**
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
+    * a datatype.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the data property key
+    * @param value the value
+    * @return true if the value could be added
+    */
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, String value) {
       getIndividualsHelper();
       if (schema.hasIndividual(individualKey)) {
@@ -353,16 +465,43 @@ public class OwlScriptHelper implements ScriptHelper {
       return false;
    }
 
+   /**
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
+    * a datatype.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the data property name
+    * @param value the value
+    * @return true if the value could be added
+    */   
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, Object value) {
       return addIndividualDataPropertyValue(individualKey, propertyName, value.toString());
    }
 
+   /**
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
+    * a datatype.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the data property name
+    * @param value the value
+    * @return true if the value could be added
+    */      
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, String value) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       return addIndividualDataPropertyValue(individualKey, propertyKey, value);
    }
 
+   /**
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
+    * the target exists.
+    *
+    * @param individualKey the individual key
+    * @param propertyKey the object property key
+    * @param targetKey the target key
+    * @return true if the value could be added
+    */   
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, ElementKey propertyKey, ElementKey targetKey) {
       getIndividualsHelper();
       if (schema.hasIndividual(individualKey) && schema.hasIndividual(targetKey)) {
@@ -386,12 +525,30 @@ public class OwlScriptHelper implements ScriptHelper {
       return false;
    }
 
+   /**
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
+    * the target exists.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the object property name
+    * @param targetKey the target key
+    * @return true if the value could be added
+    */      
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, ElementKey targetKey) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
    }
 
+   /**
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
+    * the target exists.
+    *
+    * @param individualKey the individual key
+    * @param propertyName the object property name
+    * @param targetName the target name
+    * @return true if the value could be added
+    */     
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, String targetName) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
@@ -454,7 +611,7 @@ public class OwlScriptHelper implements ScriptHelper {
                cdata = null;
             }
             buf = null;
-         }         
+         }
          xmlHandler.endXMLElement(cdata, qName);
       }
 
