@@ -109,6 +109,33 @@
       <li>Fix some cases where the default prefix of a schema was not correctly detected</li>
       <li>Add a configuration property to show elements using the default namespace / prefix in bold</li>
    </ul>
+   
+   <title title="Version 0.12" />
+   <ul>
+      <li>Fix some cases where a Search would lead to an exception</li>
+      <li>Fix some cases where a Dependency dialog on a Class would lead to an exception</li>
+   </ul>
+ 
+   <title title="Version 0.13" />
+   <ul>
+      <li>Use MDIFramework 1.4.3.1</li>
+      <li>Use jGraphml 1.2.9</li>
+      <li>Use jEditor 1.2.18</li>
+      <li>Allow to save an Owl model on the disk</li>
+      <li>Update the scripting framework to be able to edit the Owl model</li>
+      <li>Update the scripting framework to be able to parse XML files</li>
+      <li>Add the datatypes to the DatatypeProperties dependencies window</li>
+      <li>Fix the base type of a datatype always being set to custom</li>
+      <li>Fix elements which were incorrectly seen as foreign </li>
+      <li>Support the http://purl.org/dc/elements/1.1/ descriptions</li>
+      <li>Allows to refresh the content tab if the ontology has been modified externally</li>
+      <li>Add an option to not allow to have several levels of packages</li>
+      <li>Add an option to not add data properties in graphml exports</li>
+      <li>Add an option to not export links between two packages in graphml exports</li>
+      <li>Fix the graph extractor only seing one value for each property on an Individual</li>
+      <li>Support the decimal built-in datatype</li>
+      <li>Show property values for individuals</li>       
+   </ul>
 
    <cat id="general" />
 </article>
