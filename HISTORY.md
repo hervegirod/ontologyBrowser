@@ -94,7 +94,7 @@
  - Fix some cases where a Search would lead to an exception
  - Fix some cases where a Dependency dialog on a Class would lead to an exception
  
-  # 0.13
+# 0.13b1
  - Use MDIFramework 1.4.3.1
  - Use jGraphml 1.2.9
  - Use jEditor 1.2.18
