@@ -95,9 +95,9 @@
  - Fix some cases where a Dependency dialog on a Class would lead to an exception
  
   # 0.13
- - Use MDIFramework 1.4.3
+ - Use MDIFramework 1.4.3.1
  - Use jGraphml 1.2.9
- - Use jEditor 1.2.17
+ - Use jEditor 1.2.18
  - Allow to save an Owl model on the disk
  - Update the scripting framework to be able to edit the Owl model
  - Update the scripting framework to be able to parse XML files
