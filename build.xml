@@ -222,7 +222,7 @@
          <!-- the Xdoclint argument avoid to get javadoc errors when the documentation format is not compliant for HTML 4, which was the case before
          Java 8. It would also not be a good idea, because empty tags like br are very useful -->
          <arg line="-Xdoclint:none"/>
-         <fileset dir="${src.dir}" defaultexcludes="yes">
+         <fileset dir="${src.core.dir}" defaultexcludes="yes">
             <include name="org/girod/ontobrowser/model/**/*.java"/>
             <include name="org/girod/ontobrowser/script/Script.java"/>
             <include name="org/girod/ontobrowser/script/OwlScriptContext.java"/>
