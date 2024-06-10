@@ -49,7 +49,7 @@ public interface XMLHandler {
 
    public default void startXMLElement(String qName, Map<String, String> attributes) {
    }
-
-   public default void endXMLElement(String qName) {
-   }
+   
+   public default void endXMLElement(String cdata, String qName) {
+   }   
 }

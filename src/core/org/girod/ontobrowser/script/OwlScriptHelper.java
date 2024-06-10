@@ -35,6 +35,7 @@ package org.girod.ontobrowser.script;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -172,30 +173,100 @@ public class OwlScriptHelper implements ScriptHelper {
    public ElementKey getKeyFromDefaultNamespace(String name) {
       return ElementKey.create(schema.getDefaultNamespace(), name);
    }
-   
+
    public OwlClass getOwlClass(String name) {
       return schema.getOwlClass(getKeyFromDefaultNamespace(name));
-   }      
+   }
 
    public OwlClass getOwlClass(ElementKey classKey) {
       return schema.getOwlClass(classKey);
-   }   
-   
+   }
+
    public OwlIndividual getIndividual(String name) {
       return schema.getIndividual(getKeyFromDefaultNamespace(name));
-   }   
+   }
 
    public OwlIndividual getIndividual(ElementKey individualKey) {
       return schema.getIndividual(individualKey);
    }
-   
+
    public OwlProperty getOwlProperty(String name) {
       return schema.getOwlProperty(getKeyFromDefaultNamespace(name));
-   }   
+   }
 
    public OwlProperty getOwlProperty(ElementKey propertyKey) {
       return schema.getOwlProperty(propertyKey);
    }
+   
+   public List<ObjectPropertyValue> getOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+      OwlIndividual individual = getIndividual(individualKey);
+      OwlProperty property = getOwlProperty(propertyKey);
+      if (individual != null && property != null && property.isObjectProperty()) {
+         Map<ElementKey, List<ObjectPropertyValue>> map = individual.getObjectPropertyValues();
+            if (map.containsKey(propertyKey)) {
+               return map.get(propertyKey);
+            } else {
+               return null;
+            }
+      } else {
+         return null;
+      }
+   }   
+   
+   public boolean hasOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+      OwlIndividual individual = getIndividual(individualKey);
+      OwlProperty property = getOwlProperty(propertyKey);
+      if (individual != null && property != null && property.isObjectProperty()) {
+         Map<ElementKey, List<ObjectPropertyValue>> map = individual.getObjectPropertyValues();
+            if (map.containsKey(propertyKey)) {
+               return !map.isEmpty();
+            } else {
+               return false;
+            }
+      } else {
+         return false;
+      }
+   }    
+   
+   public boolean hasOwlObjectPropertyValues(ElementKey individualKey, String propertyName) {
+      ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
+      return hasOwlObjectPropertyValues(individualKey, propertyKey);
+   }     
+   
+   public List<DatatypePropertyValue> getOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+      OwlIndividual individual = getIndividual(individualKey);
+      OwlProperty property = getOwlProperty(propertyKey);
+      if (individual != null && property != null && property.isDatatypeProperty()) {
+         Map<ElementKey, List<DatatypePropertyValue>> map = individual.getDatatypePropertyValues();
+            if (map.containsKey(propertyKey)) {
+               return map.get(propertyKey);
+            } else {
+               return null;
+            }
+      } else {
+         return null;
+      }
+   }      
+   
+   public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, String propertyName) {
+      ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
+      return hasOwlDatatypePropertyValues(individualKey, propertyKey);
+   }  
+   
+   public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+      OwlIndividual individual = getIndividual(individualKey);
+      OwlProperty property = getOwlProperty(propertyKey);
+      if (individual != null && property != null && property.isDatatypeProperty()) {
+         Map<ElementKey, List<ObjectPropertyValue>> map = individual.getDatatypePropertyValues();
+            if (map.containsKey(propertyKey)) {
+               return !map.isEmpty();
+            } else {
+               return false;
+            }
+      } else {
+         return false;
+      }
+   }     
 
    private String replaceNameID(String name) {
       Matcher m = ID_PAT.matcher(name);
@@ -208,7 +279,7 @@ public class OwlScriptHelper implements ScriptHelper {
       name = name.replace("+", "_");
       return name;
    }
-   
+
    public int parseInt(String content, int defaultValue) {
       try {
          return Integer.parseInt(content);
@@ -254,7 +325,7 @@ public class OwlScriptHelper implements ScriptHelper {
          return null;
       }
    }
-   
+
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, Object value) {
       return addIndividualDataPropertyValue(individualKey, propertyKey, value.toString());
    }
@@ -281,7 +352,7 @@ public class OwlScriptHelper implements ScriptHelper {
       }
       return false;
    }
-   
+
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, Object value) {
       return addIndividualDataPropertyValue(individualKey, propertyName, value.toString());
    }
@@ -304,7 +375,7 @@ public class OwlScriptHelper implements ScriptHelper {
                OwlObjectProperty objectproperty = (OwlObjectProperty) owlproperty;
                ObjectPropertyValue propValue = new ObjectPropertyValue(objectproperty, owlIndividual, owlTargetIndividual);
                owlIndividual.addObjectPropertyValue(propValue);
-               
+
                Resource individual = owlIndividual.getIndividual();
                Resource individual2 = owlTargetIndividual.getIndividual();
                individual.addProperty(property, individual2);
@@ -314,19 +385,19 @@ public class OwlScriptHelper implements ScriptHelper {
       }
       return false;
    }
-   
+
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, ElementKey targetKey) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
-   }   
-   
+   }
+
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, String targetName) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       ElementKey targetKey = ElementKey.create(individualKey.getNamespace(), targetName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
-   }      
+   }
 
    /**
     * Parse an XML file.
@@ -347,6 +418,7 @@ public class OwlScriptHelper implements ScriptHelper {
 
    private class XMLParserHandler extends DefaultHandler {
       private final XMLHandler xmlHandler;
+      private StringBuilder buf = null;
 
       private XMLParserHandler(XMLHandler xmlHandler) {
          this.xmlHandler = xmlHandler;
@@ -355,6 +427,7 @@ public class OwlScriptHelper implements ScriptHelper {
       @Override
       public void startElement(String uri, String localName, String qName, Attributes attr) {
          Map<String, String> attributes = new HashMap<>();
+         buf = null;
          for (int i = 0; i < attr.getLength(); i++) {
             String attrname = attr.getQName(i);
             String attrvalue = attr.getValue(i);
@@ -364,8 +437,25 @@ public class OwlScriptHelper implements ScriptHelper {
       }
 
       @Override
+      public void characters(char[] chararacters, int start, int length) {
+         if (buf == null) {
+            buf = new StringBuilder();
+         }
+         buf.append(chararacters, start, length);
+      }
+
+      @Override
       public void endElement(String uri, String localName, String qName) {
-         xmlHandler.endXMLElement(qName);
+         String cdata = null;
+         if (buf != null) {
+            cdata = buf.toString();
+            cdata = cdata.trim();
+            if (cdata.isEmpty()) {
+               cdata = null;
+            }
+            buf = null;
+         }         
+         xmlHandler.endXMLElement(cdata, qName);
       }
 
       @Override

@@ -54,36 +54,36 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
 
    public OwlIndividual(I individual) {
       this(individual, individual.getNameSpace());
-   }  
-   
+   }
+
    public OwlIndividual(I individual, String namespace) {
       super(namespace, individual.getLocalName());
       this.parentClasses = new HashMap<>();
       this.individual = individual;
-   }    
+   }
 
    public OwlIndividual(OwlClass parentClass, I individual) {
       this(parentClass, individual, individual.getNameSpace());
    }
-   
+
    public OwlIndividual(OwlClass parentClass, I individual, String namespace) {
       super(namespace, individual.getLocalName());
       this.parentClasses = new HashMap<>();
       this.parentClasses.put(parentClass.getKey(), parentClass);
       this.individual = individual;
       updateNameSpace();
-   }   
+   }
 
    public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, I individual) {
       this(parentClasses, individual, individual.getNameSpace());
    }
-   
+
    public OwlIndividual(Map<ElementKey, OwlClass> parentClasses, I individual, String namespace) {
       super(namespace, individual.getLocalName());
       this.parentClasses = parentClasses;
       this.individual = individual;
       updateNameSpace();
-   }   
+   }
 
    /**
     * Return the Individual.
@@ -103,6 +103,19 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
             break;
          }
          this.namespace = _namespace;
+      }
+   }
+
+   /**
+    * Return the first parent Class associated with this Individual.
+    *
+    * @return the first parent Class
+    */
+   public OwlClass getFirstParentClass() {
+      if (parentClasses == null || parentClasses.isEmpty()) {
+         return null;
+      } else {
+         return parentClasses.values().iterator().next();
       }
    }
 
@@ -130,16 +143,16 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
          objectPropertyValues.put(theKey, values);
       }
       values.add(value);
-      
+
       OwlIndividual target = value.getTarget();
       List<ObjectPropertyValue> valuesT;
       if (target.objectTargetPropertyValues.containsKey(theKey)) {
-         valuesT = (List<ObjectPropertyValue>)target.objectTargetPropertyValues.get(theKey);
+         valuesT = (List<ObjectPropertyValue>) target.objectTargetPropertyValues.get(theKey);
       } else {
          valuesT = new ArrayList<>();
          target.objectTargetPropertyValues.put(theKey, valuesT);
       }
-      valuesT.add(value);      
+      valuesT.add(value);
    }
 
    /**
@@ -150,33 +163,53 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    public boolean hasPropertyValues() {
       return !objectPropertyValues.isEmpty() || !datatypePropertyValues.isEmpty();
    }
-   
+
    /**
     * Return true if this class has data property values.
     *
     * @return true if this class has data property values
     */
    public boolean hasDatatypePropertyValues() {
-      return!datatypePropertyValues.isEmpty();
-   } 
+      return !datatypePropertyValues.isEmpty();
+   }
    
+   /**
+    * Return true if this class has data property values for a specified key.
+    *
+    * @param propertyKey the property key
+    * @return true if this class has data property values for a specified key
+    */
+   public boolean hasDatatypePropertyValues(ElementKey propertyKey) {
+      return datatypePropertyValues.containsKey(propertyKey);
+   }   
+
    /**
     * Return true if this class has object property values.
     *
     * @return true if this class has object property values
     */
    public boolean hasObjectPropertyValues() {
-      return!objectPropertyValues.isEmpty();
-   }     
-   
+      return !objectPropertyValues.isEmpty();
+   }
+
+   /**
+    * Return true if this class has object property values for a specified key.
+    *
+    * @param propertyKey the property key
+    * @return true if this class has object property values for a specified key
+    */
+   public boolean hasObjectPropertyValues(ElementKey propertyKey) {
+      return objectPropertyValues.containsKey(propertyKey);
+   }
+
    /**
     * Return true if this class has object target property values. It means that the individual is the target of a property.
     *
     * @return true if this class has object target property values
     */
    public boolean hasObjectTargetPropertyValues() {
-      return!objectTargetPropertyValues.isEmpty();
-   }        
+      return !objectTargetPropertyValues.isEmpty();
+   }
 
    /**
     * Return the object property values.
@@ -186,7 +219,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    public Map<ElementKey, List<ObjectPropertyValue>> getObjectPropertyValues() {
       return objectPropertyValues;
    }
-   
+
    /**
     * Return the object target property values. It means that the individual is the target of properties.
     *
@@ -194,7 +227,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
     */
    public Map<ElementKey, List<ObjectPropertyValue>> getObjectTargetPropertyValues() {
       return objectTargetPropertyValues;
-   }   
+   }
 
    /**
     * Add a datatype property value.
@@ -210,7 +243,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
          values = new ArrayList<>();
          datatypePropertyValues.put(theKey, values);
       }
-      values.add(value);      
+      values.add(value);
    }
 
    /**
@@ -225,6 +258,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    /**
     * Return the datatype property values.
     *
+    * @param key the property key
     * @return the datatype property values
     */
    public List<? extends PropertyValue> getPropertyValues(ElementKey key) {
@@ -246,7 +280,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
             while (it2.hasNext()) {
                ObjectPropertyValue theValue = it2.next();
                theValue.accept(visitor);
-            }            
+            }
          }
          Iterator<List<DatatypePropertyValue>> it2 = datatypePropertyValues.values().iterator();
          while (it2.hasNext()) {
@@ -255,7 +289,7 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
             while (it3.hasNext()) {
                DatatypePropertyValue theValue = it3.next();
                theValue.accept(visitor);
-            } 
+            }
          }
       }
    }

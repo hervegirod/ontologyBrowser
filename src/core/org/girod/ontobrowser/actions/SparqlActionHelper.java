@@ -32,6 +32,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -54,7 +55,9 @@ import javax.swing.JMenuItem;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.jeditor.core.CodeEditorDefaults;
+import org.jeditor.gui.DefaultEditorPopup;
 import org.jeditor.gui.JEditor;
+import org.jeditor.scripts.base.Token;
 import org.jeditor.scripts.tokenmarkers.SPARQLTokenMarker;
 import org.mdi.app.swing.DefaultMDIDialogBuilder;
 import org.mdi.app.swing.DefaultMDIDialogBuilder.DialogListener;
@@ -71,6 +74,16 @@ public class SparqlActionHelper {
    private static final Pattern TRIM_LEFT = Pattern.compile("(\\s*)(.*)");
    private final GUIApplication appli;
    private final OwlSchema schema;
+   private static final CodeEditorDefaults defaults = new CodeEditorDefaults();
+   static {
+      defaults.eolMarkers = false;
+      defaults.paintInvalid = false;
+      defaults.setStyle(Token.KEYWORD1, Color.BLUE, false, true);
+      defaults.setStyle(Token.KEYWORD2, new Color(13, 130, 0), false, true);
+      defaults.setStyle(Token.KEYWORD3, Color.BLUE, false, true);
+      defaults.setStyle(Token.COMMENT1, Color.DARK_GRAY, true, false);
+      defaults.setStyle(Token.COMMENT2, Color.DARK_GRAY, true, false);
+   }   
 
    public SparqlActionHelper(GUIApplication appli, OwlSchema schema) {
       this.appli = appli;
@@ -81,10 +94,6 @@ public class SparqlActionHelper {
       DefaultMDIDialogBuilder builder = new DefaultMDIDialogBuilder("SPARQL Window");
       JMenuBar menubar = new JMenuBar();
       builder.setJMenuBar(menubar);
-      CodeEditorDefaults defaults = new CodeEditorDefaults();
-      defaults.cols = 80;
-      defaults.rows = 30;
-      defaults.eolMarkers = false;
       JEditor area = new JEditor(defaults);
       area.setTokenMarker(new SPARQLTokenMarker());
       JMenu menu = new JMenu("File");
