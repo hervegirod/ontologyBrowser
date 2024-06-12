@@ -112,3 +112,8 @@
  - Fix the graph extractor only seing one value for each property on an Individual 
  - Support the decimal built-in datatype
  - Show property values for individuals
+
+# 0.13
+ - Use jEditor 1.2.19
+ - Fix some cases where a NPE could be thrown when saving as Yed with packages
+ - Improve the presentation of SPARQL execution errors
