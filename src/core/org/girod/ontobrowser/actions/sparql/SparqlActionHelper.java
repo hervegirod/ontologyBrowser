@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions;
+package org.girod.ontobrowser.actions.sparql;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -53,9 +53,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import org.girod.ontobrowser.BrowserConfiguration;
+import org.girod.ontobrowser.actions.sparql.ExecuteSPARQLAction;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.jeditor.core.CodeEditorDefaults;
-import org.jeditor.gui.DefaultEditorPopup;
 import org.jeditor.gui.JEditor;
 import org.jeditor.scripts.base.Token;
 import org.jeditor.scripts.tokenmarkers.SPARQLTokenMarker;
@@ -67,6 +67,7 @@ import org.mdi.bootstrap.swing.MDIDialogBuilder;
 import org.mdiutil.io.FileUtilities;
 
 /**
+ * Encapsulate a SPARQL request.
  *
  * @since 0.13
  */
@@ -75,6 +76,7 @@ public class SparqlActionHelper {
    private final GUIApplication appli;
    private final OwlSchema schema;
    private static final CodeEditorDefaults defaults = new CodeEditorDefaults();
+
    static {
       defaults.eolMarkers = false;
       defaults.paintInvalid = false;
@@ -83,7 +85,7 @@ public class SparqlActionHelper {
       defaults.setStyle(Token.KEYWORD3, Color.BLUE, false, true);
       defaults.setStyle(Token.COMMENT1, Color.DARK_GRAY, true, false);
       defaults.setStyle(Token.COMMENT2, Color.DARK_GRAY, true, false);
-   }   
+   }
 
    public SparqlActionHelper(GUIApplication appli, OwlSchema schema) {
       this.appli = appli;
@@ -202,12 +204,12 @@ public class SparqlActionHelper {
          return sparql;
       }
       StringBuilder buf = new StringBuilder();
-      try (Scanner scanner = new Scanner(sparql)) {
+      try ( Scanner scanner = new Scanner(sparql)) {
          boolean hasPrefix = true;
          boolean firstLine = true;
          while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (! hasPrefix || !hasPrefix(line)) {
+            if (!hasPrefix || !hasPrefix(line)) {
                hasPrefix = false;
                if (firstLine) {
                   firstLine = false;

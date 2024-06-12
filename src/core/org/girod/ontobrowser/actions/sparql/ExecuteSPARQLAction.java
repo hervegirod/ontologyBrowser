@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions;
+package org.girod.ontobrowser.actions.sparql;
 
 import java.awt.event.ActionEvent;
 import java.io.BufferedWriter;
@@ -49,6 +49,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.girod.ontobrowser.BrowserConfiguration;
@@ -95,8 +96,12 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       boolean addPrefix = conf.addPrefixInSPARQL;
       String queryAsString;
+      int offset = 0;
       if (addPrefix && !helper.hasPrefix(sparql)) {
          queryAsString = helper.addPrefixToRequest(sparql);
+         String[] lines = sparql.split("\r\n|\r|\n");
+         String[] lines2 = queryAsString.split("\r\n|\r|\n");
+         offset = lines2.length - lines.length;
       } else {
          queryAsString = sparql;
       }
@@ -105,7 +110,11 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
          try ( QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
             ResultSet resultsSet = qexec.execSelect();
             resultAsString = ResultSetFormatter.asText(resultsSet);
-         }
+         }     
+      } catch (QueryParseException e) {
+         SPARQLErrorWindow error = new SPARQLErrorWindow(sparql, offset, e);
+         error.setVisible(true);
+         this.exception = e;         
       } catch (Exception e) {
          SwingErrorLogger logger = new SwingErrorLogger();
          logger.showRuntimeException(e);
