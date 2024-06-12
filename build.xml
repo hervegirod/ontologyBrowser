@@ -227,6 +227,7 @@
             <include name="org/girod/ontobrowser/script/Script.java"/>
             <include name="org/girod/ontobrowser/script/OwlScriptContext.java"/>
             <include name="org/girod/ontobrowser/script/OwlScriptHelper.java"/>
+            <include name="org/girod/ontobrowser/script/XMLHandler.java"/>
          </fileset>
          <group title="Model">
             <package name="org.girod.ontobrowser.model*" />
