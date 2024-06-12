@@ -156,6 +156,8 @@ public class ExportPackageGraphAction extends AbstractExportGraphAction {
    private boolean checkForPackage(ElementKey key) {
       if (key.equals(thePackageKey)) {
          return true;
+      } else if (! schema.hasOwlClass(key)) {
+         return false;
       } else {
          OwlClass theClass = schema.getOwlClass(key);
          if (!theClass.isPackage()) {
