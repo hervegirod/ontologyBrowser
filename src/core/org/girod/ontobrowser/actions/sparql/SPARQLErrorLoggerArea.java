@@ -39,6 +39,8 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -50,11 +52,12 @@ import org.jeditor.gui.JEditor;
 import org.mdiutil.swing.StylableSizableArea;
 
 /**
- * The script error logger area, showing the exceptions StackTrace.
+ * The SPARQL error logger area, showing the SPARQL error.
  *
  * @since 0.13
  */
 public class SPARQLErrorLoggerArea extends JPanel {
+   private static final Pattern EXCEPTION = Pattern.compile("(.+ at line )(\\d+)(,.+)", Pattern.DOTALL);
    /**
     * Default height of the Message Area.
     */
@@ -208,12 +211,18 @@ public class SPARQLErrorLoggerArea extends JPanel {
    }
 
    /**
-    * Append an ExceptionWrapper in red in the Logger area.
+    * Append an error in red in the Logger area.
     *
-    * @param exception the exception
+    * @param exception the query exception
     */
    public void error(QueryParseException exception) {
-      error(exception.getMessage(), exception.getLine() - offset);
+      String message = exception.getMessage();
+      Matcher m = EXCEPTION.matcher(message);
+      if (m.matches()) {
+         int lineNumber = Integer.parseInt(m.group(2)) - offset;
+         message = m.group(1) + lineNumber + m.group(3);
+      }
+      error(message, exception.getLine() - offset);
    }
 
    /**

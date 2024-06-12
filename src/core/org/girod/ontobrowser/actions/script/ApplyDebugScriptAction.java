@@ -96,6 +96,7 @@ public class ApplyDebugScriptAction extends AbstractScriptAction {
       this.setDescription("Apply Script " + scriptName, "Apply Script " + scriptName);
       DebugSession<Script> session = wrapper.createDebugSession();
       script = session.getScript();
+      context.setScript(script);
       debugWindow.setVisible(true);
       debugWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
       session.setExecutionMode(ScriptWrapper.MODE_NON_BLOCKING);

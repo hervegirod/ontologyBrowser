@@ -310,14 +310,23 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
    @Override
    public void createPopupMenu(JPopupMenu menu) {
-      JMenuItem refresh = new JMenuItem("Refresh");
-      menu.add(refresh);
-      refresh.addActionListener(new ActionListener() {
+      JMenuItem reload = new JMenuItem("Reload");
+      menu.add(reload);
+      reload.addActionListener(new ActionListener() {
          @Override
          public void actionPerformed(ActionEvent e) {
             refreshModel();
          }
       });
+      
+      JMenuItem refreshTree = new JMenuItem("Refresh Tree");
+      menu.add(refreshTree);
+      reload.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            refreshTree();
+         }
+      });      
    }
 
    private void executeScript() {
@@ -516,6 +525,13 @@ public class MenuFactory extends AbstractMDIMenuFactory {
          ((OntoBrowserGUI)appli).refreshModel(elt);
       }
    }
+   
+   private void refreshTree() {
+      OwlDiagram elt = getElement();
+      if (elt != null) {
+         ((OntoBrowserGUI)appli).refreshTree(elt);
+      }
+   }   
 
    private void saveModel() {
       GraphPanel graphPanel = getGraphPanel();

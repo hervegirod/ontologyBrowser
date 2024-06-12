@@ -55,7 +55,7 @@ public interface XMLHandler {
     * @param e the SAX exception
     * @param exceptionType the SAX exception type (see {@link XMLExceptionType})
     */
-   public default void xmlError(SAXParseException e, int exceptionType) {
+   public default void xmlError(SAXParseException e, short exceptionType) {
    }
 
    /**

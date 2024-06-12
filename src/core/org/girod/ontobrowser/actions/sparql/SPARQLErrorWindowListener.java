@@ -33,7 +33,7 @@ the project website at the project page on https://github.com/hervegirod/ontolog
 package org.girod.ontobrowser.actions.sparql;
 
 /**
- * Listens to the closing of an ErrorScriptWindow.
+ * Listens to the closing of an SPARQL error window.
  *
  * @since 0.13
  */
@@ -41,7 +41,7 @@ public interface SPARQLErrorWindowListener {
    /**
     * Fired when the SPARQL execution window error is closed.
     *
-    * @param window the SPARQLErrorWindow
+    * @param window the SPARQL error window
     */
    public void windowClosed(SPARQLErrorWindow window);
 }

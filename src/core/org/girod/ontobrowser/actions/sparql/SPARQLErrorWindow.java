@@ -48,7 +48,7 @@ import org.jeditor.gui.JEditor;
 import org.jeditor.scripts.tokenmarkers.SPARQLTokenMarker;
 
 /**
- * A panel that present the current error.
+ * A panel that present a SPARQL error.
  *
  * @since 0.13
  */
@@ -58,12 +58,14 @@ public class SPARQLErrorWindow extends JFrame {
    private final int offset;
    private SPARQLErrorLoggerArea area = null;
    private JEditor editor = null;
-   private String sparql;
+   private final String sparql;
    private SPARQLErrorWindowListener listener = null;
 
    /**
     * Constructor.
     *
+    * @param sparql the sparql expression
+    * @param offset the offset
     * @param exception the exception
     */
    public SPARQLErrorWindow(String sparql, int offset, QueryParseException exception) {
@@ -78,18 +80,18 @@ public class SPARQLErrorWindow extends JFrame {
    }
 
    /**
-    * Set the ErrorWindowListener.
+    * Set the SPARQL error WindowListener.
     *
-    * @param listener the ErrorWindowListener
+    * @param listener the WindowListener
     */
    public void setErrorWindowListener(SPARQLErrorWindowListener listener) {
       this.listener = listener;
    }
 
    /**
-    * Return the ErrorWindowListener.
+    * Return the SPARQL error WindowListener.
     *
-    * @return the ErrorWindowListener
+    * @return the error WindowListener
     */
    public SPARQLErrorWindowListener getErrorWindowListener() {
       return listener;

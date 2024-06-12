@@ -98,6 +98,7 @@ public class ApplyScriptAction extends AbstractScriptAction {
       }
 
       if (script != null && !isScriptAborted()) {
+         context.setScript(script);
          startScript();
          if (!isScriptAborted()) {
             if (script.visitSchema()) {

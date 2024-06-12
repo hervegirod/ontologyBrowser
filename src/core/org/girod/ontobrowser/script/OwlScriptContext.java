@@ -54,6 +54,7 @@ public class OwlScriptContext extends DefaultScriptContext {
 
    /**
     * Create a new ScriptContext.
+    *
     * @param app the application
     * @param diagram the diagram
     */
@@ -63,7 +64,16 @@ public class OwlScriptContext extends DefaultScriptContext {
       this.diagram = diagram;
       this.schema = diagram.getSchema();
       this.scriptHelper = new OwlScriptHelper(this);
-   }   
+   }
+
+   /**
+    * Set the script.
+    *
+    * @param script the script
+    */
+   public void setScript(Script script) {
+      scriptHelper.setScript(script);
+   }
 
    /**
     * Return the script helper.
@@ -102,16 +112,16 @@ public class OwlScriptContext extends DefaultScriptContext {
    public void setCurrentElement(NamedElement currentElt) {
       this.currentElt = currentElt;
    }
-   
+
    /**
     * Return the current element used by the Script.
     *
     * @return the element
-    */   
+    */
    public NamedElement gettCurrentElement() {
       return currentElt;
    }
-   
+
    /**
     * Return the schema.
     *
@@ -119,7 +129,7 @@ public class OwlScriptContext extends DefaultScriptContext {
     */
    public OwlSchema getSchema() {
       return schema;
-   }   
+   }
 
    /**
     * Return the diagram.

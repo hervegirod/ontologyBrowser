@@ -22,6 +22,14 @@
       <li>The Properties tab, showing the Object properties and the Data properties</li>
       <li>The Individuals tab, showing the Individuals</li>
    </ul>
+   
+   <title title="Refreshing the content of the tab" />
+   A right-click on the tab for the opened Owl model shows a menu with two options:
+   <ul>
+      <li>Reload: reload the file and refresh the content of the tree</li>
+      <li>Refresh tree: refresh the content of the tree, using the current Owl model</li>
+   </ul>
+   <img id="refresh" />
 
    <title title="Ontology tab" />
    The Ontology tab shows the metadata on the Ontology, and its namespaces and imported ontologies:

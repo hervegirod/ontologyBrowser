@@ -77,12 +77,17 @@ public class OwlScriptHelper implements ScriptHelper {
    private final OwlScriptContext context;
    private final OwlSchema schema;
    private final OntModel ontModel;
+   private Script script;
    private IndividualsHelper individualsHelper = null;
 
    public OwlScriptHelper(OwlScriptContext context) {
       this.context = context;
       this.schema = context.getSchema();
       this.ontModel = schema.getOntModel();
+   }
+   
+   void setScript(Script script) {
+      this.script = script;
    }
 
    @Override
@@ -169,6 +174,22 @@ public class OwlScriptHelper implements ScriptHelper {
    public void refreshTree() {
       context.getApplication().refreshTree(context.getDiagram());
    }
+   
+   /**
+    * Return the key corresponding to a name and a prefix.
+    *
+    * @param prefix the prefix
+    * @param name the name
+    * @return the key
+    */
+   public ElementKey getKeyFromPrefix(String prefix, String name) {
+      String namespace = schema.getNamespaceFromPrefix(prefix);
+      if (namespace != null) {
+         return ElementKey.create(namespace, name);
+      } else {
+         return getKeyFromDefaultNamespace(name);
+      }
+   }   
 
    /**
     * Return the key corresponding to a name in the default namespace.
@@ -555,22 +576,32 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey targetKey = ElementKey.create(individualKey.getNamespace(), targetName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
    }
+   
+   /**
+    * Parse an XML file.
+    *
+    * @param file the XML file
+    * @param handler the XML handler
+    */
+   public void parseXML(File file, XMLHandler handler) {
+      SAXParserFactory factory = SAXParserFactory.newInstance();
+      try {
+         SAXParser parser = factory.newSAXParser();
+         XMLParserHandler phandler = new XMLParserHandler(script);
+         parser.parse(file, phandler);
+      } catch (ParserConfigurationException | SAXException | IOException ex) {
+         script.fireXMLException(ex);
+      }
+   }
+   
 
    /**
     * Parse an XML file.
     *
     * @param file the XML file
-    * @param xmlHandler the XML handler
     */
-   public void parseXML(File file, XMLHandler xmlHandler) {
-      SAXParserFactory factory = SAXParserFactory.newInstance();
-      try {
-         SAXParser parser = factory.newSAXParser();
-         XMLParserHandler phandler = new XMLParserHandler(xmlHandler);
-         parser.parse(file, phandler);
-      } catch (ParserConfigurationException | SAXException | IOException ex) {
-         xmlHandler.fireXMLException(ex);
-      }
+   public void parseXML(File file) {
+      parseXML(file, script);
    }
 
    private class XMLParserHandler extends DefaultHandler {

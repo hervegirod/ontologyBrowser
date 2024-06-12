@@ -115,18 +115,6 @@ public class SearchAction extends AbstractMDIAction {
       return model;
    }
 
-   private JTree getClassTree() {
-      return graphPanel.getClassTree();
-   }
-
-   private JTree getPropertiesTree() {
-      return graphPanel.getPropertiesTree();
-   }
-
-   private JTree getIndividualsTree() {
-      return graphPanel.getIndividualsTree();
-   }
-
    @Override
    public void run() throws Exception {
       search();

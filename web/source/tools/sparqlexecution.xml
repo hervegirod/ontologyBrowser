@@ -28,9 +28,14 @@
    <title title="execute a query" />
    The Tools &rArr; Execute SPARQL action allows to execute a SPARQL query on the currently selected schema:
    <img id="sparqlquery" />
+   
+   The query window lets you save the query to the disk, or load a query on the disk.
 
+   <title title="query result" />
    If the query executes correctly, we will have the folowing result window:
    <img id="sparqlresult" />
+   
+   The result window lets you save the query or the result to the disk.
 
    <see id="configuration#SPARQL settings" desc="SPARQL settings" />
    <cat id="tools" />

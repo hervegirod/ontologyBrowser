@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Element key">
+   <altTitle desc="ElementKey" />
+   <meta desc="This article presents the unique key for elements in an Owl/RDF schema" />
+   The <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey"/> class allows to specify by an unique key each element in the Owl/RDF schema.
+   
+   The key has both the name and the namespace of the element.
+   
+   <title title="creating a key for an element" />
+   You can create a key knowing the namespace and the name of the element:
+   <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" member="create(String, String)"/>
+   
+   For example:
+   <pre syntax="java">
+       ElementKey key = ElementKey.create("http://www.semanticweb.org/scdsahv/ontologies/2023/11/MyOntology#", "myElement");       
+   </pre>
+   
+   You can also create the key using the prefix using the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getKeyFromPrefix(String, String)"/>.
+   
+   For example:
+   <pre syntax="java">
+       ElementKey key = helper.getKeyFromPrefix("MyOntology", "myElement");       
+   </pre>
+   
+   Finally you can create the key using the default namespace using the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getKeyFromDefaultNamespace(String)"/>.
+
+   For example:
+   <pre syntax="java">
+       ElementKey key = helper.getKeyFromDefaultNamespace("myElement");       
+   </pre>   
+
+   <cat id="tools" />
+</article>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Script helper">
+   <altTitle desc="OwlScriptHelper" />
+   <meta desc="This article presents the OwlScriptHelper class" />
+   The script always has access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper"/> class called <code>helper</code>.
+
+   This class has several utility methods:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDataProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Data properties associated with a Class</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDomainProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Object properties associated with a Class, for which this class is the domain of the property</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getRangeProperties(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Object properties associated with a Class, for which this class is the range of the property</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getDependentClasses(org.girod.ontobrowser.model.OwlClass, org.girod.ontobrowser.model.ElementFilter)"/>
+         method allows to get the Classes associated with a Class through Object properties</li>
+   </ul>
+   
+   <title title="parsing an XML file"/>
+   The ScriptHelper has two methods allowing to parsing an XML file:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="parseXML(java.io.File, org.girod.ontobrowser.script.XMLHandler)" />
+         parse the XML file and fire the parsing events to the handler</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="parseXML(java.io.File)" />
+         parse the XML file and fire the parsing events directly to the script<note>The associated methods of the script do nothing by default</note>
+      </li>      
+   </ul>
+   
+   The methods used to fire the handler for the parsing events are:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="startXMLElement(String, java.util.Map)"/> method is called during the parsing of
+         an element in an XML file. The Map is the (qName, String value) Map of all the attributes of the element</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="endXMLElement(String, String)"/> method is called after the parsing of
+         an element in an XML file. The argument is the CDATA of the element (can be null)</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="xmlError(org.xml.sax.SAXParseException, short)"/> method is called during the parsing 
+         when encountering a SAX exception</li>          
+   </ul>
+   
+   <title level="2" title="opening an XML file"/>
+   The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="openXMLFile(String)" /> will show a dialog allowing to select an XML file.
+   The method will return null if the selection is aborted, else it will return the File.
+   
+   <title level="2" title="example"/>
+   In the following example, the script is only echoing the name of the elements in the file:
+   <pre syntax="java">
+      import java.io.File;
+      
+      void start(OwlSchema schema) {
+      _  File file = helper.openXMLFile("Open XML File");
+      _  if (file != null) {
+      _    helper.parseXML(file);
+      _  }
+      }
+      
+      boolean visitSchema() {
+      _  return false;
+      } 
+      
+      void startXMLElement(String qName, Map&lt;String, String&gt; attributes) {
+      _  context.echo(qName);
+      }
+   </pre>
+   
+   <title title="adding elements in the Schema"/>
+   It is possible to modify the underlying Owl/RDF schema in the script.
+   
+   <messageBox type="info">
+      Note that you can get the key for a prefix or a name using the script helper. See <ref id="ElementKey#creating a key for an element" desc="ElementKey"/>
+      for more information.
+   </messageBox>
+   
+   <title level="2" title="adding individuals"/>
+   The following methods allow to add individuals:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividual(String, String)" /> will add an individual
+         knowing the name of the Class and the name of the individual</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividual(org.girod.ontobrowser.model.ElementKey, String)" /> will add an individual
+         knowing the <ref id="ElementKey" desc="key" /> of the Class and the name of the individual</li>      
+   </ul>
+   These methods return the  <ref id="ElementKey" desc="key" /> of the Individual.
+   
+   You can therefore get the associated Individual by calling one of these methods:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getIndividual(String)" /> will return the indivdual for a name</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getIndividual(org.girod.ontobrowser.model.ElementKey)" /> will return 
+         the indivdual for a key</li>      
+   </ul>   
+   
+   <title level="2" title="adding datatype properties values"/>
+  Several methods allow to add values for datatype properties to an individual, for example:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, String, Object)" />
+      add a value for an individual and a property specified with its name</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, Object)" />
+      add a value for an individual and a property specified with its key</li>      
+   </ul>
+   
+   <title level="2" title="adding object properties values"/>
+  Several methods allow to add values for object properties to an individual, for example:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, String, String)" /> add
+      a value for an individual, a property specified with its name, and a target specified with its name</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey)" /> add
+      a value for an individual, a property and a target specified with their keys</li>      
+   </ul>   
+   
+   <title title="refreshing the tree"/>
+   The tree is not refresh by default, even after adding elements. You can perform a refresh by calling 
+   <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="refreshTree()" />.
+
+   <see id="Scripting" />
+   <see id="ElementKey" />
+   <cat id="tools" />
+</article>

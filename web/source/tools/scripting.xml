@@ -16,6 +16,15 @@
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="process(org.girod.ontobrowser.model.NamedElement)"/> method
          is called for each element in the model</li>
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="end()"/> method is called at the end of the script</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="visitSchema()"/> method can be used to specify that the Schema
+         must not be visited (by default the method returns <code>true</code>, the Schema will not be visited if it returns <code>false</code>
+      </li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="startXMLElement(String, java.util.Map)"/> method is called during the parsing of
+         an element in an XML file. The Map is the (qName, String value) Map of all the attributes of the element</li>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="endXMLElement(String, String)"/> method is called after the parsing of
+         an element in an XML file. The argument is the CDATA of the element (can be null)</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.XMLHandler" member="xmlError(org.xml.sax.SAXParseException, short)"/> method is called during the parsing 
+         when encountering a SAX exception</li>           
    </ul>
 
    The elements will be visited in the following order:
@@ -25,6 +34,11 @@
       <li>The Properties in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlProperty" /> class</li>
       <li>The Individuals in the schema, modeled by the <javadoc api="api" path="org.girod.ontobrowser.model.OwlIndividual" /> class</li>
    </ul>
+   
+   <messageBox type="warning">
+      The elements will be visited only if <javadoc api="api" path="org.girod.ontobrowser.script.Script" member="visitSchema()"/> returns <code>true</code>
+      (the default value).
+   </messageBox>
 
    <title title="Script errors" />
    <moreInfo id="Script errors" />
@@ -128,6 +142,7 @@
    </pre>
 
    <title title="Script helper" />
+   <moreInfo id="OwlScriptHelper" />
    The script always has access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper"/> class called <code>helper</code>.
 
    This class has several utility methods:

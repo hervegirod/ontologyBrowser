@@ -53,7 +53,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import org.girod.ontobrowser.BrowserConfiguration;
-import org.girod.ontobrowser.actions.sparql.ExecuteSPARQLAction;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.jeditor.core.CodeEditorDefaults;
 import org.jeditor.gui.JEditor;
