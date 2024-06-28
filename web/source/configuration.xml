@@ -14,6 +14,7 @@
       <li>The Styles settings: settings about the diagrams style</li>
       <li>The Packages settings: settings about the packages</li>
       <li>The yEd settings: settings about the yEd tool location</li>
+      <li>The XSDPlugin settings: not operationla for the moment</li>
    </ul>
 
    <title title="General settings" />
@@ -24,7 +25,7 @@
             content of the selected Classes and their associated Classes / Individuals and Properties.
          </note>
       </li>
-      <li>"Show Indirect Relations": checked if the indirect relations are shown in the <ref id="Dependencies window" /></li>
+      <li>"Show Indirect Relations in Dependencies": checked if the indirect relations are shown in the <ref id="Dependencies window" /></li>
       <li>"Show Commented Elements": checked if elements which have comments must be shown with a specific icon. See also
          <ref id="elements default annotations" /> for more information</li>
       <li>"Show Own Elements in Bold": checked if elements which are in the default namespace are presented in Bold in the tree</li>         
@@ -39,6 +40,10 @@
    <ul>
       <li>"Show Relation Constraints": checked if cardinality constraints must be presented on data objects relations</li>
       <li>"Show DataProperties types": checked if the types of DataProperties must be presented</li>
+      <li>"Show Properties": checked if datatype properties will be included in the exported diagrams</li>
+      <li>"Show Individuals": checked if Individuals will be included in the exported diagrams</li>
+      <li>"Show inter-package connections": checked if connections between <ref id="Packages" /> will be included</li>
+      <li>"Maximum Class Radius": the maximum distance in the graph of Classes included in the diagram relative to those selected in the export</li>
       <li>"Show Alias": checked if the link between Alias Classes should be shown in the diagrams</li>
    </ul>
 

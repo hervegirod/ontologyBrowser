@@ -45,6 +45,11 @@
 
    We will have the following diagram:
    <img id="exportselectclass2" />
+   
+   <messageBox type="info">
+      The "Maximum Class Radius" <ref id="configuration#Diagrams settings" desc="configuration property" /> allows to specify 
+      the maximum distance in the graph of Classes included in the diagram relative to those selected in the export.
+   </messageBox>
 
    <title title="reading the exported diagram content" />
    <moreInfo id="diagrams content" />

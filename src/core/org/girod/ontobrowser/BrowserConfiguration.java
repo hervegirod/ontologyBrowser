@@ -56,7 +56,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * The browser configuration.
  *
- * @version 0.13
+ * @version 0.14
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -98,6 +98,7 @@ public class BrowserConfiguration implements Configuration {
    public boolean showProperties = true;
    public boolean showIndividuals = true;
    public boolean showInterPackageConnections = true;
+   public int maximumRadius = 1;
    public short layoutOptions = LayoutOptions.ANY_POSITION;
    /*
     * Parsing configuration
@@ -495,6 +496,7 @@ public class BrowserConfiguration implements Configuration {
       p.putBoolean("showIndividuals", showIndividuals); 
       p.putBoolean("showInterPackageConnections", showInterPackageConnections); 
       p.putBoolean("showAlias", showAlias);
+      p.putInt("maximumRadius", maximumRadius);
       p.putInt("superClassPosition", (int)layoutOptions);
 
       // parsing
@@ -557,6 +559,7 @@ public class BrowserConfiguration implements Configuration {
       showDataPropertiesTypes = p.getBoolean("showDataPropertiesTypes", showDataPropertiesTypes);
       showProperties = p.getBoolean("showProperties", showProperties);
       showIndividuals = p.getBoolean("showIndividuals", showIndividuals);
+      maximumRadius = p.getInt("maximumRadius", maximumRadius);
       showInterPackageConnections = p.getBoolean("showInterPackageConnections", showInterPackageConnections);
       layoutOptions = (short)p.getInt("superClassPosition", layoutOptions);
 

@@ -55,7 +55,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.13
+ * @version 0.14
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
@@ -93,6 +93,8 @@ public class BrowserSettings {
    private JCheckBox showPropertiesCb;
    private JCheckBox showIndividualsCb;
    private JCheckBox showInterPackageConnectionsCb;
+   private final SpinnerNumberModel maximumRadiusSpinnerModel = new SpinnerNumberModel(1, 1, 10, 1);
+   private JSpinner maximumRadiusSpinner;   
    // Packages
    private JCheckBox showPackagesCb;
    private JCheckBox acceptSubPackagesCb;
@@ -244,6 +246,7 @@ public class BrowserSettings {
       showPropertiesCb.setSelected(conf.showProperties);
       showIndividualsCb.setSelected(conf.showIndividuals);
       showInterPackageConnectionsCb.setSelected(conf.showInterPackageConnections);
+      maximumRadiusSpinner.setValue(conf.maximumRadius);
 
       // parsing
       includeIndividualsCb.setSelected(conf.includeIndividuals);
@@ -535,6 +538,22 @@ public class BrowserSettings {
       showInterPackageConnectionsCb.addActionListener((ActionEvent e) -> {
          conf.showInterPackageConnections = showInterPackageConnectionsCb.isSelected();
       });
+      
+      maximumRadiusSpinner = new JSpinner(maximumRadiusSpinnerModel);
+      maximumRadiusSpinner.setEditor(new JSpinner.NumberEditor(maximumRadiusSpinner, "##"));
+      maximumRadiusSpinner.setMaximumSize(maximumRadiusSpinner.getPreferredSize());
+      maximumRadiusSpinner.addChangeListener((ChangeEvent e) -> {
+         try {
+            int value = ((Integer) ((JSpinner) e.getSource()).getValue());
+            if (value < 1) {
+               value = 1;
+            } else if (value > 10) {
+               value = 10;
+            }
+            conf.maximumRadius = value;
+         } catch (ArithmeticException ex) {
+         }
+      });      
    }
 
    /**
@@ -774,6 +793,7 @@ public class BrowserSettings {
       diagramsSettings.addProperty(showPropertiesCb, "", "Show Properties");
       diagramsSettings.addProperty(showIndividualsCb, "", "Show Individuals");
       diagramsSettings.addProperty(showInterPackageConnectionsCb, "", "Show Inter-package Connections");
+      diagramsSettings.addProperty(maximumRadiusSpinner, "", "Maximum Class Radius");
       diagramsSettings.addProperty(showAliasCb, "", "Show Alias");
       diagramsSettings.setVisible(true);
 

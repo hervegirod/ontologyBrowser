@@ -63,7 +63,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.13
+ * @version 0.14
  */
 public class ExportGraphAction extends AbstractExportGraphAction {
    private boolean showPackages = false;
@@ -135,7 +135,11 @@ public class ExportGraphAction extends AbstractExportGraphAction {
       if (owlClass.isPackageOrInPackage()) {
          ElementKey packageKey = owlClass.getPackage(false);
          GraphMLGroupNode groupNode = packagesNodes.get(packageKey);
-         inode = groupNode.addNode();
+         if (groupNode == null) {
+            inode = graph.addNode();
+         } else {
+            inode = groupNode.addNode();
+         }
       } else {
          inode = graph.addNode();
       }
@@ -263,6 +267,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                               if (acceptConnection == ACCEPT_CONNECTION) {
                                  IGraphMLNode rangeNode = elementToNode.get(propKey);
                                  GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
+                                 addLabelOnEdge(edge, objectProp);
                                  Arrows arrows = edge.getArrows();
                                  arrows.setSource(Arrows.NONE);
                                  arrows.setTarget(Arrows.NONE);
@@ -273,6 +278,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                                  IGraphMLNode pack1Node = elementToNode.get(pack1.getKey());
                                  IGraphMLNode pack2Node = elementToNode.get(pack2.getKey());
                                  GraphMLEdge edge = graph.addEdge(pack1Node, pack2Node);
+                                 addLabelOnEdge(edge, objectProp);
                                  Arrows arrows = edge.getArrows();
                                  arrows.setSource(Arrows.NONE);
                                  arrows.setTarget(Arrows.NONE);
@@ -281,11 +287,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                         } else {
                            IGraphMLNode rangeNode = elementToNode.get(propKey);
                            GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
-                           EdgeLabel label = edge.createLabel(true);
-                           EdgeLabel.ParamModel model = label.getParameterModel();
-                           model.setAutoFlip(true);
-                           model.setAutoRotate(true);
-                           label.setLabel(property.getDisplayedName());
+                           addLabelOnEdge(edge, objectProp);
                            Arrows arrows = edge.getArrows();
                            arrows.setSource(Arrows.STANDARD);
                            arrows.setTarget(Arrows.NONE);

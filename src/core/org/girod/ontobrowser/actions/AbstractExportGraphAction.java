@@ -59,6 +59,7 @@ import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlDatatype;
 import org.girod.ontobrowser.model.OwlDatatypeProperty;
+import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.parsers.graph.NodeSorter;
@@ -69,7 +70,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * An abstract class which exports a doiagram as a GraphML graoh.
  *
- * @version 0.13
+ * @version 0.14
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
@@ -178,7 +179,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
       OwlClass class2 = schema.getOwlClass(key2);
       return acceptConnection(class1, class2);
    }
-   
+
    protected boolean acceptSuperClassConnection(OwlClass class1, OwlClass class2) {
       if (showInterPackageConnections) {
          return true;
@@ -190,7 +191,7 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
             return true;
          } else {
             return false;
-         }        
+         }
       } else {
          return true;
       }
@@ -386,6 +387,20 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
       } else {
          return null;
       }
+   }
+
+   /**
+    * Add a label on an object property
+    *
+    * @param edge the edge
+    * @param property the object property
+    */
+   protected void addLabelOnEdge(GraphMLEdge edge, OwlObjectProperty property) {
+      EdgeLabel label = edge.createLabel(true);
+      EdgeLabel.ParamModel model = label.getParameterModel();
+      model.setAutoFlip(true);
+      model.setAutoRotate(true);
+      label.setLabel(property.getDisplayedName());
    }
 
    @Override

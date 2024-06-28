@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.girod.jgraphml.model.Arrows;
-import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
@@ -60,17 +59,23 @@ import org.girod.ontobrowser.model.OwlDatatypeProperty;
 import org.girod.ontobrowser.model.OwlIndividual;
 import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlProperty;
+import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIApplication;
 
 /**
  * The Action that save Classes as yEd diagrams.
  *
- * @version 0.13
+ * @version 0.14
  */
 public class ExportClassGraphAction extends AbstractExportGraphAction {
+   private final OwlSchema schema;
    private final List<OwlClass> selectedClasses;
    private final Set<ElementKey> selectedClassesKeys;
    private boolean showAlias = false;
+   private int maximumRadius = 1;
+   private int effectiveRadius = 0;
+   private boolean addedRadius = false;
+   private Set<ElementKey> newClasses = new HashSet<>();
    private Map<ElementKey, OwlProperty> owlProperties = null;
    private Map<ElementKey, OwlClass> owlClasses = null;
 
@@ -86,6 +91,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
     */
    public ExportClassGraphAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, OwlClass theClass, File file) {
       super(app, desc, longDesc, diagram, file);
+      this.schema = diagram.getSchema();
       this.selectedClasses = new ArrayList<>();
       this.selectedClasses.add(theClass);
       this.selectedClassesKeys = new HashSet<>();
@@ -104,6 +110,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
     */
    public ExportClassGraphAction(MDIApplication app, String desc, String longDesc, OwlDiagram diagram, List<OwlClass> theClasses, File file) {
       super(app, desc, longDesc, diagram, file);
+      this.schema = diagram.getSchema();
       this.selectedClasses = theClasses;
       this.selectedClassesKeys = new HashSet<>();
       Iterator<OwlClass> it = theClasses.iterator();
@@ -201,8 +208,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                      OwlClass rangeClass = owlClasses.get(propKey);
                      IGraphMLNode rangeNode = createClassNode(rangeClass);
                      GraphMLEdge edge = graph.addEdge(rangeNode, theRootNode);
-                     EdgeLabel label = edge.createLabel(true);
-                     label.setLabel(property.getDisplayedName());
+                     addLabelOnEdge(edge, objectProp);
                      Arrows arrows = edge.getArrows();
                      arrows.setSource(Arrows.STANDARD);
                      arrows.setTarget(Arrows.NONE);
@@ -243,8 +249,7 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                   OwlClass domainClass = owlClasses.get(propKey);
                   IGraphMLNode domainNode = createClassNode(domainClass);
                   GraphMLEdge edge = graph.addEdge(domainNode, theRootNode);
-                  EdgeLabel label = edge.createLabel(true);
-                  label.setLabel(property.getDisplayedName());
+                  addLabelOnEdge(edge, property);
                   Arrows arrows = edge.getArrows();
                   arrows.setSource(Arrows.NONE);
                   arrows.setTarget(Arrows.STANDARD);
@@ -315,6 +320,20 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
          OwlClass theClass = it.next();
          exportClass(theClass);
       }
+      boolean executeNewSession = effectiveRadius < maximumRadius && !newClasses.isEmpty();
+      while (executeNewSession) {
+         addedRadius = false;
+         Set<ElementKey> currentNewClasses = new HashSet<>(newClasses);
+         newClasses.clear();
+         Iterator<ElementKey> it2 = currentNewClasses.iterator();
+         while (it2.hasNext()) {
+            ElementKey key = it2.next();
+            OwlClass theClass = schema.getOwlClass(key);
+            exportClass(theClass);
+         }
+         newClasses.addAll(currentNewClasses);
+         executeNewSession = effectiveRadius < maximumRadius && !newClasses.isEmpty();
+      }
    }
 
    private void exportClass(OwlClass theClass) {
@@ -365,8 +384,9 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
       GraphMLNode theNode;
       if (elementToNode.containsKey(key)) {
          theNode = (GraphMLNode) elementToNode.get(key);
-      } else {
+      } else if (effectiveRadius <= maximumRadius) {
          GraphMLNode theNode1 = graph.addNode();
+         newClasses.add(owlClass.getKey());
          theNode = theNode1;
          elementToNode.put(key, theNode);
          theNode1.getShapeNode().setType(ShapeType.ROUNDRECTANGLE);
@@ -374,6 +394,12 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
          NodeLabel label = theNode1.createLabel(true);
          label.setFontSize(11);
          label.setLabel(owlClass.getDisplayedName());
+         if (!addedRadius) {
+            addedRadius = true;
+            effectiveRadius++;
+         }
+      } else {
+         theNode = null;
       }
       return theNode;
    }
@@ -399,7 +425,9 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
    @Override
    protected void configure() {
       super.configure();
-      this.showAlias = BrowserConfiguration.getInstance().showAlias;
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      this.showAlias = conf.showAlias;
+      this.maximumRadius = conf.maximumRadius;
    }
 
    /**
