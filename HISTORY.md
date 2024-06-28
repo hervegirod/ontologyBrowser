@@ -117,3 +117,9 @@
  - Use jEditor 1.2.19
  - Fix some cases where a NPE could be thrown when saving as Yed with packages
  - Improve the presentation of SPARQL execution errors
+
+# 0.14
+ - Use jEditor 1.2.22
+ - Fix some further cases where a NPE could be thrown when saving as Yed with packages
+ - Fix the object properties names not presented in the yEd export
+ - Allow to configure the radius of the classes included in the exported graph when exporting only for selected classes
