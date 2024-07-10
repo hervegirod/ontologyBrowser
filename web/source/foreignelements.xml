@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="Foreign Elements parsing">
+   <altTitle desc="Foreign Elements" />
    <meta desc="This article explains how the Foreign Elements are included in the model" />
    By default all foreign elements (that is elements which are not in the defaut namespace of the Ontology) are presented. However it is possible to:
    <ul>

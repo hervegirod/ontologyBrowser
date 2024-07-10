@@ -32,6 +32,10 @@
       <li>If the "Show Relation Constraints" configuration property is selected, the cardinality is also presented near the Range Class if it is defined</li>
    </ul>
    <img id="diagramclass"/>
+   
+   <title level="2" title="inverse properties" />
+   If an Object property has an inverse property, only one segment from domain to target will be presented with both the properties names. For example:
+   <img id="inverseproperties" />
 
    <title title="Data properties" />
    A Data property is presented on a cyan blackground. The relationship between the Classes and this Data property is presented with an arrow

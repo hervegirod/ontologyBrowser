@@ -3,10 +3,14 @@
    <meta desc="Troubleshooting" />
    This article present possible problems and their solution.
 
-   <title title="I have a Owl2 representation unsupported message"/>
+   <title title="Error messages when parsing an Owl diagram"/>
+   <title level="2" title="I have a Owl2 representation unsupported message"/>
    <moreInfo id="Owl support" />
    <img id="owl2" />
    Owl2 representation is not supported for the moment, because Jena does not support Owl2 now.
+   
+   <title level="2" title="I have an other strange error message"/>
+   <moreInfo id="Error messages" />
 
    <cat id="support" />
 </article>

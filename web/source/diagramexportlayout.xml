@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <article desc="Diagrams export layout">
-    <meta desc="This article presents the layout options for exporting diagrams in the GraphML format" />
-    This article presents the layout options for exporting diagrams in the GraphML format.
+   <meta desc="This article presents the layout options for exporting diagrams in the GraphML format" />
+   This article presents the layout options for exporting diagrams in the GraphML format.
    
-    <title title="overview" />
-    By default the <ref id="yEd" /> diagrams exported by the tool are all positioned on (0, 0), which means that all the nodes are on top of one another. For
-    example:
-    <img id="export2Small" />
-    This means that some of the results may not be what you want:
-    <ul>
-        <li>The inheritance symbol for a Super-class may be presented on the top side of the Super-class</li>
-        <li>Sub-classes may be presented above their super-classes</li>
-        <li>The data properties of a Class may be presented above their associated Classes</li>
-        <li>The Individuals of a Class may be presented above their associated Classes</li>
-    </ul>
+   <title title="overview" />
+   By default the <ref id="yEd" /> diagrams exported by the tool are all positioned on (0, 0), which means that all the nodes are on top of one another. For
+   example:
+   <img id="export2Small" />
+   This means that some of the results may not be what you want:
+   <ul>
+      <li>The inheritance symbol for a Super-class may be presented on the top side of the Super-class</li>
+      <li>Sub-classes may be presented above their super-classes</li>
+      <li>The data properties of a Class may be presented above their associated Classes</li>
+      <li>The Individuals of a Class may be presented above their associated Classes</li>
+   </ul>
    
-    However, the <ref id="configuration#Styles settings" desc="configuration" /> allows to specify the relative position of nodes in the export to improve the
-    result of the diagram after applying a <ref id="yed#apply a hierarchical layout on the diagram" desc="hierarchical layout" /> in <ref id="yEd" />.
+   However, the <ref id="configuration#Styles settings" desc="configuration" /> allows to specify the relative position of nodes in the export to improve the
+   result of the diagram after applying a <ref id="yed#apply a hierarchical layout on the diagram" desc="hierarchical layout" /> in <ref id="yEd" />.
    
-    <title title="options" />
-    The "Layout option" option in the <ref id="configuration#Styles settings" desc="Styles settings" /> allow to configure the export to improve the
-    layout of the resulting diagram after applying the <ref id="yed#apply a hierarchical layout on the diagram" desc="hierarchical layout" /> in <ref id="yEd" />.
+   <title title="options" />
+   The "Layout option" option in the <ref id="configuration#Styles settings" desc="Styles settings" /> allow to configure the export to improve the
+   layout of the resulting diagram after applying the <ref id="yed#apply a hierarchical layout on the diagram" desc="hierarchical layout" /> in <ref id="yEd" />.
    
-    The possible states are:
-    <ul>
-        <li>"No Constraint": the default state, all the nodes are on (0, 0), which means that all the nodes are on top of one another</li>
-        <li>"Connector on South side": Connectors for Super-Classes to their Sub-Classes are always presented at the bottom of the Super-Class. Also 
-            connectors for Classes to their  data properties are always presented at the bottom of the Class</li>
-        <li>"Sub-Classes on South Relative Position": Additionally, sub-classes should be presented below their super-classes</li>
-        <li>"Children on South Relative Position": Additionally, Data properties and Individuals should be presented below their super-classes</li>
-    </ul>
+   The possible states are:
+   <ul>
+      <li>"No Constraint": the default state, all the nodes are on (0, 0), which means that all the nodes are on top of one another</li>
+      <li>"Connector on South side": Connectors for Super-Classes to their Sub-Classes are always presented at the bottom of the Super-Class. Also 
+         connectors for Classes to their  data properties are always presented at the bottom of the Class</li>
+      <li>"Sub-Classes on South Relative Position": Additionally, sub-classes should be presented below their super-classes</li>
+      <li>"Children on South Relative Position": Additionally, Data properties and Individuals should be presented below their super-classes</li>
+   </ul>
     
-    <title title="example" />
-    Suppose the following Ontology:
+   <title title="example" />
    For example, suppose the following Owl/RDF diagram:
    <img id="export1" width="60%" />
 
@@ -48,8 +47,8 @@
    If you specify the "Children on South Relative Position", and you check the "Use Drawing As Sketch" checkbox, you will have the following result:
    <img id="exportResultHierarchical2" />
 
-    <see id="yEd"/>
-    <see id="configuration"/>
-    <see id="Exporting diagrams"/>
-    <cat id="browser" />
+   <see id="yEd"/>
+   <see id="configuration"/>
+   <see id="Exporting diagrams"/>
+   <cat id="browser" />
 </article>

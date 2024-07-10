@@ -8,7 +8,11 @@
    <image id="graphml" url="graphml.png" />
    <image id="openWithPackages" url="openWithPackages.png" />
    <image id="openWithoutPackages" url="openWithoutPackages.png" />
-   <image id="owl2" url="owl2.png" />
+   <category desc="errors">
+      <image id="foreignerror" url="foreignerror.png" />
+      <image id="emptyerror" url="emptyerror.png" />
+      <image id="owl2" url="owl2.png" />
+   </category>
    <category desc="search">
       <image id="search" url="search.png" />
       <image id="search2" url="search2.png" />

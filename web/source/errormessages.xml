@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="error messages">
+   <meta desc="This article is about the error essages when opening an Owl diagram" />
+   This article is about the error essages when opening an Owl diagram.
+
+   <title title="list of errors" />
+   <table sortable="true">
+      <tableHeader>
+         <column>Error message</column>
+         <column>Reason</column>
+      </tableHeader>
+      <row>
+         <cell><img id="owl2" /></cell>
+         <cell>Owl2 representation is not supported for the moment, because Jena does not support Owl2 now</cell>
+      </row>
+      <row>
+         <cell><img id="foreignerror" /></cell>
+         <cell>The Ontology has only <ref id="Foreign Elements" desc="foreign elements" />, it is likely that you did not give a correct namespace to the elements</cell>
+      </row>  
+      <row>
+         <cell><img id="emptyerror" /></cell>
+         <cell>The Ontology is empty</cell>
+      </row> 
+   </table>
+   
+   <cat id="general" />
+</article>

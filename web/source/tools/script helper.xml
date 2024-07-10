@@ -87,22 +87,26 @@
    </ul>   
    
    <title level="2" title="adding datatype properties values"/>
-  Several methods allow to add values for datatype properties to an individual, for example:
+   Several methods allow to add values for datatype properties to an individual, for example:
    <ul>
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, String, Object)" />
-      add a value for an individual and a property specified with its name</li>
+         add a value for an individual and a property specified with its name</li>
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, Object)" />
-      add a value for an individual and a property specified with its key</li>      
+         add a value for an individual and a property specified with its key</li>      
    </ul>
    
    <title level="2" title="adding object properties values"/>
-  Several methods allow to add values for object properties to an individual, for example:
+   Several methods allow to add values for object properties to an individual, for example:
    <ul>
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, String, String)" /> add
-      a value for an individual, a property specified with its name, and a target specified with its name</li>
+         a value for an individual, a property specified with its name, and a target specified with its name</li>
       <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey)" /> add
-      a value for an individual, a property and a target specified with their keys</li>      
+         a value for an individual, a property and a target specified with their keys</li>      
    </ul>   
+   
+   <title title="handling errors"/>
+   The helper is protected against elements which do not exist in the Ontology, or null keys. If you try to use an element which does not exist, you will
+   have an error message in the <ref id="Scripting#Script logger" desc="Script logger" />.
    
    <title title="refreshing the tree"/>
    The tree is not refresh by default, even after adding elements. You can perform a refresh by calling 

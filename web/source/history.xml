@@ -136,6 +136,26 @@
       <li>Support the decimal built-in datatype</li>
       <li>Show property values for individuals</li>       
    </ul>
+   
+   <title title="Version 0.14" />
+   <ul>
+      <li>Use jEditor 1.2.22</li>
+      <li>Fix some further cases where a NPE could be thrown when saving as Yed with packages</li>
+      <li>Fix the object properties names not presented in the yEd export</li>
+      <li>Allow to configure the radius of the classes included in the exported graph when exporting only for selected classes</li>
+   </ul>
+   
+   <title title="Version 0.15" />
+   <ul>
+      <li>Use MDIUtilities 1.3.3</li>
+      <li>Use jEditor 1.2.23</li>
+      <li>Don't superpose the object properties with their inverse properties on both the internal graph and the yEd export</li>
+      <li>Fix foreign individuals not removed if foreign elements should not be added</li>
+      <li>Fix foreign properties not completed removed if foreign elements should not be added</li>
+      <li>Add a warning message when opening an Ontology if there are only foreign elements or the Ontology is empty</li>
+      <li>Add warnings when using the scripts when Classes, Individuals, or Properties do not exist </li>
+      <li>Fix a lot of exceptions which could happen in scripts when providing null keys to the script helper</li>
+   </ul>
 
    <cat id="general" />
 </article>
