@@ -123,3 +123,13 @@
  - Fix some further cases where a NPE could be thrown when saving as Yed with packages
  - Fix the object properties names not presented in the yEd export
  - Allow to configure the radius of the classes included in the exported graph when exporting only for selected classes
+
+# 0.15
+ - Use MDIUtilities 1.3.3
+ - Use jEditor 1.2.23
+ - Don't superpose the object properties with their inverse properties on both the internal graph and the yEd export
+ - Fix foreign individuals not removed if foreign elements should not be added
+ - Fix foreign properties not completed removed if foreign elements should not be added
+ - Add a warning message when opening an Ontology if there are only foreign elements or the Ontology is empty
+ - Add warnings when using the scripts when Classes, Individuals, or Properties do not exist
+ - Fix a lot of exceptions which could happen in scripts when providing null keys to the script helper
