@@ -65,7 +65,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save Classes as yEd diagrams.
  *
- * @version 0.14
+ * @version 0.15
  */
 public class ExportClassGraphAction extends AbstractExportGraphAction {
    private final OwlSchema schema;
@@ -209,9 +209,6 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                      IGraphMLNode rangeNode = createClassNode(rangeClass);
                      GraphMLEdge edge = graph.addEdge(rangeNode, theRootNode);
                      addLabelOnEdge(edge, objectProp);
-                     Arrows arrows = edge.getArrows();
-                     arrows.setSource(Arrows.STANDARD);
-                     arrows.setTarget(Arrows.NONE);
                      if (showRelationsConstraints) {
                         addCardinalityRestriction(property, edge);
                      }
@@ -236,9 +233,20 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
             }
          }
       }
+      Set<ElementKey> inversePropertiesToSkip = new HashSet<>();
       Iterator<OwlObjectProperty> it5 = theClass.getRangeOwlProperties().values().iterator();
       while (it5.hasNext()) {
          OwlObjectProperty property = it5.next();
+
+         if (property.hasInverseProperty()) {
+            ElementKey thePropertyKey = property.getKey();
+            if (inversePropertiesToSkip.contains(thePropertyKey)) {
+               continue;
+            } else {
+               inversePropertiesToSkip.add(property.getInverseProperty().getKey());
+            }
+         }
+
          Iterator<ElementKey> it4 = property.getDomain().keySet().iterator();
          while (it4.hasNext()) {
             ElementKey propKey = it4.next();
@@ -251,8 +259,13 @@ public class ExportClassGraphAction extends AbstractExportGraphAction {
                   GraphMLEdge edge = graph.addEdge(domainNode, theRootNode);
                   addLabelOnEdge(edge, property);
                   Arrows arrows = edge.getArrows();
-                  arrows.setSource(Arrows.NONE);
-                  arrows.setTarget(Arrows.STANDARD);
+                  if (property.hasInverseProperty()) {
+                     arrows.setSource(Arrows.STANDARD);
+                     arrows.setTarget(Arrows.STANDARD);
+                  } else {
+                     arrows.setSource(Arrows.STANDARD);
+                     arrows.setTarget(Arrows.NONE);
+                  }
                   if (showRelationsConstraints) {
                      addCardinalityRestriction(property, edge);
                   }

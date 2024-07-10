@@ -44,10 +44,12 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.gui.CustomGraphStyles;
@@ -67,7 +69,7 @@ import org.mdi.bootstrap.swing.SwingFileProperties;
 /**
  * The Action that updates owl/rdf schemas.
  *
- * @since 0.13
+ * @version 0.15
  */
 public abstract class AbstractUpdateModelAction extends AbstractMDIAction {
    protected OwlSchema schema = null;
@@ -127,23 +129,23 @@ public abstract class AbstractUpdateModelAction extends AbstractMDIAction {
    private void createStyles(mxGraph graph) {
       CustomGraphStyles customStyles = BrowserConfiguration.getInstance().getCustomGraphStyles();;
       mxStylesheet stylesheet = graph.getStylesheet();
-      Map<String, Object> styles = stylesheet.getDefaultEdgeStyle();
+      Map<String, Object> defaultStyles = stylesheet.getDefaultEdgeStyle();
 
-      styles = new HashMap<>(styles);
+      Map<String, Object> styles = new HashMap<>(defaultStyles);
       styles.put(mxConstants.STYLE_ENDARROW, mxConstants.ARROW_BLOCK);
       styles.put(mxConstants.STYLE_ENDFILL, "white");
       styles.put(mxConstants.STYLE_FILL_OPACITY, 100);
       styles.put(mxConstants.STYLE_ENDSIZE, 10);
       stylesheet.putCellStyle("inherit", styles);
 
-      styles = new HashMap<>(styles);
+      styles = new HashMap<>(defaultStyles);
       styles.put(mxConstants.STYLE_ENDARROW, mxConstants.ARROW_DIAMOND);
       styles.put(mxConstants.STYLE_ENDFILL, "white");
       styles.put(mxConstants.STYLE_FILL_OPACITY, 100);
       styles.put(mxConstants.STYLE_ENDSIZE, 10);
       stylesheet.putCellStyle("parent", styles);
 
-      styles = new HashMap<>(styles);
+      styles = new HashMap<>(defaultStyles);
       styles.put(mxConstants.STYLE_ENDARROW, mxConstants.ARROW_OPEN);
       styles.put(mxConstants.STYLE_ENDFILL, "white");
       styles.put(mxConstants.STYLE_FONTSIZE, 11);
@@ -153,8 +155,20 @@ public abstract class AbstractUpdateModelAction extends AbstractMDIAction {
       styles.put(mxConstants.STYLE_ROUNDED, true);
       styles.put(mxConstants.STYLE_EDGE, mxConstants.EDGESTYLE_SIDETOSIDE);
       stylesheet.putCellStyle("property", styles);
+      
+      styles = new HashMap<>(defaultStyles);
+      styles.put(mxConstants.STYLE_STARTARROW, mxConstants.ARROW_OPEN);
+      styles.put(mxConstants.STYLE_ENDARROW, mxConstants.ARROW_OPEN);
+      styles.put(mxConstants.STYLE_ENDFILL, "white");
+      styles.put(mxConstants.STYLE_FONTSIZE, 11);
+      styles.put(mxConstants.STYLE_FILL_OPACITY, 0);
+      styles.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR);
+      styles.put(mxConstants.STYLE_ENDSIZE, 10);
+      styles.put(mxConstants.STYLE_ROUNDED, true);
+      styles.put(mxConstants.STYLE_EDGE, mxConstants.EDGESTYLE_SIDETOSIDE);
+      stylesheet.putCellStyle("inverseproperty", styles);      
 
-      styles = new HashMap<>(styles);
+      styles = new HashMap<>(defaultStyles);
       styles.put(mxConstants.STYLE_STARTARROW, mxConstants.NONE);
       styles.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
       styles.put(mxConstants.STYLE_ENDFILL, "white");
@@ -279,6 +293,7 @@ public abstract class AbstractUpdateModelAction extends AbstractMDIAction {
       }
 
       Map<EdgeKey, EdgeValue> edges = new HashMap<>();
+      Set<ElementKey> inversePropertiesToSkip = new HashSet<>();
       // object properties
       it2 = owlClasses.keySet().iterator();
       while (it2.hasNext()) {
@@ -290,13 +305,23 @@ public abstract class AbstractUpdateModelAction extends AbstractMDIAction {
             OwlProperty property = it4.next();
             if (property instanceof OwlObjectProperty) {
                OwlObjectProperty objectProp = (OwlObjectProperty) property;
+               if (objectProp.hasInverseProperty()) {
+                  ElementKey thePropertyKey = objectProp.getKey();
+                  if (inversePropertiesToSkip.contains(thePropertyKey)) {
+                     continue;
+                  } else {
+                     inversePropertiesToSkip.add(objectProp.getInverseProperty().getKey());
+                  }
+               }
+               
                Iterator<ElementKey> it5 = objectProp.getRange().keySet().iterator();
                while (it5.hasNext()) {
                   ElementKey propKey = it5.next();
                   if (owlClasses.containsKey(propKey)) {
                      mxCell rangeCell = cell4Class.get(propKey);
-                     mxCell edge = (mxCell) graph.insertEdge(parent, null, objectProp.getDisplayedName(), theCell, rangeCell);
-                     edge.setStyle("property");
+                     String edgelabel = ExportUtils.getDisplayedLabel(objectProp);
+                     mxCell edge = (mxCell) graph.insertEdge(parent, null, edgelabel, theCell, rangeCell);
+                     ExportUtils.setCellStyle(edge, objectProp);
                   }
                }
             } else {

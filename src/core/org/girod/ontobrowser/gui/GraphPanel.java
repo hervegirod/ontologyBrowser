@@ -182,7 +182,6 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          classTree = new JTree(classTreeModel);
       } else {
          classTree.setModel(classTreeModel);
-         classTree.updateUI();
       }
       // Properties tree
       propertiesRoot = new DefaultMutableTreeNode(PROPERTIES_NAME);
@@ -405,11 +404,11 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
          if (packagesTree == null) {
             packagesTree = new JTree(packagesModel);
             packagesTree.setCellRenderer(treeRenderer);
-         } else  {
+         } else {
             packagesTree.setModel(packagesModel);
             packagesTree.updateUI();
          }
-         
+
          ToolTipManager toolTipmanager = ToolTipManager.sharedInstance();
          toolTipmanager.registerComponent(packagesTree);
       }

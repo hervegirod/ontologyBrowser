@@ -70,7 +70,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * An abstract class which exports a doiagram as a GraphML graoh.
  *
- * @version 0.14
+ * @version 0.15
  */
 public abstract class AbstractExportGraphAction extends AbstractMDIAction {
    protected static final String DEFAULT_NS = "http://www.w3.org/2001/XMLSchema#";
@@ -275,7 +275,6 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
     * Configure the exporter.
     */
    protected void configure() {
-      BrowserConfiguration conf = BrowserConfiguration.getInstance();
       this.showRelationsConstraints = conf.showRelationsConstraints;
       this.showDataPropertiesTypes = conf.showDataPropertiesTypes;
 
@@ -400,7 +399,9 @@ public abstract class AbstractExportGraphAction extends AbstractMDIAction {
       EdgeLabel.ParamModel model = label.getParameterModel();
       model.setAutoFlip(true);
       model.setAutoRotate(true);
-      label.setLabel(property.getDisplayedName());
+      String theDisplayedName = ExportUtils.getDisplayedLabel(property);
+      label.setLabel(theDisplayedName);
+      ExportUtils.setArrows(edge, property);
    }
 
    @Override

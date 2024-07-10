@@ -83,7 +83,7 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
       this.file = file;
       this.name = FileUtilities.getFileNameBody(file);
    }
-   
+
    /**
     * Constructor.
     *
@@ -96,7 +96,7 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
       super(app, desc, longDesc, prop);
       this.file = prop.getFile();
       this.name = FileUtilities.getFileNameBody(file);
-   }   
+   }
 
    /**
     * Constructor.
@@ -208,6 +208,18 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
          if (extractor.hasErrors()) {
             SwingErrorLogger logger = new SwingErrorLogger();
             logger.showParserExceptions(extractor.getErrors());
+         }
+         if (! schema.hasNonForeignElements()) {
+            ((GUIApplication) app).getMessageArea().append("The Ontology does not contain any non foreign elements", "red");
+         }
+         if (schema.isEmpty()) {
+            String message;
+            if (schema.hasForeignElements()) {
+               message = "The Ontology only contains foreign elements, and the resulting diagram is empty, is it normal?";
+            } else {
+               message = "The resulting diagram is empty, is it normal?";
+            }
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), message, "Warning when parsing model", JOptionPane.WARNING_MESSAGE);
          }
       } catch (OntologyException ex) {
          JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);

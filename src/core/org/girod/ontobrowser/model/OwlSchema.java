@@ -72,6 +72,8 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    private String defaultNamespace = null;
    private String defaultSquashedNamespace = null;
    private String defaultPrefix = null;
+   private boolean hasForeignElements = false;
+   private boolean hasNonForeignElements = false;
    private String namespaceFromFile;
    private short representationType = OwlRepresentationType.TYPE_OWL_XML;
    private final Map<String, OwlImportedSchema> importedSchemas = new HashMap<>();
@@ -100,7 +102,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
       this.representationType = owlRepresentationType;
       computePrefixMap();
    }
-   
+
    /**
     * Reset the content of the schema.
     */
@@ -219,7 +221,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
          setupNamespaceFromFile();
       }
    }
-   
+
    private void setupNamespaceFromFile() {
       String uriAsString = file.toURI().toString();
       int index = uriAsString.lastIndexOf('/');
@@ -235,7 +237,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
             namespaceFromFile = null;
          }
       }
-   }   
+   }
 
    private String getAbout() {
       try {
@@ -458,11 +460,11 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    public Set<String> getNamespaces() {
       return namespaces;
    }
-   
+
    public String getPotentialNamespaceFromFile() {
       return namespaceFromFile;
    }
-   
+
    /**
     * Return the namespace of a resource.
     *
@@ -480,7 +482,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
             return resource.getNameSpace();
          }
       }
-   }   
+   }
 
    /**
     * Return the Thing class.
@@ -624,6 +626,31 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
          return null;
       }
    }
+   
+   public void setHasForeignElements(boolean hasForeignElements) {
+      this.hasForeignElements = hasForeignElements;
+   }
+   
+   public boolean hasForeignElements() {
+      return hasForeignElements;
+   }
+   
+   public void setHasNonForeignElements(boolean hasNonForeignElements) {
+      this.hasNonForeignElements = hasNonForeignElements;
+   }
+   
+   public boolean hasNonForeignElements() {
+      return hasNonForeignElements;
+   }   
+
+   /**
+    * Return true if the schema has no classes, individuals, and properties.
+    *
+    * @return true if the schema has no classes, individuals, and properties
+    */
+   public boolean isEmpty() {
+      return properties.isEmpty() && classes.isEmpty() && individuals.isEmpty();
+   }
 
    /**
     * Return the individuals.
@@ -653,7 +680,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    public OwlIndividual getIndividual(ElementKey key) {
       return individuals.get(key);
    }
-   
+
    public OwlAnnotation getOrCreateAnnotation(ElementKey annotationKey) {
       if (hasElementAnnotation(annotationKey)) {
          return getElementAnnotation(annotationKey);
@@ -662,7 +689,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
          addElementAnnotation(annotation);
          return annotation;
       }
-   }   
+   }
 
    /**
     * Add an annotation.

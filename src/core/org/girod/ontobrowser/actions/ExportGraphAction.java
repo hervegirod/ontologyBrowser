@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.girod.jgraphml.model.Arrows;
-import org.girod.jgraphml.model.EdgeLabel;
 import org.girod.jgraphml.model.GraphMLEdge;
 import org.girod.jgraphml.model.GraphMLGroupNode;
 import org.girod.jgraphml.model.GraphMLNode;
@@ -63,7 +62,7 @@ import org.mdi.bootstrap.MDIApplication;
 /**
  * The Action that save schemas as yEd diagrams.
  *
- * @version 0.14
+ * @version 0.15
  */
 public class ExportGraphAction extends AbstractExportGraphAction {
    private boolean showPackages = false;
@@ -238,6 +237,7 @@ public class ExportGraphAction extends AbstractExportGraphAction {
    }
 
    private void exportProperties(Map<ElementKey, OwlClass> owlClasses) {
+      Set<ElementKey> inversePropertiesToSkip = new HashSet<>();
       // properties
       Iterator<ElementKey> it = owlClasses.keySet().iterator();
       while (it.hasNext()) {
@@ -249,6 +249,16 @@ public class ExportGraphAction extends AbstractExportGraphAction {
             OwlProperty property = it3.next();
             if (property instanceof OwlObjectProperty) {
                OwlObjectProperty objectProp = (OwlObjectProperty) property;
+
+               if (objectProp.hasInverseProperty()) {
+                  ElementKey thePropertyKey = objectProp.getKey();
+                  if (inversePropertiesToSkip.contains(thePropertyKey)) {
+                     continue;
+                  } else {
+                     inversePropertiesToSkip.add(objectProp.getInverseProperty().getKey());
+                  }
+               }
+
                Iterator<ElementKey> it4 = objectProp.getRange().keySet().iterator();
                while (it4.hasNext()) {
                   ElementKey propKey = it4.next();
@@ -268,9 +278,6 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                                  IGraphMLNode rangeNode = elementToNode.get(propKey);
                                  GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                                  addLabelOnEdge(edge, objectProp);
-                                 Arrows arrows = edge.getArrows();
-                                 arrows.setSource(Arrows.NONE);
-                                 arrows.setTarget(Arrows.NONE);
                               } else if (acceptConnection == ACCEPT_CONNECTION_ON_PACKAGES) {
                                  OwlClass pack1 = schema.getOwlClass(theClass.getPackage());
                                  OwlClass pack2 = schema.getOwlClass(propKey);
@@ -279,18 +286,12 @@ public class ExportGraphAction extends AbstractExportGraphAction {
                                  IGraphMLNode pack2Node = elementToNode.get(pack2.getKey());
                                  GraphMLEdge edge = graph.addEdge(pack1Node, pack2Node);
                                  addLabelOnEdge(edge, objectProp);
-                                 Arrows arrows = edge.getArrows();
-                                 arrows.setSource(Arrows.NONE);
-                                 arrows.setTarget(Arrows.NONE);
                               }
                            }
                         } else {
                            IGraphMLNode rangeNode = elementToNode.get(propKey);
                            GraphMLEdge edge = graph.addEdge(rangeNode, theNode);
                            addLabelOnEdge(edge, objectProp);
-                           Arrows arrows = edge.getArrows();
-                           arrows.setSource(Arrows.STANDARD);
-                           arrows.setTarget(Arrows.NONE);
                            if (showRelationsConstraints) {
                               addCardinalityRestriction(objectProp, edge);
                            }

@@ -70,7 +70,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * The script helper.
  *
- * @version 0.13
+ * @version 0.15
  */
 public class OwlScriptHelper implements ScriptHelper {
    private static final Pattern ID_PAT = Pattern.compile("(\\d+\\s*)(.*)");
@@ -85,7 +85,7 @@ public class OwlScriptHelper implements ScriptHelper {
       this.schema = context.getSchema();
       this.ontModel = schema.getOntModel();
    }
-   
+
    void setScript(Script script) {
       this.script = script;
    }
@@ -174,7 +174,7 @@ public class OwlScriptHelper implements ScriptHelper {
    public void refreshTree() {
       context.getApplication().refreshTree(context.getDiagram());
    }
-   
+
    /**
     * Return the key corresponding to a name and a prefix.
     *
@@ -189,7 +189,7 @@ public class OwlScriptHelper implements ScriptHelper {
       } else {
          return getKeyFromDefaultNamespace(name);
       }
-   }   
+   }
 
    /**
     * Return the key corresponding to a name in the default namespace.
@@ -413,7 +413,12 @@ public class OwlScriptHelper implements ScriptHelper {
    public ElementKey addIndividual(String className, String name) {
       name = replaceNameID(name);
       ElementKey classKey = getKeyFromDefaultNamespace(className);
-      return addIndividual(classKey, name);
+      if (schema.hasOwlClass(classKey)) {
+         return addIndividual(classKey, name);
+      } else {
+         context.echo("No Class of key" + classKey, "red");
+         return null;
+      }
    }
 
    /**
@@ -437,13 +442,14 @@ public class OwlScriptHelper implements ScriptHelper {
          schema.addIndividual(owlIndividual);
          return owlIndividual.getKey();
       } else {
+         context.echo("No Class of key" + classKey, "red");
          return null;
       }
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
-    * a datatype.
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
+    * datatype.
     *
     * @param individualKey the individual key
     * @param propertyKey the data property key
@@ -455,8 +461,8 @@ public class OwlScriptHelper implements ScriptHelper {
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
-    * a datatype.
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
+    * datatype.
     *
     * @param individualKey the individual key
     * @param propertyKey the data property key
@@ -464,6 +470,10 @@ public class OwlScriptHelper implements ScriptHelper {
     * @return true if the value could be added
     */
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, String value) {
+      if (individualKey == null) {
+         context.echo("Individual key is null", "red");
+         return false;
+      }
       getIndividualsHelper();
       if (schema.hasIndividual(individualKey)) {
          if (schema.hasOwlProperty(propertyKey)) {
@@ -480,50 +490,70 @@ public class OwlScriptHelper implements ScriptHelper {
                   owlIndividual.addDatatypePropertyValue(propValue);
                   return true;
                }
+            } else {
+               context.echo("No DatatypeProperty of key" + propertyKey, "red");
             }
+         } else {
+            context.echo("No Property of key" + propertyKey, "red");
          }
+      } else {
+         context.echo("No Individual of key" + individualKey, "red");
       }
       return false;
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
-    * a datatype.
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
+    * datatype.
     *
     * @param individualKey the individual key
     * @param propertyName the data property name
     * @param value the value
     * @return true if the value could be added
-    */   
+    */
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, Object value) {
       return addIndividualDataPropertyValue(individualKey, propertyName, value.toString());
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has
-    * a datatype.
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
+    * datatype.
     *
     * @param individualKey the individual key
     * @param propertyName the data property name
     * @param value the value
     * @return true if the value could be added
-    */      
+    */
    public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, String value) {
+      if (individualKey == null) {
+         context.echo("Individual key is null", "red");
+         return false;
+      }
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       return addIndividualDataPropertyValue(individualKey, propertyKey, value);
    }
 
    /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
-    * the target exists.
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
+    * target exists.
     *
     * @param individualKey the individual key
     * @param propertyKey the object property key
     * @param targetKey the target key
     * @return true if the value could be added
-    */   
+    */
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, ElementKey propertyKey, ElementKey targetKey) {
+      if (individualKey == null) {
+         context.echo("Individual Domain key is null", "red");
+         return false;
+      } else if (targetKey == null) {
+         context.echo("Individual Target key is null", "red");
+         return false;         
+      } else if (propertyKey == null) {
+         context.echo("Property key is null", "red");
+         return false;
+      }
       getIndividualsHelper();
       if (schema.hasIndividual(individualKey) && schema.hasIndividual(targetKey)) {
          if (schema.hasOwlProperty(propertyKey)) {
@@ -540,43 +570,59 @@ public class OwlScriptHelper implements ScriptHelper {
                Resource individual2 = owlTargetIndividual.getIndividual();
                individual.addProperty(property, individual2);
                return true;
+            } else {
+               context.echo("No Property of key" + propertyKey, "red");
             }
+         }
+      } else {
+         if (!schema.hasIndividual(individualKey)) {
+            context.echo("No Individual Domain of key" + individualKey, "red");
+         }
+         if (!schema.hasIndividual(targetKey)) {
+            context.echo("No Individual Target of key" + individualKey, "red");
          }
       }
       return false;
    }
 
    /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
-    * the target exists.
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
+    * target exists.
     *
     * @param individualKey the individual key
     * @param propertyName the object property name
     * @param targetKey the target key
     * @return true if the value could be added
-    */      
+    */
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, ElementKey targetKey) {
+      if (individualKey == null) {
+         context.echo("Individual Domain key is null", "red");
+         return false;
+      } else if (targetKey == null) {
+         context.echo("Individual Target key is null", "red");
+         return false;
+      }
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
    }
 
    /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and 
-    * the target exists.
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
+    * target exists.
     *
     * @param individualKey the individual key
     * @param propertyName the object property name
     * @param targetName the target name
     * @return true if the value could be added
-    */     
+    */
    public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, String targetName) {
       propertyName = replaceNameID(propertyName);
       ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
       ElementKey targetKey = ElementKey.create(individualKey.getNamespace(), targetName);
       return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
    }
-   
+
    /**
     * Parse an XML file.
     *
@@ -593,7 +639,6 @@ public class OwlScriptHelper implements ScriptHelper {
          script.fireXMLException(ex);
       }
    }
-   
 
    /**
     * Parse an XML file.

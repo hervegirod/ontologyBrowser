@@ -100,7 +100,7 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.13
+ * @version 0.15
  */
 public class GraphExtractor extends AbstractWarningAction {
    private static final ElementKey TYPE_NS = ElementKey.create("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "type");
@@ -598,6 +598,7 @@ public class GraphExtractor extends AbstractWarningAction {
    private void addOwlClass(OntClass superClass, ElementKey skey, OwlClass owlClass, ElementKey key, OwlClass owlThingClass) {
       OwlClass foreignClass = createOwlClass(superClass);
       foreignClass.setForeign(true);
+      graph.setHasForeignElements(true);
       setPrefix(foreignClass);
       graph.addOwlClass(foreignClass);
       foreignClass.addSubClass(key, owlClass);
@@ -754,7 +755,10 @@ public class GraphExtractor extends AbstractWarningAction {
             OwlClass theClass = it.next();
             String namespace = theClass.getSquashedNamespace();
             if (namespace != null && !namespace.equals(defaultSquashedNamespace)) {
+               graph.setHasForeignElements(true);
                theClass.setForeign(true);
+            } else {
+               graph.setHasNonForeignElements(true);
             }
          }
 
@@ -763,7 +767,10 @@ public class GraphExtractor extends AbstractWarningAction {
             OwlProperty theProperty = it2.next();
             String namespace = theProperty.getSquashedNamespace();
             if (namespace != null && !namespace.equals(defaultSquashedNamespace)) {
+               graph.setHasForeignElements(true);
                theProperty.setForeign(true);
+            } else {
+               graph.setHasNonForeignElements(true);
             }
          }
 
@@ -772,7 +779,10 @@ public class GraphExtractor extends AbstractWarningAction {
             OwlIndividual theIndividual = it3.next();
             String namespace = theIndividual.getSquashedNamespace();
             if (namespace != null && !namespace.equals(defaultSquashedNamespace)) {
+               graph.setHasForeignElements(true);
                theIndividual.setForeign(true);
+            } else {
+               graph.setHasNonForeignElements(true);
             }
          }
          if (!conf.includeForeignDisconnectedElements) {
@@ -784,6 +794,38 @@ public class GraphExtractor extends AbstractWarningAction {
    private void removeDisconnectedForeignElements() {
       removeDisconnectedForeignClasses();
       removeDisconnectedForeignProperties();
+      removeDisconnectedForeignIndividuals();
+   }
+
+   private void removeDisconnectedForeignIndividuals() {
+      List<ElementKey> toRemove = new ArrayList<>();
+      Iterator<OwlIndividual> it = graph.getIndividuals().values().iterator();
+      while (it.hasNext()) {
+         OwlIndividual theIndividual = it.next();
+         if (theIndividual.isForeign()) {
+            boolean connected = false;
+            Iterator<OwlClass> it2 = theIndividual.getParentClasses().values().iterator();
+            while (it2.hasNext()) {
+               OwlClass theClass = it2.next();
+               if (!theClass.isForeign()) {
+                  connected = true;
+                  break;
+               }
+            }
+
+            if (!connected) {
+               toRemove.add(theIndividual.getKey());
+            }
+         }
+      }
+      if (!toRemove.isEmpty()) {
+         Map<ElementKey, OwlIndividual> individuals = graph.getIndividuals();
+         Iterator<ElementKey> itr = toRemove.iterator();
+         while (itr.hasNext()) {
+            ElementKey key = itr.next();
+            individuals.remove(key);
+         }
+      }
    }
 
    private void removeDisconnectedForeignProperties() {
@@ -890,7 +932,12 @@ public class GraphExtractor extends AbstractWarningAction {
          Iterator<ElementKey> itr = toRemove.iterator();
          while (itr.hasNext()) {
             ElementKey key = itr.next();
-            properties.remove(key);
+            OwlProperty theProperty = properties.remove(key);
+            if (theProperty instanceof OwlObjectProperty) {
+               graph.getOwlObjectProperties().remove(key);
+            } else {
+               graph.getOwlDatatypeProperties().remove(key);
+            }
          }
       }
    }
