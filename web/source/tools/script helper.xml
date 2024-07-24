@@ -154,7 +154,7 @@
    <pre syntax="java">
       String individualName = ... // the name for the Individual
       String propertyName = ... // the name of the Object property      
-      Listl&t;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualName, propertyName);
+      List&lt;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualName, propertyName);
    </pre>     
    
    <title level="2" title="getting object properties values"/>   
