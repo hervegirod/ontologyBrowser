@@ -133,3 +133,9 @@
  - Add a warning message when opening an Ontology if there are only foreign elements or the Ontology is empty
  - Add warnings when using the scripts when Classes, Individuals, or Properties do not exist
  - Fix a lot of exceptions which could happen in scripts when providing null keys to the script helper
+
+# 0.16
+ - Fix a NPE which could happen when reloading an Ontology
+ - Fix saving the ontology not writing correctly the namespaces of elements in some cases
+ - Add a message when a model has been saved
+ - Simplify the methods of the Script helper to avoid some cases where putting a null element would lead to an exception because the script would not know which method to call
