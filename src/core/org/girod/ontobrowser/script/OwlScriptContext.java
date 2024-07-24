@@ -43,7 +43,7 @@ import org.scripthelper.context.ScriptHelper;
 /**
  * A Script Context passed to browser Scripts.
  *
- * @version 0.13
+ * @version 0.16
  */
 public class OwlScriptContext extends DefaultScriptContext {
    private OntoBrowserGUI app = null;

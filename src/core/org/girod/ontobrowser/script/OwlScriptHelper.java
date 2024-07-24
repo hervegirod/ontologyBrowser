@@ -60,6 +60,7 @@ import org.girod.ontobrowser.model.OwlObjectProperty;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.parsers.graph.IndividualsHelper;
 import org.girod.ontobrowser.utils.SchemaUtils;
+import org.mdiutil.lang.HexaDecoder;
 import org.scripthelper.context.ScriptContext;
 import org.scripthelper.context.ScriptHelper;
 import org.xml.sax.Attributes;
@@ -70,7 +71,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * The script helper.
  *
- * @version 0.15
+ * @version 0.16
  */
 public class OwlScriptHelper implements ScriptHelper {
    private static final Pattern ID_PAT = Pattern.compile("(\\d+\\s*)(.*)");
@@ -202,13 +203,34 @@ public class OwlScriptHelper implements ScriptHelper {
    }
 
    /**
+    * Return the Owl Class corresponding to a name or key.
+    *
+    * @param classObj the Class name or key
+    * @return the Owl Class
+    */
+   public OwlClass getOwlClass(Object classObj) {
+      if (classObj == null) {
+         context.echo("Tried to get a Class, Class name or key is null", "red");
+         return null;
+      }
+      if (classObj instanceof String) {
+         return getOwlClass((String) classObj);
+      } else if (classObj instanceof ElementKey) {
+         return getOwlClass((ElementKey) classObj);
+      } else {
+         context.echo("Tried to get a Class, type of Class reference (" + classObj.getClass().getName() + ") is incorrrect", "red");
+         return null;
+      }
+   }
+
+   /**
     * Return the Owl Class corresponding to a name in the default namespace.
     *
     * @param name the name
     * @return the Owl Class
     */
-   public OwlClass getOwlClass(String name) {
-      return schema.getOwlClass(getKeyFromDefaultNamespace(name));
+   private OwlClass getOwlClass(String name) {
+      return getOwlClass(getKeyFromDefaultNamespace(name));
    }
 
    /**
@@ -217,8 +239,34 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param classKey the key
     * @return the Owl Class
     */
-   public OwlClass getOwlClass(ElementKey classKey) {
-      return schema.getOwlClass(classKey);
+   private OwlClass getOwlClass(ElementKey classKey) {
+      if (schema.hasOwlClass(classKey)) {
+         return schema.getOwlClass(classKey);
+      } else {
+         context.echo("Tried to get a Class, Class of key " + classKey + " does not exist", "red");
+         return null;
+      }
+   }
+
+   /**
+    * Return the Owl Individual corresponding to a name or key.
+    *
+    * @param individualObj the Individual name or key
+    * @return the Individual
+    */
+   public OwlIndividual getIndividual(Object individualObj) {
+      if (individualObj == null) {
+         context.echo("Tried to get an Individual, Individual name or key is null", "red");
+         return null;
+      }
+      if (individualObj instanceof String) {
+         return getIndividual((String) individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         return getIndividual((ElementKey) individualObj);
+      } else {
+         context.echo("Tried to get an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") is incorrrect", "red");
+         return null;
+      }
    }
 
    /**
@@ -227,8 +275,14 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param name the name
     * @return the Owl Individual
     */
-   public OwlIndividual getIndividual(String name) {
-      return schema.getIndividual(getKeyFromDefaultNamespace(name));
+   private OwlIndividual getIndividual(String name) {
+      ElementKey key = getKeyFromDefaultNamespace(name);
+      if (schema.hasIndividual(key)) {
+         return schema.getIndividual(key);
+      } else {
+         context.echo("Tried to get an Individual, Individual of key " + key + " does not exist", "red");
+         return null;
+      }
    }
 
    /**
@@ -237,9 +291,30 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param individualKey the key
     * @return the Owl Individual
     */
-   public OwlIndividual getIndividual(ElementKey individualKey) {
+   private OwlIndividual getIndividual(ElementKey individualKey) {
       return schema.getIndividual(individualKey);
    }
+   
+   /**
+    * Return the Owl Property corresponding to a name or key.
+    *
+    * @param propertyObj the Property name or key
+    * @return the Property
+    */
+   public OwlProperty getOwlProperty(Object propertyObj) {
+      if (propertyObj == null) {
+         context.echo("Tried to get a Property, Property name or key is null", "red");
+         return null;
+      }
+      if (propertyObj instanceof String) {
+         return getOwlProperty((String) propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         return getOwlProperty((ElementKey) propertyObj);
+      } else {
+         context.echo("Tried to get a Property, type of Property reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
+         return null;
+      }
+   }   
 
    /**
     * Return the Owl Property corresponding to a name.
@@ -247,8 +322,8 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param name the name
     * @return the Owl Property
     */
-   public OwlProperty getOwlProperty(String name) {
-      return schema.getOwlProperty(getKeyFromDefaultNamespace(name));
+   private OwlProperty getOwlProperty(String name) {
+      return getOwlProperty(getKeyFromDefaultNamespace(name));
    }
 
    /**
@@ -257,18 +332,62 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param propertyKey the key
     * @return the Owl Property
     */
-   public OwlProperty getOwlProperty(ElementKey propertyKey) {
-      return schema.getOwlProperty(propertyKey);
+   private OwlProperty getOwlProperty(ElementKey propertyKey) {
+      if (schema.hasOwlProperty(propertyKey)) {
+         return schema.getOwlProperty(propertyKey);
+      } else {
+         context.echo("Tried to get a Property, Property of key " + propertyKey + " does not exist", "red");
+         return null;
+      }      
    }
+   
+   /**
+    * Return the list of object property values for an individual and a data property. It will return null if the property does not exist.
+    *
+    * @param individualObj the individual name or key
+    * @param propertyObj the object property name or key
+    * @return the list of property values
+    */
+   public List<ObjectPropertyValue> getOwlObjectPropertyValues(Object individualObj, Object propertyObj) {   
+      if (individualObj == null) {
+         context.echo("Tried to get the data property values on an Individual, Individual name or key is null", "red");
+         return null;
+      } else if (propertyObj == null) {
+         context.echo("Tried to get the data property values on an Individual, DatatypeProperty name or key is null", "red");
+         return null;
+      }
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      if (individualObj instanceof String) {
+         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      } 
+      if (individualKey != null && propertyKey != null) {
+         return getOwlObjectPropertyValuesFromKey(individualKey, propertyKey);
+      } else {
+         context.echo("Tried to get the object property values on an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") and/ or DatatypeProperty reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
+         return null;
+      }
+   }   
 
    /**
-    * Return the list of property values for an individual and an object property. It will return null if the property does not exist.
+    * Return the list of object property values for an individual and an object property. It will return null if the property does not exist.
     *
     * @param individualKey the individual key
     * @param propertyKey the object property key
     * @return the list of property values
     */
-   public List<ObjectPropertyValue> getOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+   private List<ObjectPropertyValue> getOwlObjectPropertyValuesFromKey(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isObjectProperty()) {
@@ -282,16 +401,51 @@ public class OwlScriptHelper implements ScriptHelper {
          return null;
       }
    }
+   
+   /**
+    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual
+    * does not have values for this property.
+    *
+    * @param individualObj the individual name or key
+    * @param propertyObj the object property name or key
+    * @return true if there are object property values for the property
+    */
+   public boolean hasOwlObjectPropertyValues(Object individualObj, Object propertyObj) {
+      if (individualObj == null) {
+         context.echo("Tried to detect if there are object property values on an Individual, Individual name or key is null", "red");
+         return false;
+      } else if (propertyObj == null) {
+         context.echo("Tried to detect if there are object property values on an Individual, DatatypeProperty name or key is null", "red");
+         return false;
+      }
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      if (individualObj instanceof String) {
+         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      } 
+      return hasOwlObjectPropertyValuesFromKey(individualKey, propertyKey);
+   }   
 
    /**
-    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual does not have values
-    * for this property.
+    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual
+    * does not have values for this property.
     *
     * @param individualKey the individual key
     * @param propertyKey the object property key
     * @return the list of property values
     */
-   public boolean hasOwlObjectPropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+   private boolean hasOwlObjectPropertyValuesFromKey(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isObjectProperty()) {
@@ -305,18 +459,44 @@ public class OwlScriptHelper implements ScriptHelper {
          return false;
       }
    }
-
+   
    /**
-    * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual does not have values
-    * for this property.
+    * Return the list of data property values for an individual and a data property. It will return null if the property does not exist.
     *
-    * @param individualKey the individual key
-    * @param propertyName the object property name
+    * @param individualObj the individual name or key
+    * @param propertyObj the data property name or key
     * @return the list of property values
     */
-   public boolean hasOwlObjectPropertyValues(ElementKey individualKey, String propertyName) {
-      ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
-      return hasOwlObjectPropertyValues(individualKey, propertyKey);
+   public List<DatatypePropertyValue> getOwlDatatypePropertyValues(Object individualObj, Object propertyObj) {   
+      if (individualObj == null) {
+         context.echo("Tried to get the data property values on an Individual, Individual name or key is null", "red");
+         return null;
+      } else if (propertyObj == null) {
+         context.echo("Tried to get the data property values on an Individual, DatatypeProperty name or key is null", "red");
+         return null;
+      }
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      if (individualObj instanceof String) {
+         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      } 
+      if (individualKey != null && propertyKey != null) {
+         return getOwlDatatypePropertyValuesFromKey(individualKey, propertyKey);
+      } else {
+         context.echo("Tried to get the data property values on an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") and/ or DatatypeProperty reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
+         return null;
+      }
    }
 
    /**
@@ -326,7 +506,7 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param propertyKey the data property key
     * @return the list of property values
     */
-   public List<DatatypePropertyValue> getOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+   private List<DatatypePropertyValue> getOwlDatatypePropertyValuesFromKey(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isDatatypeProperty()) {
@@ -342,26 +522,49 @@ public class OwlScriptHelper implements ScriptHelper {
    }
 
    /**
-    * Return the list of data property values for an individual and a data property. It will return null if the property does not exist.
+    * Return true if an individual has values for a data property. It will return false if the property does not exist or the individual
+    * does not have values for this property.
     *
-    * @param individualKey the individual key
-    * @param propertyName the data property name
-    * @return the list of property values
+    * @param individualObj the individual name or key
+    * @param propertyObj the data property name or key
+    * @return true if there are data property values for the property
     */
-   public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, String propertyName) {
-      ElementKey propertyKey = getKeyFromDefaultNamespace(propertyName);
-      return hasOwlDatatypePropertyValues(individualKey, propertyKey);
+   public boolean hasOwlDatatypePropertyValues(Object individualObj, Object propertyObj) {
+      if (individualObj == null) {
+         context.echo("Tried to detect if there are data property values on an Individual, Individual name or key is null", "red");
+         return false;
+      } else if (propertyObj == null) {
+         context.echo("Tried to detect if there are data property values on an Individual, DatatypeProperty name or key is null", "red");
+         return false;
+      }
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      if (individualObj instanceof String) {
+         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      } 
+      return hasOwlDatatypePropertyValuesFromKey(individualKey, propertyKey);
    }
 
    /**
-    * Return true if an individual has values for a data property. It will return false if the property does not exist or the individual does not have values
-    * for this property.
+    * Return true if an individual has values for a data property. It will return false if the property does not exist or the individual
+    * does not have values for this property.
     *
     * @param individualKey the individual key
     * @param propertyKey the data property key
-    * @return the list of property values
+    * @return true if there are data property values for the property
     */
-   public boolean hasOwlDatatypePropertyValues(ElementKey individualKey, ElementKey propertyKey) {
+   private boolean hasOwlDatatypePropertyValuesFromKey(ElementKey individualKey, ElementKey propertyKey) {
       OwlIndividual individual = getIndividual(individualKey);
       OwlProperty property = getOwlProperty(propertyKey);
       if (individual != null && property != null && property.isDatatypeProperty()) {
@@ -404,19 +607,40 @@ public class OwlScriptHelper implements ScriptHelper {
    }
 
    /**
-    * Add an individual, for a class in the default namespace.
+    * Add an individual.
     *
-    * @param className the class name
-    * @param name the individual name
-    * @return the individual, or null if it was not psosible to create the individual
+    * @param classObj the class name or key
+    * @param individualObj the individual name or key
+    * @return the individual, or null if it was not possible to create the individual
     */
-   public ElementKey addIndividual(String className, String name) {
-      name = replaceNameID(name);
-      ElementKey classKey = getKeyFromDefaultNamespace(className);
-      if (schema.hasOwlClass(classKey)) {
-         return addIndividual(classKey, name);
+   public ElementKey addIndividual(Object classObj, Object individualObj) {
+      if (classObj == null) {
+         context.echo("Tried to add an Individual, Class name or key is null", "red");
+         return null;
+      } else if (individualObj == null) {
+         context.echo("Tried to add an Individual, Individual name or key is null", "red");
+         return null;
+      }
+      ElementKey classKey;
+      ElementKey individualKey;
+      if (classObj instanceof String) {
+         classKey = this.getKeyFromDefaultNamespace((String)classObj);
+      } else if (classObj instanceof ElementKey) {
+         classKey = (ElementKey)classObj;
       } else {
-         context.echo("No Class of key" + classKey, "red");
+         classKey = null;
+      }
+      if (individualObj instanceof String) {
+         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+      } else if (classObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }      
+      if (classKey != null && individualKey != null) {
+         return addIndividualFromKey(classKey, individualKey);
+      } else {
+         context.echo("Tried to add an Individual, type of Class reference (" + classObj.getClass().getName() + ") and/ or Individual reference (" + individualObj.getClass().getName() + ") is incorrrect", "red");
          return null;
       }
    }
@@ -425,13 +649,11 @@ public class OwlScriptHelper implements ScriptHelper {
     * Add an individual.
     *
     * @param classKey the class key
-    * @param name the individual name
-    * @return the individual, or null if it was not psosible to create the individual
+    * @param individualKey the individual key
+    * @return the individual, or null if it was not possible to create the individual
     */
-   public ElementKey addIndividual(ElementKey classKey, String name) {
-      name = replaceNameID(name);
+   private ElementKey addIndividualFromKey(ElementKey classKey, ElementKey individualKey) {
       if (schema.hasOwlClass(classKey)) {
-         ElementKey individualKey = ElementKey.create(classKey.getNamespace(), name);
          if (schema.hasIndividual(individualKey)) {
             return null;
          }
@@ -442,36 +664,89 @@ public class OwlScriptHelper implements ScriptHelper {
          schema.addIndividual(owlIndividual);
          return owlIndividual.getKey();
       } else {
-         context.echo("No Class of key" + classKey, "red");
+         context.echo("Tried to add an Individual, no Class of key " + classKey, "red");
          return null;
       }
    }
 
-   /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
-    * datatype.
-    *
-    * @param individualKey the individual key
-    * @param propertyKey the data property key
-    * @param value the value
-    * @return true if the value could be added
-    */
-   public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, Object value) {
-      return addIndividualDataPropertyValue(individualKey, propertyKey, value.toString());
+   private String escapeValue(String value) {
+      StringBuilder buf = new StringBuilder();
+      for (int i = 0; i < value.length(); i++) {
+         int c = value.charAt(i);
+         if ((c >= '0') && (c <= '9')) {
+            buf.append(c);
+         } else if ((c >= 'a') && (c <= 'Z')) {
+            buf.append(c);
+         } else if ((c >= 'A') && (c <= 'Z')) {
+            buf.append(c);
+         } else if (c == '_') {
+            buf.append(c);
+         } else if (c == ' ') {
+            buf.append(c);
+         } else {
+            String hex = HexaDecoder.toHexString((int) c);
+            buf.append(hex);
+         }
+      }
+      return buf.toString();
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
-    * datatype.
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data
+    * property, and it has a datatype.
+    *
+    * @param individualObj the individual name or key
+    * @param propertyObj the data property name or key
+    * @param value the value
+    * @return true if the value could be added
+    */
+   public boolean addIndividualDataPropertyValue(Object individualObj, Object propertyObj, Object value) {
+      if (individualObj == null) {
+         context.echo("Tried to add a DatatypeProperty on an Individual, Individual name or key is null", "red");
+         return false;
+      } else if (propertyObj == null) {
+         context.echo("Tried to add a DatatypeProperty on an Individual, DatatypeProperty name or key is null", "red");
+         return false;
+      } else if (value == null) {
+         context.echo("Tried to add a DatatypeProperty on an Individual, value is null", "red");
+         return false;
+      }
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      if (individualObj instanceof String) {
+         individualKey = this.getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      }        
+      if (individualKey != null && propertyKey != null) {
+         return addIndividualDataPropertyValueFromKey(individualKey, propertyKey, value.toString());
+      } else {
+         context.echo("Tried to add a DatatypeProperty on an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") and/ or DatatypeProperty reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
+         return false;
+      }
+   }
+
+   /**
+    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data
+    * property, and it has a datatype.
     *
     * @param individualKey the individual key
     * @param propertyKey the data property key
     * @param value the value
     * @return true if the value could be added
     */
-   public boolean addIndividualDataPropertyValue(ElementKey individualKey, ElementKey propertyKey, String value) {
+   private boolean addIndividualDataPropertyValueFromKey(ElementKey individualKey, ElementKey propertyKey, String value) {
       if (individualKey == null) {
-         context.echo("Individual key is null", "red");
+         context.echo("Tried to add a DatatypeProperty on an Individual, Individual key is null", "red");
          return false;
       }
       getIndividualsHelper();
@@ -486,72 +761,92 @@ public class OwlScriptHelper implements ScriptHelper {
                OwlDatatypeProperty datatypeproperty = (OwlDatatypeProperty) owlproperty;
                OwlDatatype datatype = datatypeproperty.getFirstType();
                if (datatype != null) {
+                  //value = escapeValue(value);
                   DatatypePropertyValue propValue = new DatatypePropertyValue(datatypeproperty, owlIndividual, datatype, value);
                   owlIndividual.addDatatypePropertyValue(propValue);
                   return true;
                }
             } else {
-               context.echo("No DatatypeProperty of key" + propertyKey, "red");
+               context.echo("Tried to add a DatatypeProperty on an Individual, no DatatypeProperty of key " + propertyKey, "red");
             }
          } else {
-            context.echo("No Property of key" + propertyKey, "red");
+            context.echo("Tried to add a DatatypeProperty on an Individual, no DatatypeProperty of key " + propertyKey, "red");
          }
       } else {
-         context.echo("No Individual of key" + individualKey, "red");
+         context.echo("Tried to add a DatatypeProperty on an Individual, no Individual of key " + individualKey, "red");
       }
       return false;
    }
 
    /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
-    * datatype.
+    * Add an individual.
     *
-    * @param individualKey the individual key
-    * @param propertyName the data property name
-    * @param value the value
-    * @return true if the value could be added
+    * @param individualObj the individual name or key
+    * @param propertyObj the object property name or key
+    * @param targetObj the target individual name or key
+    * @return the individual, or null if it was not possible to create the individual
     */
-   public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, Object value) {
-      return addIndividualDataPropertyValue(individualKey, propertyName, value.toString());
-   }
-
-   /**
-    * Add a data property value for an individual. The value can be added if the individual exist, the property exist and is a data property, and it has a
-    * datatype.
-    *
-    * @param individualKey the individual key
-    * @param propertyName the data property name
-    * @param value the value
-    * @return true if the value could be added
-    */
-   public boolean addIndividualDataPropertyValue(ElementKey individualKey, String propertyName, String value) {
-      if (individualKey == null) {
-         context.echo("Individual key is null", "red");
+   public boolean addIndividualObjectPropertyValue(Object individualObj, Object propertyObj, Object targetObj) {
+      if (individualObj == null) {
+         context.echo("Tried to add an ObjectProperty on an Individual, Individual name or key is null", "red");
+         return false;
+      } else if (propertyObj == null) {
+         context.echo("Tried to add an ObjectProperty on an Individual, ObjectProperty name or key is null", "red");
+         return false;
+      } else if (targetObj == null) {
+         context.echo("Tried to add an ObjectProperty on an Individual, target Individual name or key is null", "red");
          return false;
       }
-      propertyName = replaceNameID(propertyName);
-      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
-      return addIndividualDataPropertyValue(individualKey, propertyKey, value);
+      ElementKey individualKey;
+      ElementKey propertyKey;
+      ElementKey targetKey;
+      if (individualObj instanceof String) {
+         individualKey = this.getKeyFromDefaultNamespace((String)individualObj);
+      } else if (individualObj instanceof ElementKey) {
+         individualKey = (ElementKey)individualObj;
+      } else {
+         individualKey = null;
+      }      
+      if (propertyObj instanceof String) {
+         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+      } else if (propertyObj instanceof ElementKey) {
+         propertyKey = (ElementKey)propertyObj;
+      } else {
+         propertyKey = null;
+      }  
+      if (targetObj instanceof String) {
+         targetKey = this.getKeyFromDefaultNamespace((String)targetObj);
+      } else if (targetObj instanceof ElementKey) {
+         targetKey = (ElementKey)targetObj;
+      } else {
+         targetKey = null;
+      }         
+      if (individualKey != null && propertyKey != null && targetKey != null) {
+         return addIndividualObjectPropertyValueFromKey(individualKey, propertyKey, targetKey);
+      } else {
+         context.echo("Tried to add an ObjectProperty on an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") and/ or ObjectProperty reference (" + propertyObj.getClass().getName() + ") and/ or Target reference (" + targetObj.getClass().getName() + ") is incorrrect", "red");
+         return false;
+      }
    }
 
    /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
-    * target exists.
+    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object
+    * property, and the target exists.
     *
     * @param individualKey the individual key
     * @param propertyKey the object property key
     * @param targetKey the target key
     * @return true if the value could be added
     */
-   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, ElementKey propertyKey, ElementKey targetKey) {
+   private boolean addIndividualObjectPropertyValueFromKey(ElementKey individualKey, ElementKey propertyKey, ElementKey targetKey) {
       if (individualKey == null) {
-         context.echo("Individual Domain key is null", "red");
+         context.echo("Tried to add an ObjectProperty on an Individual, Individual key is null", "red");
          return false;
       } else if (targetKey == null) {
-         context.echo("Individual Target key is null", "red");
-         return false;         
+         context.echo("Tried to add an ObjectProperty on an Individual, Individual Target key is null", "red");
+         return false;
       } else if (propertyKey == null) {
-         context.echo("Property key is null", "red");
+         context.echo("Tried to add an ObjectProperty on an Individual, ObjectProperty key is null", "red");
          return false;
       }
       getIndividualsHelper();
@@ -571,56 +866,18 @@ public class OwlScriptHelper implements ScriptHelper {
                individual.addProperty(property, individual2);
                return true;
             } else {
-               context.echo("No Property of key" + propertyKey, "red");
+               context.echo("Tried to add an ObjectProperty on an Individual, no ObjectProperty of key " + propertyKey, "red");
             }
          }
       } else {
          if (!schema.hasIndividual(individualKey)) {
-            context.echo("No Individual Domain of key" + individualKey, "red");
+            context.echo("Tried to add an ObjectProperty on an Individual, no Individual of key " + individualKey, "red");
          }
          if (!schema.hasIndividual(targetKey)) {
-            context.echo("No Individual Target of key" + individualKey, "red");
+            context.echo("Tried to add an ObjectProperty on an Individual, no Individual Target of key " + individualKey, "red");
          }
       }
       return false;
-   }
-
-   /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
-    * target exists.
-    *
-    * @param individualKey the individual key
-    * @param propertyName the object property name
-    * @param targetKey the target key
-    * @return true if the value could be added
-    */
-   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, ElementKey targetKey) {
-      if (individualKey == null) {
-         context.echo("Individual Domain key is null", "red");
-         return false;
-      } else if (targetKey == null) {
-         context.echo("Individual Target key is null", "red");
-         return false;
-      }
-      propertyName = replaceNameID(propertyName);
-      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
-      return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
-   }
-
-   /**
-    * Add an object property value for an individual. The value can be added if the individual exist, the property exist and is an object property, and the
-    * target exists.
-    *
-    * @param individualKey the individual key
-    * @param propertyName the object property name
-    * @param targetName the target name
-    * @return true if the value could be added
-    */
-   public boolean addIndividualObjectPropertyValue(ElementKey individualKey, String propertyName, String targetName) {
-      propertyName = replaceNameID(propertyName);
-      ElementKey propertyKey = ElementKey.create(individualKey.getNamespace(), propertyName);
-      ElementKey targetKey = ElementKey.create(individualKey.getNamespace(), targetName);
-      return addIndividualObjectPropertyValue(individualKey, propertyKey, targetKey);
    }
 
    /**

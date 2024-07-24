@@ -62,7 +62,7 @@ import org.girod.ontobrowser.utils.SchemaUtils;
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.13
+ * @version 0.14
  */
 public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDeclaredSchema, Cloneable, Serializable {
    private File file = null;

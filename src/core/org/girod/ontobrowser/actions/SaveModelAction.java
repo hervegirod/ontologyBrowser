@@ -36,15 +36,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
+import org.mdi.bootstrap.swing.GUIApplication;
 
 /**
  * The Action that save owl/rdf schemas.
  *
- * @since 0.13
+ * @version 0.16
  */
 public class SaveModelAction extends AbstractMDIAction {
    private final OwlDiagram diagram;
@@ -69,8 +72,13 @@ public class SaveModelAction extends AbstractMDIAction {
          OwlSchema schema = diagram.getSchema();
          OntModel model = schema.getOntModel();
          FileOutputStream outputFile = new FileOutputStream(file);
-         model.write(outputFile, "RDF/XML", schema.getDefaultSquashedNamespace());
+         RDFDataMgr.write(outputFile, model, Lang.RDFXML);
       } catch (FileNotFoundException ex) {
       }
    }
+   
+   @Override
+   public void endAction() {
+      ((GUIApplication) app).getMessageArea().append("Model saved as " + file.getName()) ;
+   }   
 }

@@ -66,6 +66,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -106,7 +107,7 @@ import org.mdiutil.io.FileUtilities;
 /**
  * The panel for one ontology graph.
  *
- * @version 0.13
+ * @version 0.16
  */
 public class GraphPanel extends JSplitPane implements GUITabTypes {
    private final GUIApplication browser;
@@ -164,6 +165,48 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       this.browser = browser;
       registerToolTips();
    }
+   
+   /**
+    * Reset the content of the panel.
+    */
+   private void resetImpl() {
+      // Classes tree
+      if (classTree == null) {
+         classTree = new JTree(classTreeModel);
+      } else {
+         classTree.setModel(classTreeModel);
+         classTree.revalidate();
+      }
+      // Properties tree
+      if (propertiesTree == null) {
+         propertiesTree = new JTree(propertiesTreeModel);
+      } else {
+         propertiesTree.setModel(propertiesTreeModel);
+         propertiesTree.revalidate();
+      }
+      // Datatypes tree
+      if (datatypesTree == null) {
+         datatypesTree = new JTree(datatypesTreeModel);
+      } else {
+         datatypesTree.setModel(datatypesTreeModel);
+         datatypesTree.revalidate();
+      }
+      // annotations tree
+      if (annotationsTree == null) {
+         annotationsTree = new JTree(annotationsTreeModel);
+      } else {
+         annotationsTree.setModel(annotationsTreeModel);
+         annotationsTree.revalidate();
+      }
+      // individual tree
+      if (individualsTree == null) {
+         individualsTree = new JTree(individualsTreeModel);
+      } else {
+         individualsTree.setModel(individualsTreeModel);
+         individualsTree.revalidate();
+      }
+      registerToolTips();
+   }   
 
    /**
     * Reset the content of the panel.
@@ -175,54 +218,35 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       keyToDatatypeNode.clear();
       keyToIndividualNode.clear();
 
+      
       // Classes tree
       thingRoot = new DefaultMutableTreeNode("Thing");
       classTreeModel = new DefaultTreeModel(thingRoot);
-      if (classTree == null) {
-         classTree = new JTree(classTreeModel);
-      } else {
-         classTree.setModel(classTreeModel);
-      }
+      
       // Properties tree
       propertiesRoot = new DefaultMutableTreeNode(PROPERTIES_NAME);
       dataPropertiesRoot = new DefaultMutableTreeNode(DATA_PROPERTIES_NAME);
       objectPropertiesRoot = new DefaultMutableTreeNode(OBJECT_PROPERTIES_NAME);
       propertiesTreeModel = new DefaultTreeModel(propertiesRoot);
-      if (propertiesTree == null) {
-         propertiesTree = new JTree(propertiesTreeModel);
-      } else {
-         propertiesTree.setModel(propertiesTreeModel);
-         propertiesTree.updateUI();
-      }
+      
       // Datatypes tree
       datatypesRoot = new DefaultMutableTreeNode(DATATYPES_NAME);
       datatypesTreeModel = new DefaultTreeModel(datatypesRoot);
-      if (datatypesTree == null) {
-         datatypesTree = new JTree(datatypesTreeModel);
-      } else {
-         datatypesTree.setModel(datatypesTreeModel);
-         datatypesTree.updateUI();
-      }
+      
       // annotations tree
       annotationsRoot = new DefaultMutableTreeNode(ANNOTATIONS_NAME);
       annotationsTreeModel = new DefaultTreeModel(annotationsRoot);
-      if (annotationsTree == null) {
-         annotationsTree = new JTree(annotationsTreeModel);
-      } else {
-         annotationsTree.setModel(annotationsTreeModel);
-         annotationsTree.updateUI();
-      }
+      
       // individual tree
       individualsRoot = new DefaultMutableTreeNode(INDIVIDUALS_NAME);
       individualsTreeModel = new DefaultTreeModel(individualsRoot);
-      if (individualsTree == null) {
-         individualsTree = new JTree(individualsTreeModel);
-      } else {
-         individualsTree.setModel(individualsTreeModel);
-         individualsTree.updateUI();
-      }
-      individualsTree.setModel(individualsTreeModel);
-      registerToolTips();
+      // see https://stackoverflow.com/questions/5368367/jtree-refreshing-after-setting-new-jtree-model
+      SwingUtilities.invokeLater(new Runnable() {
+         @Override
+         public void run() {
+            resetImpl();
+         }
+      });      
    }
 
    public int getSelectedTab() {
@@ -397,7 +421,41 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
       graph.getModel().setGeometry(graph.getDefaultParent(), new mxGeometry(-300, -300, 300, 300));
       diagramPanel.add(graphComp, BorderLayout.CENTER);
 
-      ModelTreeRenderer treeRenderer = setupTrees();
+      SwingUtilities.invokeLater(new Runnable() {
+         @Override
+         public void run() {
+            setupTrees();
+         }
+      });
+   }
+
+   private void addIndividualsTab(boolean includeIndividuals) {
+      if (includeIndividuals) {
+         modelTab.add(INDIVIDUALS_NAME, new JScrollPane(individualsTree));
+      } else {
+         JPanel emptyPanel = new JPanel();
+         emptyPanel.setBackground(Color.WHITE);
+         emptyPanel.setLayout(new BorderLayout());
+         JLabel emptyLabel = new JLabel("Individuals Not Included");
+         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
+         modelTab.add(INDIVIDUALS_NAME, emptyPanel);
+      }
+   }
+
+   private ModelTreeRenderer setupTrees() {
+      propertiesRoot.add(objectPropertiesRoot);
+      propertiesRoot.add(dataPropertiesRoot);
+
+      ModelTreeRenderer treeRenderer = new ModelTreeRenderer();
+      classTree.setCellRenderer(treeRenderer);
+      propertiesTree.setCellRenderer(treeRenderer);
+      annotationsTree.setCellRenderer(treeRenderer);
+      datatypesTree.setCellRenderer(treeRenderer);
+      individualsTree.setCellRenderer(treeRenderer);
+      OntologyTreeRenderer prefixTreeRenderer = new OntologyTreeRenderer();
+      prefixTree.setCellRenderer(prefixTreeRenderer);
+      
       if (schema.hasPackages()) {
          thingPackagesRoot = new DefaultMutableTreeNode("Packages");
          packagesModel = new DefaultTreeModel(thingPackagesRoot);
@@ -461,35 +519,7 @@ public class GraphPanel extends JSplitPane implements GUITabTypes {
             }
          }
       });
-      this.setDividerLocation(350);
-   }
-
-   private void addIndividualsTab(boolean includeIndividuals) {
-      if (includeIndividuals) {
-         modelTab.add(INDIVIDUALS_NAME, new JScrollPane(individualsTree));
-      } else {
-         JPanel emptyPanel = new JPanel();
-         emptyPanel.setBackground(Color.WHITE);
-         emptyPanel.setLayout(new BorderLayout());
-         JLabel emptyLabel = new JLabel("Individuals Not Included");
-         emptyLabel.setHorizontalAlignment(JLabel.CENTER);
-         emptyPanel.add(emptyLabel, BorderLayout.CENTER);
-         modelTab.add(INDIVIDUALS_NAME, emptyPanel);
-      }
-   }
-
-   private ModelTreeRenderer setupTrees() {
-      propertiesRoot.add(objectPropertiesRoot);
-      propertiesRoot.add(dataPropertiesRoot);
-
-      ModelTreeRenderer treeRenderer = new ModelTreeRenderer();
-      classTree.setCellRenderer(treeRenderer);
-      propertiesTree.setCellRenderer(treeRenderer);
-      annotationsTree.setCellRenderer(treeRenderer);
-      datatypesTree.setCellRenderer(treeRenderer);
-      individualsTree.setCellRenderer(treeRenderer);
-      OntologyTreeRenderer prefixTreeRenderer = new OntologyTreeRenderer();
-      prefixTree.setCellRenderer(prefixTreeRenderer);
+      this.setDividerLocation(350);      
       return treeRenderer;
    }
 
