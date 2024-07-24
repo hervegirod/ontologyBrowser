@@ -168,15 +168,13 @@
    <pre syntax="java">
       ElementKey individualKey = ... // the key for the Individual
       ElementKey propertyKey = ... // the key for the Object property      
-      ElementKey targetKey = ... // the key for the target   
-      List&lt;DatatypePropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualKey, propertyKey, targetKey);
+      List&lt;DatatypePropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualKey, propertyKey);
    </pre>
    or:
    <pre syntax="java">
       String individualName = ... // the name for the Individual
       String propertyName = ... // the name of the Object property      
-      String targetName = ... // the name for the target
-      List&lt;ObjectPropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualName, propertyName, targetName);
+      List&lt;ObjectPropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualName, propertyName);
    </pre>     
    
    <title title="handling errors"/>
