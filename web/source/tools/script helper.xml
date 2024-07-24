@@ -160,7 +160,7 @@
    <title level="2" title="getting object properties values"/>   
    One global method allows to get the object properties value for an individual:
    <ul>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getOwlObjectPropertyValues(Object, Object, Object)" />
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getOwlObjectPropertyValues(Object, Object)" />
          get the values for an individual, the object property, and the target</li>
    </ul>
    
