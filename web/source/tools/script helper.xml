@@ -148,7 +148,7 @@
    <pre syntax="java">
       ElementKey individualKey = ... // the key for the Individual
       ElementKey propertyKey = ... // the key for the Object property      
-      Listl&t;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualKey, propertyKey);
+      List&lt;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualKey, propertyKey);
    </pre>
    or:
    <pre syntax="java">
