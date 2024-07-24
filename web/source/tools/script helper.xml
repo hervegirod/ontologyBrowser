@@ -70,39 +70,114 @@
    </messageBox>
    
    <title level="2" title="adding individuals"/>
-   The following methods allow to add individuals:
+   One global method allows to add an individual:
    <ul>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividual(String, String)" /> will add an individual
-         knowing the name of the Class and the name of the individual</li>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividual(org.girod.ontobrowser.model.ElementKey, String)" /> will add an individual
-         knowing the <ref id="ElementKey" desc="key" /> of the Class and the name of the individual</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividual(Object, Object)" /> will add an individual
+         knowing the name or key of the Class and the name or key of the individual</li>
    </ul>
    These methods return the  <ref id="ElementKey" desc="key" /> of the Individual.
    
+   You can use an <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" /> or a String for the Class and the Individual. For example:
+   <pre syntax="java">
+      ElementKey classKey = ... // the key for the Class
+      ElementKey individualKey = ... // the key for the Individual   
+      helper.addIndividual(classKey, individualKey);
+   </pre>
+   or:
+   <pre syntax="java">
+      String className = ... // the name for the Class
+      String individualName = ... // the name for the Individual   
+      helper.addIndividual(className, individualName);
+   </pre> 
+   
    You can therefore get the associated Individual by calling one of these methods:
    <ul>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getIndividual(String)" /> will return the indivdual for a name</li>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getIndividual(org.girod.ontobrowser.model.ElementKey)" /> will return 
-         the indivdual for a key</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getIndividual(Object)" /> will return the indivdual for a name or an ElementKey</li>    
    </ul>   
    
    <title level="2" title="adding datatype properties values"/>
-   Several methods allow to add values for datatype properties to an individual, for example:
+   One global method allows to add a value for a datatype property to an individual:
    <ul>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, String, Object)" />
-         add a value for an individual and a property specified with its name</li>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, Object)" />
-         add a value for an individual and a property specified with its key</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualDataPropertyValue(Object, Object, Object)" />
+         add a value for an individual and a property</li>
    </ul>
    
+   You can use an <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" /> or a String for the individual and the property. For example:
+   <pre syntax="java">
+      ElementKey individualKey = ... // the key for the Individual
+      ElementKey propertyKey = ... // the key for the Datatype property      
+      helper.addIndividualDataPropertyValue(individualKey, propertyKey, "theValue");
+   </pre>
+   or:
+   <pre syntax="java">
+      String individualName = ... // the name for the Individual
+      String propertyName = ... // the name of the Datatype property      
+      helper.addIndividualDataPropertyValue(individualName, propertyName, "theValue");
+   </pre>   
+   
    <title level="2" title="adding object properties values"/>
-   Several methods allow to add values for object properties to an individual, for example:
+   One global method allows to add a value for an object property to an individual:
    <ul>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, String, String)" /> add
-         a value for an individual, a property specified with its name, and a target specified with its name</li>
-      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey, org.girod.ontobrowser.model.ElementKey)" /> add
-         a value for an individual, a property and a target specified with their keys</li>      
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="addIndividualObjectPropertyValue(Object, Object, Object)" /> add
+         a value for an individual, an ObjectProperty, and a target individual</li>
    </ul>   
+   
+   You can use an <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" /> or a String for the individual, the target, and the property. For example:
+   <pre syntax="java">
+      ElementKey individualKey = ... // the key for the Individual
+      ElementKey propertyKey = ... // the key for the Object property      
+      ElementKey targetKey = ... // the key for the target Individual   
+      helper.addIndividualDataPropertyValue(individualKey, propertyKey, targetKey);
+   </pre>
+   or:
+   <pre syntax="java">
+      ElementKey individualKey = ... // the key for the Individual
+      String propertyName = ... // the name of the Object property      
+      String targetName = ... // the key for the target Individual   
+      helper.addIndividualDataPropertyValue(individualKey, propertyName, targetName);
+   </pre>   
+   
+   <title level="2" title="getting datatype properties values"/>   
+   One global method allows to get the datatype properties value for an individual:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getOwlDatatypePropertyValues(Object, Object)" />
+         get the values for an individual and a datatype property</li>
+   </ul>
+   
+   You can use an <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" /> or a String for the individual and the property. For example:
+   <pre syntax="java">
+      ElementKey individualKey = ... // the key for the Individual
+      ElementKey propertyKey = ... // the key for the Object property      
+      Listl&t;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualKey, propertyKey);
+   </pre>
+   or:
+   <pre syntax="java">
+      String individualName = ... // the name for the Individual
+      String propertyName = ... // the name of the Object property      
+      Listl&t;DatatypePropertyValue&gt; values= helper.addIndividualDataPropertyValue(individualName, propertyName);
+   </pre>     
+   
+   <title level="2" title="getting object properties values"/>   
+   One global method allows to get the object properties value for an individual:
+   <ul>
+      <li>The <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper" member="getOwlObjectPropertyValues(Object, Object, Object)" />
+         get the values for an individual, the object property, and the target</li>
+   </ul>
+   
+   You can use an <javadoc api="api" path="org.girod.ontobrowser.model.ElementKey" /> or a String for the individual, the object property, and the target. For example:
+   <pre syntax="java">
+      ElementKey individualKey = ... // the key for the Individual
+      ElementKey propertyKey = ... // the key for the Object property      
+      ElementKey targetKey = ... // the key for the target   
+      Listl&t;DatatypePropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualKey, propertyKey, targetKey);
+   </pre>
+   or:
+   <pre syntax="java">
+      String individualName = ... // the name for the Individual
+      String propertyName = ... // the name of the Object property      
+      String targetName = ... // the name for the target
+      Listl&t;ObjectPropertyValue&gt; values= helper.getOwlObjectPropertyValues(individualName, propertyName, targetName);
+   </pre>     
    
    <title title="handling errors"/>
    The helper is protected against elements which do not exist in the Ontology, or null keys. If you try to use an element which does not exist, you will
