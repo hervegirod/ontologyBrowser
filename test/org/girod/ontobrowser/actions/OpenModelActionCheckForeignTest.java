@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, 2025 Hervé Girod
+Copyright (c) 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
+import org.girod.ontobrowser.BrowserConfiguration;
 import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
@@ -56,14 +57,14 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @version 0.17.1
+ * @since 0.17.1
  */
 @RunWith(OrderedRunner.class)
-public class OpenModelActionTest {
+public class OpenModelActionCheckForeignTest {
    private static OntoBrowserGUI browser;
    private static OwlSchema schema;
 
-   public OpenModelActionTest() {
+   public OpenModelActionCheckForeignTest() {
    }
 
    @BeforeClass
@@ -91,7 +92,9 @@ public class OpenModelActionTest {
    @Test
    @Order(order = 1)
    public void testRun() throws Exception {
-      System.out.println("OpenModelActionTest : testRun");
+      System.out.println("OpenModelActionCheckForeignTest : testRun");
+      BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      conf.showOwnElementsInBold = true;      
       URL url = this.getClass().getResource("test.owl.rdf");
       File file = new File(url.getFile());
       OpenModelAction action = new OpenModelAction(browser, null, null, file);
@@ -113,7 +116,7 @@ public class OpenModelActionTest {
    @Test
    @Order(order = 2)
    public void testProperties()  {   
-      System.out.println("OpenModelActionTest : testProperties");
+      System.out.println("OpenModelActionCheckForeignTest : testProperties");
       assertNotNull("OwlSchema must not be null", schema);
       
       boolean isEmpty = schema.getProperty(OwlSchemaProperties.IS_EMPTY);

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, 2025 Hervé Girod
+Copyright (c) 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,45 +30,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Alternatively if you have any questions about this project, you can visit
 the project website at the project page on https://github.com/hervegirod/ontologyBrowser
  */
-package org.girod.ontobrowser.actions;
-
-import org.apache.jena.riot.system.ErrorHandler;
-import org.mdi.bootstrap.swing.GUIApplication;
-import org.mdi.gui.swing.SwingMessageArea;
+package org.girod.ontobrowser.model;
 
 /**
- * This class show errors encountered curing the Owl/ORDF model parsing.
+ * Represents the properties of schemas.
  *
- * @version 0.17.1
+ * @since 0.17.1
  */
-public class OntoErrorHandler implements ErrorHandler {
-   private final GUIApplication appli;
-   private final SwingMessageArea messageArea;
-
-   public OntoErrorHandler(GUIApplication appli) {
-      this.appli = appli;
-      this.messageArea = appli.getMessageArea();
-   }
-
-   @Override
-   public void warning(String message, long line, long col) {
-      if (messageArea != null) {
-         messageArea.append("Warning in line " + line + ": " + message, "red");
-      }
-   }
-
-   @Override
-   public void error(String message, long line, long col) {
-      if (messageArea != null) {
-         messageArea.append("Error in line " + line + ": " + message, "red");
-      }
-   }
-
-   @Override
-   public void fatal(String message, long line, long col) {
-      if (messageArea != null) {
-         messageArea.append("Fatal error  in line " + line + ": " + message, "red");
-      }
-   }
-
+public interface OwlSchemaProperties {
+   /** 
+    * The property specifying if the schema has foreign elements.
+    */
+   public static String HAS_FOREIGN_ELEMENTS = "HasForeignElements";
+   /** 
+    * The property specifying if the schema has non foreign elements.
+    */   
+   public static String HAS_NON_FOREIGN_ELEMENTS = "HasNonForeignElements";
+   /** 
+    * The property specifying if the schema has packages.
+    */   
+   public static String HAS_PACKAGES = "HasPackages";
+   /** 
+    * The property specifying if the schema has a default namespace.
+    */      
+   public static String HAS_DEFAULT_NAMESPACE = "HasDefaultNamespace";   
+   /** 
+    * The property specifying if the schema has a default prefix.
+    */      
+   public static String HAS_DEFAULT_PREFIX = "HasDefaultPrefix";      
+   /** 
+    * The property specifying if the schema is empty.
+    */      
+   public static String IS_EMPTY = "IsEmpty";
 }

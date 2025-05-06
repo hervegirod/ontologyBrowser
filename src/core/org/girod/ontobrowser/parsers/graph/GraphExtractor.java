@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2022, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ import org.girod.ontobrowser.utils.DatatypeUtils;
 /**
  * This class allows to extract the graph from an Owl model.
  *
- * @version 0.15
+ * @version 0.17.1
  */
 public class GraphExtractor extends AbstractWarningAction {
    private static final ElementKey TYPE_NS = ElementKey.create("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "type");
@@ -753,6 +753,9 @@ public class GraphExtractor extends AbstractWarningAction {
          Iterator<OwlClass> it = graph.getOwlClasses().values().iterator();
          while (it.hasNext()) {
             OwlClass theClass = it.next();
+            if (theClass.isThing()) {
+               continue;
+            }
             String namespace = theClass.getSquashedNamespace();
             if (namespace != null && !namespace.equals(defaultSquashedNamespace)) {
                graph.setHasForeignElements(true);
@@ -788,6 +791,8 @@ public class GraphExtractor extends AbstractWarningAction {
          if (!conf.includeForeignDisconnectedElements) {
             removeDisconnectedForeignElements();
          }
+      } else {
+         graph.setHasNonForeignElements(true);
       }
    }
 

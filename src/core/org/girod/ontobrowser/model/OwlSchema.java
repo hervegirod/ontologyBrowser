@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -62,9 +62,9 @@ import org.girod.ontobrowser.utils.SchemaUtils;
 /**
  * Specifies the graph of an Owl ontology.
  *
- * @version 0.14
+ * @version 0.17.1
  */
-public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDeclaredSchema, Cloneable, Serializable {
+public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDeclaredSchema, OwlSchemaProperties, Cloneable, Serializable {
    private File file = null;
    private final OntModel ontModel;
    private OwlClass owlThingClass;
@@ -90,6 +90,8 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    private final Map<ElementKey, OwlDatatype> datatypes = new HashMap<>();
    private final Set<String> namespaces = new HashSet<>();
    private Map<ElementKey, OwlClass> packages = null;
+   private boolean emptyChecked = false;
+   private boolean isEmpty = true;
 
    public OwlSchema(OntModel ontModel) {
       this.ontModel = ontModel;
@@ -242,7 +244,7 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    private String getAbout() {
       try {
          String about = null;
-         try ( BufferedReader reader = new BufferedReader(new FileReader(file))) {
+         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader xmlreader = factory.createXMLEventReader(reader);
 
@@ -534,7 +536,8 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
    }
 
    /**
-    * Return the packages in the model. Note that the returned value may be null if the model was not created with packages.
+    * Return the packages in the model. Note that the returned value may be null if the model was not created with
+    * packages.
     *
     * @return the packages
     */
@@ -626,30 +629,92 @@ public class OwlSchema extends AnnotatedElement implements NamedElement, OwlDecl
          return null;
       }
    }
-   
+
+   /**
+    * Set if the schema has foreign elements.
+    *
+    * @param hasForeignElements true if the schema has foreign elements
+    */
    public void setHasForeignElements(boolean hasForeignElements) {
       this.hasForeignElements = hasForeignElements;
    }
-   
+
+   /**
+    * Return true if the schema has foreign elements.
+    *
+    * @return true if the schema has foreign elements
+    */
    public boolean hasForeignElements() {
       return hasForeignElements;
    }
-   
+
+   /**
+    * Set if the schema has non foreign elements.
+    *
+    * @param hasNonForeignElements true if the schema has non foreign elements
+    */
    public void setHasNonForeignElements(boolean hasNonForeignElements) {
       this.hasNonForeignElements = hasNonForeignElements;
    }
-   
-   public boolean hasNonForeignElements() {
-      return hasNonForeignElements;
-   }   
 
    /**
-    * Return true if the schema has no classes, individuals, and properties.
+    * Return true if the schema has non foreign elements.
+    *
+    * @return true if the schema has non foreign elements
+    */
+   public boolean hasNonForeignElements() {
+      return hasNonForeignElements;
+   }
+
+   /**
+    * Return true if the schema has no classes, individuals, and properties. Note that the Thing class is not part of the count.
     *
     * @return true if the schema has no classes, individuals, and properties
     */
    public boolean isEmpty() {
-      return properties.isEmpty() && classes.isEmpty() && individuals.isEmpty();
+      if (emptyChecked) {
+         return isEmpty;
+      }
+      if (properties.isEmpty() && individuals.isEmpty()) {
+         if (classes.isEmpty()) {
+            isEmpty = true;
+         } else if (classes.size() == 1) {
+            OwlClass theClass = classes.values().iterator().next();
+            isEmpty = theClass.isThing();
+         } else {
+            isEmpty = false;
+         }
+      } else {
+         isEmpty = false;
+      }
+      emptyChecked = true;
+      return isEmpty;
+   }
+
+   /**
+    * Return the boolean property of a specified key.
+    *
+    * @param key the property key
+    * @return the property value
+    * @see OwlSchemaProperties
+    */
+   public boolean getProperty(String key) {
+      switch (key) {
+         case HAS_FOREIGN_ELEMENTS:
+            return hasForeignElements;
+         case HAS_NON_FOREIGN_ELEMENTS:
+            return hasNonForeignElements;
+         case HAS_PACKAGES:
+            return hasPackages();
+         case HAS_DEFAULT_NAMESPACE:
+            return hasDefaultNamespace();      
+         case HAS_DEFAULT_PREFIX:
+            return hasDefaultPrefix();               
+         case IS_EMPTY:
+            return isEmpty();
+         default:
+            return false;
+      }
    }
 
    /**

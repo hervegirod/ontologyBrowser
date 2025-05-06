@@ -64,7 +64,7 @@ import org.mdiutil.xml.XMLRootDetector;
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.17
+ * @version 0.17.1
  */
 public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction {
    protected File file = null;
@@ -173,6 +173,7 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
       OntoErrorHandler errorHandler = new OntoErrorHandler((GUIApplication) app);
       ErrorHandlerFactory.setDefaultErrorHandler(errorHandler);
       OntModel model = createModel("OWL_MEM");
+      MessageArea area = ((GUIApplication) app).getMessageArea();
       try {
          // see https://web-semantique.developpez.com/tutoriels/jena/io/#LV-A
          switch (owlType) {
@@ -210,8 +211,7 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
             SwingErrorLogger logger = new SwingErrorLogger();
             logger.showParserExceptions(extractor.getErrors());
          }
-         if (! schema.hasNonForeignElements()) {
-            MessageArea area = ((GUIApplication) app).getMessageArea();
+         if (!schema.hasNonForeignElements()) {
             if (area != null) {
                area.append("The Ontology does not contain any non foreign elements", "red");
             } else {
@@ -225,14 +225,30 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
             } else {
                message = "The resulting diagram is empty, is it normal?";
             }
-            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), message, "Warning when parsing model", JOptionPane.WARNING_MESSAGE);
+            if (area != null) {
+               JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), message, "Warning when parsing model", JOptionPane.WARNING_MESSAGE);
+            } else {
+               System.err.println(message);
+            }
          }
       } catch (OntologyException ex) {
-         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);
+         if (area != null) {
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), ex.getMessage(), "Error when getting model graph", JOptionPane.ERROR_MESSAGE);
+         } else {
+            System.err.println("Error when getting model graph");
+         }
       } catch (RiotException ex) {
-         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "RiotException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+         if (area != null) {
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "RiotException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+         } else {
+            System.err.println("Error when parsing model");
+         }
       } catch (ResourceRequiredException ex) {
-         JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "ResourceRequiredException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+         if (area != null) {
+            JOptionPane.showMessageDialog(((GUIApplication) app).getApplicationWindow(), "ResourceRequiredException: " + ex.getMessage(), "Error when parsing model", JOptionPane.ERROR_MESSAGE);
+         } else {
+            System.err.println("Error when parsing model");
+         }
       }
    }
 

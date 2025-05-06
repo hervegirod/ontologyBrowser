@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, Hervé Girod
+Copyright (c) 2023, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,12 @@ import org.girod.ontobrowser.OwlDiagram;
 import org.girod.ontobrowser.model.ElementKey;
 import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
+import org.girod.ontobrowser.model.OwlSchemaProperties;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,7 +60,7 @@ import org.mdiutil.junit.OrderedRunner;
 /**
  * Test opening a model with packages.
  *
- * @version 0.5
+ * @version 0.17.1
  */
 @RunWith(OrderedRunner.class)
 public class OpenModelAction2Test {
@@ -140,4 +144,44 @@ public class OpenModelAction2Test {
       pack3 = new ElementKey(namespace, "Package3");
       assertTrue("Must have Class Package3", packages.containsKey(pack3));
    }
+   
+   /**
+    * Check the schema properties.
+    */
+   @Test
+   @Order(order = 2)
+   public void testProperties()  {   
+      System.out.println("OpenModelAction2Test : testProperties");
+      assertNotNull("OwlSchema must not be null", schema);
+      
+      boolean isEmpty = schema.getProperty(OwlSchemaProperties.IS_EMPTY);
+      assertFalse("OwlSchema must not be empty", isEmpty);
+      isEmpty = schema.isEmpty();
+      assertFalse("OwlSchema must not be empty", isEmpty);
+      
+      boolean hasPackages = schema.getProperty(OwlSchemaProperties.HAS_PACKAGES);
+      assertTrue("OwlSchema must have packages", hasPackages);
+      hasPackages = schema.hasPackages();
+      assertTrue("OwlSchema must have packages", hasPackages);
+      
+      boolean hasForeign = schema.getProperty(OwlSchemaProperties.HAS_FOREIGN_ELEMENTS);
+      assertFalse("OwlSchema must not have foreign elements", hasForeign);
+      hasForeign = schema.hasForeignElements();
+      assertFalse("OwlSchema must not have foreign elements", hasForeign);
+      
+      boolean hasNonForeign = schema.getProperty(OwlSchemaProperties.HAS_NON_FOREIGN_ELEMENTS);
+      assertTrue("OwlSchema must have non foreign elements", hasNonForeign);
+      hasNonForeign = schema.hasNonForeignElements();
+      assertTrue("OwlSchema must have non foreign elements", hasNonForeign);
+      
+      boolean hasDefaultNamespace = schema.getProperty(OwlSchemaProperties.HAS_DEFAULT_NAMESPACE);
+      assertTrue("OwlSchema must have a default namespace", hasDefaultNamespace);
+      hasDefaultNamespace = schema.hasDefaultNamespace();
+      assertTrue("OwlSchema must have a default namespace", hasDefaultNamespace); 
+      
+      boolean hasDefaultPrefix = schema.getProperty(OwlSchemaProperties.HAS_DEFAULT_PREFIX);
+      assertFalse("OwlSchema must not have a default prefix", hasDefaultPrefix);
+      hasDefaultPrefix = schema.hasDefaultPrefix();
+      assertFalse("OwlSchema must not have a default namespace", hasDefaultPrefix);         
+   }   
 }

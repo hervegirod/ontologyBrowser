@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, 2025 Hervé Girod
+Copyright (c) 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,20 +32,15 @@ the project website at the project page on https://github.com/hervegirod/ontolog
  */
 package org.girod.ontobrowser.actions;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 import org.girod.ontobrowser.OntoBrowserGUI;
 import org.girod.ontobrowser.OwlDiagram;
-import org.girod.ontobrowser.model.ElementKey;
-import org.girod.ontobrowser.model.OwlClass;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.girod.ontobrowser.model.OwlSchemaProperties;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -56,14 +51,14 @@ import org.mdiutil.junit.OrderedRunner;
 
 /**
  *
- * @version 0.17.1
+ * @since 0.17.1
  */
 @RunWith(OrderedRunner.class)
-public class OpenModelActionTest {
+public class OpenModeEmptyActionTest {
    private static OntoBrowserGUI browser;
    private static OwlSchema schema;
 
-   public OpenModelActionTest() {
+   public OpenModeEmptyActionTest() {
    }
 
    @BeforeClass
@@ -91,8 +86,8 @@ public class OpenModelActionTest {
    @Test
    @Order(order = 1)
    public void testRun() throws Exception {
-      System.out.println("OpenModelActionTest : testRun");
-      URL url = this.getClass().getResource("test.owl.rdf");
+      System.out.println("OpenModeEmptyActionTest : testRun");
+      URL url = this.getClass().getResource("emptyOwl.rdf");
       File file = new File(url.getFile());
       OpenModelAction action = new OpenModelAction(browser, null, null, file);
       action.run();
@@ -100,11 +95,7 @@ public class OpenModelActionTest {
       OwlDiagram diagram = action.getDiagram();
       assertNotNull("Diagram must not be null", diagram);
       schema = diagram.getSchema();
-      assertNotNull("OwlSchema must not be null", schema);
-
-      Map<ElementKey, OwlClass> classes = schema.getOwlClasses();
-      assertNotNull("classes must not be null", classes);
-      assertEquals("Must have 3 classes", 3, classes.size());    
+      assertNotNull("OwlSchema must not be null", schema);  
    }
    
    /**
@@ -113,37 +104,12 @@ public class OpenModelActionTest {
    @Test
    @Order(order = 2)
    public void testProperties()  {   
-      System.out.println("OpenModelActionTest : testProperties");
+      System.out.println("OpenModeEmptyActionTest : testProperties");
       assertNotNull("OwlSchema must not be null", schema);
       
       boolean isEmpty = schema.getProperty(OwlSchemaProperties.IS_EMPTY);
-      assertFalse("OwlSchema must not be empty", isEmpty);
+      assertTrue("OwlSchema must be empty", isEmpty);
       isEmpty = schema.isEmpty();
-      assertFalse("OwlSchema must not be empty", isEmpty);
-      
-      boolean hasPackages = schema.getProperty(OwlSchemaProperties.HAS_PACKAGES);
-      assertFalse("OwlSchema must not have packages", hasPackages);
-      hasPackages = schema.hasPackages();
-      assertFalse("OwlSchema must not have packages", hasPackages);
-      
-      boolean hasForeign = schema.getProperty(OwlSchemaProperties.HAS_FOREIGN_ELEMENTS);
-      assertFalse("OwlSchema must not have foreign elements", hasForeign);
-      hasForeign = schema.hasForeignElements();
-      assertFalse("OwlSchema must not have foreign elements", hasForeign);
-      
-      boolean hasNonForeign = schema.getProperty(OwlSchemaProperties.HAS_NON_FOREIGN_ELEMENTS);
-      assertTrue("OwlSchema must have non foreign elements", hasNonForeign);
-      hasNonForeign = schema.hasNonForeignElements();
-      assertTrue("OwlSchema must have non foreign elements", hasNonForeign);
-      
-      boolean hasDefaultNamespace = schema.getProperty(OwlSchemaProperties.HAS_DEFAULT_NAMESPACE);
-      assertTrue("OwlSchema must have a default namespace", hasDefaultNamespace);
-      hasDefaultNamespace = schema.hasDefaultNamespace();
-      assertTrue("OwlSchema must have a default namespace", hasDefaultNamespace); 
-      
-      boolean hasDefaultPrefix = schema.getProperty(OwlSchemaProperties.HAS_DEFAULT_PREFIX);
-      assertFalse("OwlSchema must not have a default prefix", hasDefaultPrefix);
-      hasDefaultPrefix = schema.hasDefaultPrefix();
-      assertFalse("OwlSchema must not have a default namespace", hasDefaultPrefix);         
+      assertTrue("OwlSchema must be empty", isEmpty);      
    }
 }
