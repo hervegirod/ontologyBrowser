@@ -15,7 +15,7 @@
    <!-- =================================================================== -->
 
    <target name="-post-init">
-      <property name="jdk" value="C:\Program Files\Java\jdk1.8.0_202"/>
+      <property name="jdk" value="C:\Program Files\Java\jdk-1.8"/>   
       <property name="javadocEXE" value="${jdk}/bin/javadoc.exe"/>
       <!-- general properties definition -->
       <property name="archiveName" value="ontoBrowser"/>
