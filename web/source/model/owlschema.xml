@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Owl Schema">
+   <altTitle desc="OwlSchema" />
+   <meta desc="This article presents the Owl/RDF schema" />
+   The <javadoc api="api" path="org.girod.ontobrowser.model.OwlSchema"/> class is the result of the parsing. It holds:
+   <ul>
+      <li>The Classes</li>
+      <li>The Individuals</li>
+      <li>The Datatypes</li>
+      <li>The Datatype properties</li>
+      <li>The Object properties</li>
+   </ul>
+   
+   The schema alos have several boolean properties which set:
+   <ul>
+      <li>If the schema is empty</li>
+      <li>If the schema has <ref id="packages" /></li>
+      <li>If the schema has foreign elements</li>
+      <li>If the schema has non foreign elements</li>
+      <li>If the schema has a default namespace</li>
+      <li>If the schema has a default prefix</li>
+   </ul>
+   It is possible to get the value of a propeety by using the 
+   <javadoc api="api" path="org.girod.ontobrowser.model.Owlchema" member="getProperty(String)"/> method. The keys of the proeprties are defined in the
+   <javadoc api="api" path="org.girod.ontobrowser.model.OwlSchemaProperties"/> interface.
+
+   <cat id="tools" />
+</article>

@@ -50,13 +50,20 @@
    All exceptions encountered by the scripts will lead to an error message in the console. The first error will popup a Window allowing to navigate in the
    StackTrace of the error.
 
-   <title title="Script Context" />
+   <title title="Script context" />
+   <moreInfo id="Script context" />
    The script always have access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptContext"/> class called <code>context</code>.
    The user can use this object to:
    <ul>
       <li>Perform pre-defined complex computations on Ontology elements (Classes, Properties, Annotations, Individuals)</li>
       <li>Print messages in the console</li>
    </ul>
+   
+   <title title="Script helper" />
+   <moreInfo id="Script helper" />
+   The script always have access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptHelper"/> class called <code>helper</code>.
+   
+   This class has several utility methods.
 
    <title level="2" title="Echoing messages" />
    <title level="3" title="Echoing simple messages" />

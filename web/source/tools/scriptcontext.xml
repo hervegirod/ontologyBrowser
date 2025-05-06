@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article desc="Script context">
+   <altTitle desc="OwlScriptContext" />
+   <meta desc="This article presents the OwlScriptContext class" />
+   The script always has access to an instance of the <javadoc api="api" path="org.girod.ontobrowser.script.OwlScriptContext"/> class called <code>context</code>.
+
+   This class allows to:
+   <ul>
+      <li>Get the <ref id="OwlSchema"/>  which is the result of the parsing</li>
+      <li>get the current parsed element</li>
+   </ul>
+
+   <see id="Scripting" />
+   <see id="OwlSchema" />
+   <cat id="tools" />
+</article>

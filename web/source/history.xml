@@ -177,6 +177,15 @@
       <li>Protect the creation of elements in the Ontology against badly formed URIs for the element name</li>
       <li>Allow to save a model as a Turtle representation</li>
    </ul>      
+   
+   <title title="Version 0.17.1" />
+   <ul>
+      <li>Add properties on the OwlSchema</li>
+      <li>Don't consider that the schema is not empty if there is only the Thing class after the parsing</li>
+      <li>Don't consider that there are foreign elements because of the Thing class</li>
+      <li>Fix the schema considered having only foreign elements if their existence is not checked</li>
+      <li>Avoid to throw an exception if there are warnings when parsing the schema an no message area in the browser application</li>
+   </ul>   
 
    <cat id="general" />
 </article>
