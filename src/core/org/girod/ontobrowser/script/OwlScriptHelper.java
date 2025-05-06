@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, 2024 Hervé Girod
+Copyright (c) 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.girod.ontobrowser.script;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * The script helper.
  *
- * @version 0.16
+ * @version 0.17
  */
 public class OwlScriptHelper implements ScriptHelper {
    private static final Pattern ID_PAT = Pattern.compile("(\\d+\\s*)(.*)");
@@ -99,6 +100,17 @@ public class OwlScriptHelper implements ScriptHelper {
    private void getIndividualsHelper() {
       if (individualsHelper == null) {
          individualsHelper = new IndividualsHelper(schema);
+      }
+   }
+   
+   public static ElementKey normalizeKey(ElementKey key) {
+      String name = key.getName();
+      String namespace = key.getNamespace();
+      if (name.contains(" ")) {
+         name = name.replaceAll(" ", "_");
+         return new ElementKey(namespace, name);
+      } else {
+         return key;
       }
    }
 
@@ -186,7 +198,8 @@ public class OwlScriptHelper implements ScriptHelper {
    public ElementKey getKeyFromPrefix(String prefix, String name) {
       String namespace = schema.getNamespaceFromPrefix(prefix);
       if (namespace != null) {
-         return ElementKey.create(namespace, name);
+         ElementKey key = ElementKey.create(namespace, name); 
+         return normalizeKey(key);
       } else {
          return getKeyFromDefaultNamespace(name);
       }
@@ -199,7 +212,8 @@ public class OwlScriptHelper implements ScriptHelper {
     * @return the key
     */
    public ElementKey getKeyFromDefaultNamespace(String name) {
-      return ElementKey.create(schema.getDefaultNamespace(), name);
+      ElementKey key =  ElementKey.create(schema.getDefaultNamespace(), name);
+      return normalizeKey(key);
    }
 
    /**
@@ -294,7 +308,7 @@ public class OwlScriptHelper implements ScriptHelper {
    private OwlIndividual getIndividual(ElementKey individualKey) {
       return schema.getIndividual(individualKey);
    }
-   
+
    /**
     * Return the Owl Property corresponding to a name or key.
     *
@@ -314,7 +328,7 @@ public class OwlScriptHelper implements ScriptHelper {
          context.echo("Tried to get a Property, type of Property reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
          return null;
       }
-   }   
+   }
 
    /**
     * Return the Owl Property corresponding to a name.
@@ -338,9 +352,9 @@ public class OwlScriptHelper implements ScriptHelper {
       } else {
          context.echo("Tried to get a Property, Property of key " + propertyKey + " does not exist", "red");
          return null;
-      }      
+      }
    }
-   
+
    /**
     * Return the list of object property values for an individual and a data property. It will return null if the property does not exist.
     *
@@ -348,7 +362,7 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param propertyObj the object property name or key
     * @return the list of property values
     */
-   public List<ObjectPropertyValue> getOwlObjectPropertyValues(Object individualObj, Object propertyObj) {   
+   public List<ObjectPropertyValue> getOwlObjectPropertyValues(Object individualObj, Object propertyObj) {
       if (individualObj == null) {
          context.echo("Tried to get the data property values on an Individual, Individual name or key is null", "red");
          return null;
@@ -359,29 +373,30 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey individualKey;
       ElementKey propertyKey;
       if (individualObj instanceof String) {
-         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
       }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      } 
+      }
       if (individualKey != null && propertyKey != null) {
          return getOwlObjectPropertyValuesFromKey(individualKey, propertyKey);
       } else {
          context.echo("Tried to get the object property values on an Individual, type of Individual reference (" + individualObj.getClass().getName() + ") and/ or DatatypeProperty reference (" + propertyObj.getClass().getName() + ") is incorrrect", "red");
          return null;
       }
-   }   
+   }
 
    /**
-    * Return the list of object property values for an individual and an object property. It will return null if the property does not exist.
+    * Return the list of object property values for an individual and an object property. It will return null if the property does not
+    * exist.
     *
     * @param individualKey the individual key
     * @param propertyKey the object property key
@@ -401,7 +416,7 @@ public class OwlScriptHelper implements ScriptHelper {
          return null;
       }
    }
-   
+
    /**
     * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual
     * does not have values for this property.
@@ -421,21 +436,21 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey individualKey;
       ElementKey propertyKey;
       if (individualObj instanceof String) {
-         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
       }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      } 
+      }
       return hasOwlObjectPropertyValuesFromKey(individualKey, propertyKey);
-   }   
+   }
 
    /**
     * Return true if an individual has values for an object property. It will return false if the property does not exist or the individual
@@ -459,7 +474,7 @@ public class OwlScriptHelper implements ScriptHelper {
          return false;
       }
    }
-   
+
    /**
     * Return the list of data property values for an individual and a data property. It will return null if the property does not exist.
     *
@@ -467,7 +482,7 @@ public class OwlScriptHelper implements ScriptHelper {
     * @param propertyObj the data property name or key
     * @return the list of property values
     */
-   public List<DatatypePropertyValue> getOwlDatatypePropertyValues(Object individualObj, Object propertyObj) {   
+   public List<DatatypePropertyValue> getOwlDatatypePropertyValues(Object individualObj, Object propertyObj) {
       if (individualObj == null) {
          context.echo("Tried to get the data property values on an Individual, Individual name or key is null", "red");
          return null;
@@ -478,19 +493,19 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey individualKey;
       ElementKey propertyKey;
       if (individualObj instanceof String) {
-         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
       }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      } 
+      }
       if (individualKey != null && propertyKey != null) {
          return getOwlDatatypePropertyValuesFromKey(individualKey, propertyKey);
       } else {
@@ -540,19 +555,19 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey individualKey;
       ElementKey propertyKey;
       if (individualObj instanceof String) {
-         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
       }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      } 
+      }
       return hasOwlDatatypePropertyValuesFromKey(individualKey, propertyKey);
    }
 
@@ -624,19 +639,19 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey classKey;
       ElementKey individualKey;
       if (classObj instanceof String) {
-         classKey = this.getKeyFromDefaultNamespace((String)classObj);
+         classKey = this.getKeyFromDefaultNamespace((String) classObj);
       } else if (classObj instanceof ElementKey) {
-         classKey = (ElementKey)classObj;
+         classKey = (ElementKey) classObj;
       } else {
          classKey = null;
       }
       if (individualObj instanceof String) {
-         individualKey = getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = getKeyFromDefaultNamespace((String) individualObj);
       } else if (classObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
-      }      
+      }
       if (classKey != null && individualKey != null) {
          return addIndividualFromKey(classKey, individualKey);
       } else {
@@ -659,10 +674,17 @@ public class OwlScriptHelper implements ScriptHelper {
          }
          OwlClass owlClass = schema.getOwlClass(classKey);
          // see https://stackoverflow.com/questions/43719469/create-individuals-using-jena
-         Individual individual = ontModel.createIndividual(individualKey.toURI().toString(), owlClass.getOntClass());
-         OwlIndividual owlIndividual = new OwlIndividual(owlClass, individual);
-         schema.addIndividual(owlIndividual);
-         return owlIndividual.getKey();
+         URI uri = individualKey.toURI();
+         if (uri != null) {
+            Individual individual = ontModel.createIndividual(uri.toString(), owlClass.getOntClass());
+            OwlIndividual owlIndividual = new OwlIndividual(owlClass, individual);
+            schema.addIndividual(owlIndividual);
+
+            return owlIndividual.getKey();
+         } else {
+            context.echo("URI of Individual of key " + individualKey + " invalid", "red");
+            return null;
+         }
       } else {
          context.echo("Tried to add an Individual, no Class of key " + classKey, "red");
          return null;
@@ -714,19 +736,19 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey individualKey;
       ElementKey propertyKey;
       if (individualObj instanceof String) {
-         individualKey = this.getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = this.getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
       }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      }        
+      }
       if (individualKey != null && propertyKey != null) {
          return addIndividualDataPropertyValueFromKey(individualKey, propertyKey, value.toString());
       } else {
@@ -801,26 +823,26 @@ public class OwlScriptHelper implements ScriptHelper {
       ElementKey propertyKey;
       ElementKey targetKey;
       if (individualObj instanceof String) {
-         individualKey = this.getKeyFromDefaultNamespace((String)individualObj);
+         individualKey = this.getKeyFromDefaultNamespace((String) individualObj);
       } else if (individualObj instanceof ElementKey) {
-         individualKey = (ElementKey)individualObj;
+         individualKey = (ElementKey) individualObj;
       } else {
          individualKey = null;
-      }      
+      }
       if (propertyObj instanceof String) {
-         propertyKey = getKeyFromDefaultNamespace((String)propertyObj);
+         propertyKey = getKeyFromDefaultNamespace((String) propertyObj);
       } else if (propertyObj instanceof ElementKey) {
-         propertyKey = (ElementKey)propertyObj;
+         propertyKey = (ElementKey) propertyObj;
       } else {
          propertyKey = null;
-      }  
+      }
       if (targetObj instanceof String) {
-         targetKey = this.getKeyFromDefaultNamespace((String)targetObj);
+         targetKey = this.getKeyFromDefaultNamespace((String) targetObj);
       } else if (targetObj instanceof ElementKey) {
-         targetKey = (ElementKey)targetObj;
+         targetKey = (ElementKey) targetObj;
       } else {
          targetKey = null;
-      }         
+      }
       if (individualKey != null && propertyKey != null && targetKey != null) {
          return addIndividualObjectPropertyValueFromKey(individualKey, propertyKey, targetKey);
       } else {

@@ -54,14 +54,14 @@ import org.girod.ontobrowser.model.NamedOwlElement;
 /**
  * Used to wrap the text inside a table cell.
  *
- * @version 0.7
+ * @version 0.17
  */
 public class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
    // see https://stackoverflow.com/questions/37768335/how-to-word-wrap-inside-a-jtable-row
    // see https://stackoverflow.com/questions/965023/how-to-wrap-lines-in-a-jtable-cell
    public WordWrapCellRenderer() {
-      setLineWrap(true);
-      setWrapStyleWord(true);
+      this.setLineWrap(true);
+      this.setEditable(false);
    }
 
    @Override

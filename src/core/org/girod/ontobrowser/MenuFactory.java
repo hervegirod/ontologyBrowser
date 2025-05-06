@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ import org.girod.ontobrowser.actions.sparql.SparqlActionHelper;
 import org.girod.ontobrowser.gui.GraphPanel;
 import org.girod.ontobrowser.gui.search.SearchDialog;
 import org.girod.ontobrowser.gui.search.SearchOptions;
+import org.girod.ontobrowser.model.OwlRepresentationType;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.app.swing.AbstractMDIApplication;
 import org.mdi.app.swing.AbstractMDIMenuFactory;
@@ -81,7 +82,7 @@ import org.mdiutil.swing.GenericDialog;
 /**
  * This class creates the Menus for the application.
  *
- * @version 0.13
+ * @version 0.17
  */
 public class MenuFactory extends AbstractMDIMenuFactory {
    private final JMenu filemenu = new JMenu("File");
@@ -137,11 +138,17 @@ public class MenuFactory extends AbstractMDIMenuFactory {
          }
       };
 
-      AbstractAction saveAction = new AbstractAction("Save Model") {
+      AbstractAction saveAction = new AbstractAction("Save Model As OWL/RDF") {
          public void actionPerformed(ActionEvent ae) {
             saveModel();
          }
       };
+      
+      AbstractAction saveTTLAction = new AbstractAction("Save Model As Turtle") {
+         public void actionPerformed(ActionEvent ae) {
+            saveTTLModel();
+         }
+      };      
 
       AbstractAction exportAction = new AbstractAction("Export as graphml") {
          public void actionPerformed(ActionEvent ae) {
@@ -238,7 +245,11 @@ public class MenuFactory extends AbstractMDIMenuFactory {
       toolsmenu.addSeparator();
 
       JMenuItem openItem = new JMenuItem(openAction);
+      JMenu saveMenu = new JMenu("Save Model");
       JMenuItem saveItem = new JMenuItem(saveAction);
+      JMenuItem saveTTLItem = new JMenuItem(saveTTLAction);
+      saveMenu.add(saveItem);
+      saveMenu.add(saveTTLItem);
       JMenuItem exportItem = new JMenuItem(exportAction);
       JMenuItem openInYedItem = new JMenuItem(openInYedAction);
 
@@ -274,7 +285,7 @@ public class MenuFactory extends AbstractMDIMenuFactory {
 
       // create main menus
       filemenu.add(openItem);
-      filemenu.add(saveItem);
+      filemenu.add(saveMenu);
       filemenu.add(exportItem);
       filemenu.add(openInYedItem);
       filemenu.add(exitItem);
@@ -550,13 +561,38 @@ public class MenuFactory extends AbstractMDIMenuFactory {
                if (FileUtilities.getFileExtension(file) == null) {
                   file = new File(file.getParentFile(), file.getName() + ".rdf");
                }
-               SaveModelAction action = new SaveModelAction(appli, graphPanel.getDiagram(), file);
+               SaveModelAction action = new SaveModelAction(appli, graphPanel.getDiagram(), file, OwlRepresentationType.TYPE_OWL_XML);
                appli.executeAction(action);
                bconf.setDefaultDirectory(file.getParentFile());
             }
          }
       }
    }
+   
+   private void saveTTLModel() {
+      GraphPanel graphPanel = getGraphPanel();
+      if (graphPanel != null) {
+         JFileChooser chooser = new JFileChooser();
+         chooser.setDialogTitle("Save as Turtle");
+         chooser.setCurrentDirectory(bconf.getDefaultDirectory());
+         BrowserConfiguration conf = BrowserConfiguration.getInstance();
+         chooser.setFileFilter(conf.ttlfilter);
+         chooser.setMultiSelectionEnabled(false);
+         chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+         if (chooser.showOpenDialog(appli.getApplicationWindow()) == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (file != null) {
+               if (FileUtilities.getFileExtension(file) == null) {
+                  file = new File(file.getParentFile(), file.getName() + ".ttl");
+               }
+               SaveModelAction action = new SaveModelAction(appli, graphPanel.getDiagram(), file, OwlRepresentationType.TYPE_OWL_TURTLE);
+               appli.executeAction(action);
+               bconf.setDefaultDirectory(file.getParentFile());
+            }
+         }
+      }
+   }   
 
    private void openModel() {
       JFileChooser chooser = new JFileChooser();

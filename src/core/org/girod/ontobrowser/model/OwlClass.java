@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.girod.ontobrowser.model.restriction.OwlRestriction;
 /**
  * Represents an Owl class.
  *
- * @version 0.13
+ * @version 0.17
  */
 public class OwlClass extends NamedOwlElement<OwlClass> {
    private final Map<ElementKey, Set<PropertyClassRef>> fromDomain = new HashMap<>();
@@ -68,11 +68,11 @@ public class OwlClass extends NamedOwlElement<OwlClass> {
       super(ontClass.getNameSpace(), ontClass.getLocalName());
       this.ontClass = ontClass;
    }
-   
+
    public OwlClass(OntClass ontClass, String namespace) {
       super(namespace, ontClass.getLocalName());
       this.ontClass = ontClass;
-   }   
+   }
 
    public OwlClass(String namespace, String name) {
       super(namespace, name);
@@ -269,6 +269,32 @@ public class OwlClass extends NamedOwlElement<OwlClass> {
     */
    public boolean hasSuperClasses() {
       return !superClasses.isEmpty();
+   }
+
+   /** 
+    * Return true if this class has another class as a specified superclass.
+    * 
+    * @param classKey the potential superclass key
+    * @param recursive true if the check should be recursive
+    * @return true if this class has the other class as a superclass
+    */
+   public boolean hasSuperClass(ElementKey classKey, boolean recursive) {
+      boolean hasParent = superClasses.containsKey(classKey);
+      if (hasParent) {
+         return true;
+      } else if (superClasses.isEmpty() || !recursive) {
+         return false;
+      } else {
+         Iterator<OwlClass> it = superClasses.values().iterator();
+         while (it.hasNext()) {
+            OwlClass theParent = it.next();
+            hasParent = theParent.hasSuperClass(classKey, true);
+            if (hasParent) {
+               return true;
+            }
+         }
+         return false;
+      }
    }
 
    /**

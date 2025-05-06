@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2022, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * The browser configuration.
  *
- * @version 0.14
+ * @version 0.17
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -162,6 +162,10 @@ public class BrowserConfiguration implements Configuration {
     */
    public ExtensionFileFilter owlfilter;
    /**
+    * The turtlef file filter.
+    */
+   public ExtensionFileFilter ttlfilter;   
+   /**
     * The graphml file filter.
     */
    public ExtensionFileFilter graphmlfilter;
@@ -197,6 +201,9 @@ public class BrowserConfiguration implements Configuration {
       defaultDir = new File(System.getProperty("user.dir"));
       String[] ext1 = {"owl", "rdf", "ttl"};
       owlfilter = new ExtensionFileFilter(ext1, "OWL/RDF Files");
+      
+      String[] ext7 = {"ttl"};
+      ttlfilter = new ExtensionFileFilter(ext7, "Turtle Files");      
 
       String[] ext2 = {"graphml"};
       graphmlfilter = new ExtensionFileFilter(ext2, "graphml Files");
@@ -211,7 +218,7 @@ public class BrowserConfiguration implements Configuration {
       sparqlfilter = new ExtensionFileFilter(ext5, "SPARQL requests");    
       
       String[] ext6 = {"txt"};
-      txtfilter = new ExtensionFileFilter(ext5, "ext6 files");          
+      txtfilter = new ExtensionFileFilter(ext6, "ext6 files");          
    }
 
    /**

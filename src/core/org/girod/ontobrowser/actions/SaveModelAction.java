@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Hervé Girod
+Copyright (c) 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.girod.ontobrowser.OwlDiagram;
+import org.girod.ontobrowser.model.OwlRepresentationType;
 import org.girod.ontobrowser.model.OwlSchema;
 import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.AbstractMDIAction;
@@ -47,11 +48,12 @@ import org.mdi.bootstrap.swing.GUIApplication;
 /**
  * The Action that save owl/rdf schemas.
  *
- * @version 0.16
+ * @version 0.17
  */
 public class SaveModelAction extends AbstractMDIAction {
    private final OwlDiagram diagram;
    private final File file;
+   private final short representationType;
 
    /**
     * Constructor.
@@ -59,11 +61,13 @@ public class SaveModelAction extends AbstractMDIAction {
     * @param app the Application
     * @param diagram the diagram
     * @param file the file to save
+    * @param representationType the representation type
     */
-   public SaveModelAction(MDIApplication app, OwlDiagram diagram, File file) {
+   public SaveModelAction(MDIApplication app, OwlDiagram diagram, File file, short representationType) {
       super(app, "Save");
       this.diagram = diagram;
       this.file = file;
+      this.representationType = representationType;
    }
 
    @Override
@@ -72,13 +76,17 @@ public class SaveModelAction extends AbstractMDIAction {
          OwlSchema schema = diagram.getSchema();
          OntModel model = schema.getOntModel();
          FileOutputStream outputFile = new FileOutputStream(file);
-         RDFDataMgr.write(outputFile, model, Lang.RDFXML);
+         if (representationType == OwlRepresentationType.TYPE_OWL_XML) {
+            RDFDataMgr.write(outputFile, model, Lang.RDFXML);
+         } else if (representationType == OwlRepresentationType.TYPE_OWL_TURTLE) {
+            RDFDataMgr.write(outputFile, model, Lang.TTL);
+         }
       } catch (FileNotFoundException ex) {
       }
    }
-   
+
    @Override
    public void endAction() {
-      ((GUIApplication) app).getMessageArea().append("Model saved as " + file.getName()) ;
-   }   
+      ((GUIApplication) app).getMessageArea().append("Model saved as " + file.getName());
+   }
 }

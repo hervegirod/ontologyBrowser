@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2023, 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.apache.jena.rdf.model.Resource;
 /**
  * Represents an Individual.
  *
- * @version 0.13
+ * @version 0.17
  * @param <I> the type of the underlying class
  */
 public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndividual> {
@@ -127,6 +127,34 @@ public class OwlIndividual<I extends Resource> extends NamedOwlElement<OwlIndivi
    public Map<ElementKey, OwlClass> getParentClasses() {
       return parentClasses;
    }
+   
+   /** 
+    * Return true if this individual has a specified Class as a direct or indirect parent.
+    * 
+    * @param classKey the potential class key
+    * @param recursive true if the check should be recursive
+    * @return true if this individual has a specified Class as a direct or indirect parent
+    */   
+   public boolean hasParentClass(ElementKey classKey, boolean recursive) {
+      boolean hasParent = parentClasses.containsKey(classKey);
+      if (hasParent) {
+      return true;         
+      } else if (!parentClasses.isEmpty() && recursive) {
+         Iterator<OwlClass> it = parentClasses.values().iterator();
+         while (it.hasNext()) {
+            OwlClass theClass = it.next();
+            hasParent = theClass.hasSuperClass(classKey, true);
+            if (hasParent) {
+               return true;
+            }
+         }
+         return false;
+      } else {
+         return false;
+      }
+   }
+   
+   
 
    /**
     * Add an object property value.
