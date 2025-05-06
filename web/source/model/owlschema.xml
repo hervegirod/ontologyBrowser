@@ -20,8 +20,8 @@
       <li>If the schema has a default namespace</li>
       <li>If the schema has a default prefix</li>
    </ul>
-   It is possible to get the value of a propeety by using the 
-   <javadoc api="api" path="org.girod.ontobrowser.model.Owlchema" member="getProperty(String)"/> method. The keys of the proeprties are defined in the
+   It is possible to get the value of a property by using the 
+   <javadoc api="api" path="org.girod.ontobrowser.model.OwlSchema" member="getProperty(String)"/> method. The keys of the proeprties are defined in the
    <javadoc api="api" path="org.girod.ontobrowser.model.OwlSchemaProperties"/> interface.
 
    <cat id="tools" />
