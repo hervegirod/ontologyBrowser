@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Hervé Girod
+Copyright (c) 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -57,13 +57,14 @@ import org.girod.ontobrowser.model.OntModelSpecTypes;
 import org.mdi.bootstrap.MDIApplication;
 import org.mdi.bootstrap.swing.GUIApplication;
 import org.mdi.bootstrap.swing.SwingFileProperties;
+import org.mdi.gui.MessageArea;
 import org.mdiutil.io.FileUtilities;
 import org.mdiutil.xml.XMLRootDetector;
 
 /**
  * The Action that opens owl/rdf schemas.
  *
- * @version 0.13
+ * @version 0.17
  */
 public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction {
    protected File file = null;
@@ -210,7 +211,12 @@ public abstract class AbstractOpenModelAction extends AbstractUpdateModelAction 
             logger.showParserExceptions(extractor.getErrors());
          }
          if (! schema.hasNonForeignElements()) {
-            ((GUIApplication) app).getMessageArea().append("The Ontology does not contain any non foreign elements", "red");
+            MessageArea area = ((GUIApplication) app).getMessageArea();
+            if (area != null) {
+               area.append("The Ontology does not contain any non foreign elements", "red");
+            } else {
+               System.err.println("The Ontology does not contain any non foreign elements");
+            }
          }
          if (schema.isEmpty()) {
             String message;
