@@ -20,7 +20,7 @@
             <a href="https://sourceforge.net/projects/mdiutilities/">sourceforge.net/projects/mdiutilities</a>
          </cell>
          <cell>LGPL version 2</cell>
-         <cell>1.3.3</cell>
+         <cell>1.3.15</cell>
          <cell>-</cell>
       </row>
       <row>
@@ -29,7 +29,7 @@
             <a href="https://sourceforge.net/projects/mdiframework/">sourceforge.net/projects/mdiframework/</a>
          </cell>
          <cell>LGPL version 2</cell>
-         <cell>1.4.3.1</cell>
+         <cell>1.4.7</cell>
          <cell>Only used for the browser</cell>
       </row>
       <row>
@@ -38,7 +38,7 @@
          <cell>
             <a href="https://sourceforge.net/projects/jeditor/">sourceforge.net/projects/jeditor</a>
          </cell>
-         <cell>1.2.23</cell>
+         <cell>1.2.30</cell>
          <cell>-</cell>
       </row>    
       <row>
@@ -56,7 +56,7 @@
             <a href="https://sourceforge.net/projects/scripthelper/">sourceforge.net/projects/scripthelper/</a>
          </cell>
          <cell>BSD License</cell>
-         <cell>1.6.2</cell>
+         <cell>1.6.10.1</cell>
          <cell>-</cell>
       </row>
    </table>

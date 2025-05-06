@@ -39,15 +39,19 @@
    The File menu has the following elements:
    <ul>
       <li>Open Model: opening a Owl/RDF model</li>
-      <li>Save Model: saving the opened Owl/RDF model on the disk</li>
+      <li>Save Model: saving the opened Owl/RDF model on the disk. It is possible to save it with an XML or Turtle representation</li>
       <li>Export as GraphML: export the current Owl/RDF model as a GraphML diagram<note>Which can be opened in yEd</note></li>
       <li>Open in yEd: open the current Owl/RDF model in <ref id="yEd"/></li>
    </ul>
 
+   <title level="3" title="Saving a model" />
+   It is possible to save it with an XML or Turtle representation:
+   <img id="filemenu2" />
+   
    <title level="3" title="Owl support" />
    <moreInfo id="Owl support" />
    The tool does not handle Owl2 representations for the moment. If you try to open a Owl2 model, you will have the following error window:
-   <img id="owl2" />
+   <img id="owl2" />   
 
    <title level="2" title="Options menu" />
    <moreInfo id="configuration" />

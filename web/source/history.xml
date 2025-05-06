@@ -156,6 +156,27 @@
       <li>Add warnings when using the scripts when Classes, Individuals, or Properties do not exist </li>
       <li>Fix a lot of exceptions which could happen in scripts when providing null keys to the script helper</li>
    </ul>
+   
+   <title title="Version 0.16" />
+   <ul>
+      <li>Fix a NPE which could happen when reloading an Ontology</li>
+      <li>Fix saving the ontology not writing correctly the namespaces of elements in some cases</li>
+      <li>Add a message when a model has been saved</li>
+      <li>Simplify the methods of the Script helper to avoid some cases where putting a null element would lead to an exception because the script would not know which method to call</li>
+   </ul>   
+   
+   <title title="Version 0.17" />
+   <ul>
+      <li>Use docJGenerator 1.6.10</li>
+      <li>Use ScriptHelper 1.6.10.1</li>
+      <li>Use MDIFramework 1.4.7</li>
+      <li>Use MDIUtilities 1.3.15</li>
+      <li>Use jEditor 1.2.30</li>
+      <li>Add a method to detect if a Class has another Class as a direct or indirect superclass</li>
+      <li>Add a method to detect if an individual has a Class as a direct or indirect parent</li>
+      <li>Protect the creation of elements in the Ontology against badly formed URIs for the element name</li>
+      <li>Allow to save a model as a Turtle representation</li>
+   </ul>      
 
    <cat id="general" />
 </article>

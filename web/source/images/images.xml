@@ -3,6 +3,7 @@
    <image id="browser" url="browser.png" />
    <image id="browserPackages" url="browserPackages.png" />
    <image id="filemenu" url="filemenu.png" />
+   <image id="filemenu2" url="filemenu2.png" />
    <image id="refresh" url="refresh.png" />
    <image id="options" url="options.png" />
    <image id="graphml" url="graphml.png" />
