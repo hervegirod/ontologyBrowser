@@ -184,7 +184,7 @@
       <li>Don't consider that the schema is not empty if there is only the Thing class after the parsing</li>
       <li>Don't consider that there are foreign elements because of the Thing class</li>
       <li>Fix the schema considered having only foreign elements if their existence is not checked</li>
-      <li>Avoid to throw an exception if there are warnings when parsing the schema an no message area in the browser application</li>
+      <li>Avoid to throw an exception if there are warnings when parsing the schema and no message area in the browser application</li>
    </ul>   
 
    <cat id="general" />
