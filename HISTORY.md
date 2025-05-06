@@ -139,3 +139,13 @@
  - Fix saving the ontology not writing correctly the namespaces of elements in some cases
  - Add a message when a model has been saved
  - Simplify the methods of the Script helper to avoid some cases where putting a null element would lead to an exception because the script would not know which method to call
+
+# 0.17
+ - Use docJGenerator 1.6.10
+ - Use ScriptHelper 1.6.10.1
+ - Use MDIFramework 1.4.7
+ - Use MDIUtilities 1.3.15
+ - Use jEditor 1.2.30
+ - Add a method to detect if a Class has another Class as a direct or indirect superclass
+ - Add a method to detect if an individual has a Class as a direct or indirect parent
+ - Protect the creation of elements in the Ontology against badly formed URIs for the element name
