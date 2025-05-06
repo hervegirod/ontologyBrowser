@@ -149,3 +149,10 @@
  - Add a method to detect if a Class has another Class as a direct or indirect superclass
  - Add a method to detect if an individual has a Class as a direct or indirect parent
  - Protect the creation of elements in the Ontology against badly formed URIs for the element name
+
+# 0.17.1
+ - Add properties on the OwlSchema
+ - Don't consider that the schema is not empty if there is only the Thing class after the parsing
+ - Don't consider that there are foreign elements because of the Thing class
+ - Fix the schema considered having only foreign elements if their existence is not checked
+ - Avoid to throw an exception if there are warnings when parsing the schema an no message area in the browser application
