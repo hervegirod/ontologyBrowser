@@ -156,3 +156,6 @@
  - Don't consider that there are foreign elements because of the Thing class
  - Fix the schema considered having only foreign elements if their existence is not checked
  - Avoid to throw an exception if there are warnings when parsing the schema and no message area in the browser application
+
+# 0.17.2
+ - Use jEditor 1.2.31
