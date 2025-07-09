@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 Hervé Girod
+Copyright (c) 2024, 2025 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ import org.mdiutil.io.FileUtilities;
 /**
  * Encapsulate a SPARQL request.
  *
- * @since 0.13
+ * @version 0.17.2
  */
 public class SparqlActionHelper {
    private static final Pattern TRIM_LEFT = Pattern.compile("(\\s*)(.*)");
@@ -228,9 +228,33 @@ public class SparqlActionHelper {
          return sparql;
       }
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
+      boolean addGeoSPARQLPrefixInSPARQL = conf.addGeoSPARQLPrefixInSPARQL;
+      boolean addOwlTimePrefixInSPARQL = conf.addOwlTimePrefixInSPARQL;
+
       StringBuilder buf = new StringBuilder();
-      Map<String, String> prefixMap = schema.getPrefixMap();
       Set<String> alreadyExists = new HashSet<>();
+
+      if (addGeoSPARQLPrefixInSPARQL) {
+         String uri = "http://www.opengis.net/ont/geosparql#";
+         buf.append("PREFIX geo").append(": <").append(uri).append(">\n");
+         alreadyExists.add(uri);
+         uri = "http://www.opengis.net/def/function/geosparql/";
+         buf.append("PREFIX geof").append(": <").append(uri).append(">\n");
+         alreadyExists.add(uri);
+         uri = "http://www.opengis.net/def/uom/OGC/1.0/#";
+         buf.append("PREFIX uom").append(": <").append(uri).append(">\n");
+         alreadyExists.add(uri);
+         uri = "http://qudt.org/vocab/unit#";
+         buf.append("PREFIX unit").append(": <").append(uri).append(">\n");
+         alreadyExists.add(uri);
+      }
+      if (addOwlTimePrefixInSPARQL) {
+         String uri = "http://www.w3.org/2006/time";
+         buf.append("PREFIX time").append(": <").append(uri).append(">\n");
+         alreadyExists.add(uri);
+      }      
+
+      Map<String, String> prefixMap = schema.getPrefixMap();
       Iterator<Map.Entry<String, String>> it = prefixMap.entrySet().iterator();
       while (it.hasNext()) {
          Map.Entry<String, String> entry = it.next();

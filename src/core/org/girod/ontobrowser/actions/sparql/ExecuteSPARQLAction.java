@@ -95,6 +95,9 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
       OntModel model = schema.getOntModel();
       BrowserConfiguration conf = BrowserConfiguration.getInstance();
       boolean addPrefix = conf.addPrefixInSPARQL;
+      if (conf.addGeoSPARQLPrefixInSPARQL) {
+         GeosparqlConfiguration.configure();
+      }
       String queryAsString;
       int offset = 0;
       if (addPrefix && !helper.hasPrefix(sparql)) {
@@ -110,11 +113,11 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
          try ( QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
             ResultSet resultsSet = qexec.execSelect();
             resultAsString = ResultSetFormatter.asText(resultsSet);
-         }     
+         }
       } catch (QueryParseException e) {
          SPARQLErrorWindow error = new SPARQLErrorWindow(sparql, offset, e);
          error.setVisible(true);
-         this.exception = e;         
+         this.exception = e;
       } catch (Exception e) {
          SwingErrorLogger logger = new SwingErrorLogger();
          logger.showRuntimeException(e);
@@ -144,14 +147,14 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
             }
          };
          menu.add(new JMenuItem(saveSPARQLAction));
-         
+
          AbstractAction saveResultAction = new AbstractAction("Save Result") {
             @Override
             public void actionPerformed(ActionEvent e) {
                saveResult(resultAsString);
             }
          };
-         menu.add(new JMenuItem(saveResultAction));         
+         menu.add(new JMenuItem(saveResultAction));
 
          JTextArea area = new JTextArea(40, 40);
          area.setText(resultAsString);
@@ -161,7 +164,7 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
          guiAppli.showDialog(builder, MDIDialogType.UNIQUE_INSTANCE);
       }
    }
-   
+
    private void saveResult(String sparql) {
       JFileChooser chooser = new JFileChooser("Save Result");
       chooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -178,5 +181,5 @@ public class ExecuteSPARQLAction extends AbstractMDIAction {
          } catch (IOException e) {
          }
       }
-   }   
+   }
 }

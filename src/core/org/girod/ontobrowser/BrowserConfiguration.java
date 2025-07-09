@@ -56,7 +56,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * The browser configuration.
  *
- * @version 0.17
+ * @version 0.17.2
  */
 public class BrowserConfiguration implements Configuration {
    private static BrowserConfiguration conf = null;
@@ -131,6 +131,8 @@ public class BrowserConfiguration implements Configuration {
     * SPARQL
     */
    public boolean addPrefixInSPARQL = false;
+   public boolean addGeoSPARQLPrefixInSPARQL = false;
+   public boolean addOwlTimePrefixInSPARQL = false;
    public String basePrefix = "basePrefix";
    /*
     * scripts
@@ -520,6 +522,8 @@ public class BrowserConfiguration implements Configuration {
 
       // SPARQL
       p.putBoolean("addPrefixInSPARQL", addPrefixInSPARQL);
+      p.putBoolean("addGeoSPARQLPrefixInSPARQL", addGeoSPARQLPrefixInSPARQL);
+      p.putBoolean("addOwlTimePrefixInSPARQL", addOwlTimePrefixInSPARQL);
       p.put("basePrefix", basePrefix);
 
       // scripts
@@ -585,6 +589,8 @@ public class BrowserConfiguration implements Configuration {
 
       // SPARQL
       addPrefixInSPARQL = p.getBoolean("addPrefixInSPARQL", addPrefixInSPARQL);
+      addGeoSPARQLPrefixInSPARQL = p.getBoolean("addGeoSPARQLPrefixInSPARQL", addGeoSPARQLPrefixInSPARQL);
+      addOwlTimePrefixInSPARQL = p.getBoolean("addOwlTimePrefixInSPARQL", addOwlTimePrefixInSPARQL);    
       basePrefix = p.get("basePrefix", basePrefix);
 
       // scripts

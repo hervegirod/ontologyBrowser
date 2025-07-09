@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2021, 2022, 2023, 2024 Hervé Girod
+Copyright (c) 2021, 2022, 2023, 2024, 2028 Hervé Girod
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.girod.ontobrowser.parsers.graph.LayoutOptions;
 /**
  * This class encapsulates the settings.
  *
- * @version 0.14
+ * @version 0.17.2
  */
 public class BrowserSettings {
    private static BrowserSettings settings = null;
@@ -102,6 +102,8 @@ public class BrowserSettings {
    private JCheckBox showPackagesInPackageViewCb;
    // SPARQL
    private JCheckBox prefixInSPARQLCb;
+   private JCheckBox prefixGeoSPARQLInSPARQLCb;
+   private JCheckBox prefixOwlTimeInSPARQLCb;   
    private JTextField basePrefixTf;
    // scripts
    private JCheckBox endAtFirstExceptionCb;
@@ -297,6 +299,8 @@ public class BrowserSettings {
 
       // SPARQL
       prefixInSPARQLCb.setSelected(conf.addPrefixInSPARQL);
+      prefixGeoSPARQLInSPARQLCb.setSelected(conf.addGeoSPARQLPrefixInSPARQL);      
+      prefixOwlTimeInSPARQLCb.setSelected(conf.addOwlTimePrefixInSPARQL);
       basePrefixTf.setText(conf.basePrefix);
 
       // scripts
@@ -435,6 +439,22 @@ public class BrowserSettings {
             conf.addPrefixInSPARQL = prefixInSPARQLCb.isSelected();
          }
       });
+      
+      prefixGeoSPARQLInSPARQLCb = new JCheckBox("", conf.addGeoSPARQLPrefixInSPARQL);
+      prefixGeoSPARQLInSPARQLCb.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            conf.addGeoSPARQLPrefixInSPARQL = prefixGeoSPARQLInSPARQLCb.isSelected();
+         }
+      }); 
+      
+      prefixOwlTimeInSPARQLCb = new JCheckBox("", conf.addOwlTimePrefixInSPARQL);
+      prefixOwlTimeInSPARQLCb.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            conf.addOwlTimePrefixInSPARQL = prefixOwlTimeInSPARQLCb.isSelected();
+         }
+      });          
 
       basePrefixTf = new JTextField(conf.basePrefix);
       basePrefixTf.addActionListener(new ActionListener() {
@@ -810,6 +830,8 @@ public class BrowserSettings {
       schemasSettings.setVisible(true);
 
       sparqlSettings.addProperty(prefixInSPARQLCb, "", "Add Prefix in SPARQL Requests");
+      sparqlSettings.addProperty(prefixGeoSPARQLInSPARQLCb, "", "Add GeoSPARQL PREFIX in SPARQL Requests");
+      sparqlSettings.addProperty(prefixOwlTimeInSPARQLCb, "", "Add OwlTime PREFIX in SPARQL Requests");
       sparqlSettings.addProperty(basePrefixTf, "", "Default Base Prefix");
       sparqlSettings.setVisible(true);
 
