@@ -186,6 +186,16 @@
       <li>Fix the schema considered having only foreign elements if their existence is not checked</li>
       <li>Avoid to throw an exception if there are warnings when parsing the schema and no message area in the browser application</li>
    </ul>   
+   
+   <title title="Version 0.17.2" />
+   <ul>
+      <li>Use docJGenerator 1.6.11.1</li>
+      <li>Use ScriptHelper 1.6.11.1</li>
+      <li>Use MDIFramework 1.4.8</li>
+      <li>Use MDIUtilities 1.3.16</li>
+      <li>Use jEditor 1.2.32</li>
+      <li>Handle geosparql requests in SPARQL</li>
+   </ul>      
 
    <cat id="general" />
 </article>

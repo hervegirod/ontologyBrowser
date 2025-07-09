@@ -78,8 +78,17 @@
    <img id="configSPARQL" />
    <ul>
       <li>"Add Prefix in SPARQL Requests": checked if the prefixes for the current schema must be automatically included in the SPARQL requests</li>
+      <li>"Add GeoSPARQL Prefix in SPARQL Requests": checked if the GeoSPARQL prefix for the current schema must be automatically included in the SPARQL requests</li>
+      <li>"Add OwlTime Prefix in SPARQL Requests": checked if the OwlTime prefix for the current schema must be automatically included in the SPARQL requests</li>
+      <li>"Add Prefix in SPARQL Requests": checked if the prefixes for the current schema must be automatically included in the SPARQL requests</li>
       <li>"Default Base Prefix": the default base prefix to use in the automatically included prefix  if the base prefix of the schema is empty</li>
    </ul>
+   
+   <messageBox type="warning">
+      The GeoSPARQL and OwlTime prefixes won't be included if the "Add Prefix in SPARQL Requests" option is not chcked, regardless of the state of their checkboxes.
+      However, it is necessary to check the GeoSPARQL prefix if you want GeoSPARQL requests to be executed correctly (even if the "Add Prefix in SPARQL Requests" option 
+      is not checked, because it is necessary to initialize the GeoSPARQL engine.
+   </messageBox>
 
    <title title="Scripts settings" />
    <moreInfo id="Scripts execution" />
