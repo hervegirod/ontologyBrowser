@@ -158,4 +158,9 @@
  - Avoid to throw an exception if there are warnings when parsing the schema and no message area in the browser application
 
 # 0.17.2
- - Use jEditor 1.2.31
+ - Use docJGenerator 1.6.11.1
+ - Use ScriptHelper 1.6.11.1
+ - Use MDIFramework 1.4.8
+ - Use MDIUtilities 1.3.16
+ - Use jEditor 1.2.32
+ - Handle geosparql requests in SPARQL
